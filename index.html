@@ -9,12 +9,41 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- html2pdf.js CDN untuk Cetak PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="bg-slate-100 font-sans text-slate-800 antialiased">
 
-  <div class="flex min-h-screen">
-    <!-- 1. SIDEBAR -->
-    <aside class="w-64 bg-slate-900 text-slate-300 flex-col justify-between p-4 hidden md:flex border-r border-slate-800">
+  <!-- ==================== 1. MODAL LOGIN ==================== -->
+  <div id="loginModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+      <div class="text-center mb-6">
+        <div class="bg-blue-600 text-white font-black p-3 rounded-xl text-2xl w-12 h-12 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-blue-500/30">💧</div>
+        <h2 class="text-xl font-bold text-slate-800">Masuk SIMBA-IN</h2>
+        <p class="text-xs text-slate-400 mt-1">PT Aetra Air Tangerang - Dashboard Internal</p>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Pilih Pengguna / Peran Staf</label>
+          <select id="userRoleSelect" class="w-full p-3 border border-slate-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-blue-500 bg-slate-50">
+            <option value="solihin">Pak Solihin (Tim Meter Reading / Verifikasi)</option>
+            <option value="kabul">Pak Kabul (Tim Meter Reading / Verifikasi)</option>
+            <option value="yaya">Pak Yaya (Tim Billing & Invoicing)</option>
+          </select>
+        </div>
+
+        <button onclick="handleLogin()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs shadow-lg transition">
+          🚀 Masuk ke Dashboard
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 2. LAYOUT UTAMA DASHBOARD ==================== -->
+  <div id="appLayout" class="flex min-h-screen hidden">
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between p-4 hidden md:flex border-r border-slate-800">
       <div>
         <div class="flex items-center gap-3 px-2 py-4 mb-6 border-b border-slate-800">
           <div class="bg-blue-600 text-white font-black p-2 rounded-lg text-lg">💧</div>
@@ -29,30 +58,31 @@
             📊 Overview Dashboard
           </button>
           <button onclick="filterStatus('Pending Verification')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition">
-            <span>✔️ Verifikasi (Solihin/Kabul)</span>
+            <span>✔️ Verifikasi Reading</span>
           </button>
           <button onclick="filterStatus('Verified')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition">
-            <span>🧾 Billing (Pak Yaya)</span>
+            <span>🧾 Billing & Invoicing</span>
           </button>
         </nav>
       </div>
 
       <div class="pt-4 border-t border-slate-800 flex items-center justify-between px-2">
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-xs">AD</div>
+          <div id="currentUserAvatar" class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-xs">AD</div>
           <div>
-            <p class="text-xs font-bold text-white">Admin Internal</p>
-            <p class="text-[10px] text-slate-400">Tim Operasional</p>
+            <p id="currentUserName" class="text-xs font-bold text-white">-</p>
+            <p id="currentUserRole" class="text-[10px] text-slate-400">-</p>
           </div>
         </div>
+        <button onclick="handleLogout()" class="text-slate-400 hover:text-rose-400 text-xs font-bold">Keluar</button>
       </div>
     </aside>
 
-    <!-- 2. MAIN CONTENT -->
+    <!-- MAIN CONTENT -->
     <div class="flex-1 flex flex-col min-w-0">
       <!-- HEADER -->
       <header class="bg-white border-b border-slate-200 p-4 flex flex-col md:flex-row items-center justify-between gap-4 sticky top-0 z-10 shadow-sm">
-        <div class="relative w-full md:w-96">
+        <div class="relative w-full md:w-80">
           <input
             id="searchInput"
             type="text"
@@ -63,47 +93,47 @@
         </div>
 
         <div class="flex items-center gap-3 w-full md:w-auto justify-between flex-wrap">
-          <!-- Filter Operator Staf -->
-          <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
-            <span class="text-slate-500 px-2 font-medium">Staf:</span>
-            <button onclick="filterOperator('ALL')" class="op-btn px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-600 text-white">Semua</button>
-            <button onclick="filterOperator('Pak Solihin')" class="op-btn px-2.5 py-1 rounded-md text-[11px] font-bold text-slate-500">Pak Solihin</button>
-            <button onclick="filterOperator('Pak Kabul')" class="op-btn px-2.5 py-1 rounded-md text-[11px] font-bold text-slate-500">Pak Kabul</button>
-            <button onclick="filterOperator('Pak Yaya')" class="op-btn px-2.5 py-1 rounded-md text-[11px] font-bold text-slate-500">Pak Yaya</button>
-          </div>
+          <!-- Filter Kelas Industri -->
+          <select id="kelasFilter" onchange="renderTable()" class="px-2.5 py-2 text-xs font-semibold bg-white border border-slate-300 rounded-lg text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="ALL">Semua Kelas</option>
+            <option value="Gold">Kelas Gold</option>
+            <option value="Silver">Kelas Silver</option>
+            <option value="Bronze">Kelas Bronze</option>
+          </select>
+
+          <!-- Filter Bulan -->
+          <select id="bulanFilter" onchange="renderTable()" class="px-2.5 py-2 text-xs font-semibold bg-white border border-slate-300 rounded-lg text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="ALL">Semua Bulan</option>
+            <option value="September 2026">September 2026</option>
+            <option value="Agustus 2026">Agustus 2026</option>
+          </select>
 
           <span class="hidden lg:inline-flex items-center gap-1.5 text-[11px] text-emerald-700 font-semibold bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full">
-            ● Supabase Live Connected
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Supabase Realtime Active
           </span>
         </div>
       </header>
 
       <!-- BODY DASHBOARD -->
-      <main class="p-6 space-y-6 overflow-y-auto">
+      <main id="dashboardReportContent" class="p-6 space-y-6 overflow-y-auto">
         <!-- METRIC CARDS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Industri &gt;0.5"</p>
-            <p class="text-2xl font-black text-slate-800 mt-0.5">142</p>
-            <span class="text-[10px] text-emerald-600 font-bold">100% Monitored</span>
-          </div>
-
-          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Perlu Verifikasi</p>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Perlu Verifikasi Reading</p>
             <p id="countPending" class="text-2xl font-black text-amber-600 mt-0.5">0</p>
-            <span class="text-[10px] text-amber-600 font-semibold">Tugas Solihin/Kabul</span>
+            <span class="text-[10px] text-amber-600 font-semibold">Otoritas Solihin / Kabul</span>
           </div>
 
           <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ready for Billing</p>
             <p id="countVerified" class="text-2xl font-black text-blue-600 mt-0.5">0</p>
-            <span class="text-[10px] text-blue-600 font-semibold">Tugas Pak Yaya</span>
+            <span class="text-[10px] text-blue-600 font-semibold">Otoritas Pak Yaya</span>
           </div>
 
           <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Deteksi Anomali Pemakaian</p>
-            <p id="countAnomali" class="text-2xl font-black text-rose-600 mt-0.5">0</p>
-            <span class="text-[10px] text-rose-600 font-semibold">Perlu Perhatian Cepat</span>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Invoiced & Sent Email</p>
+            <p id="countInvoiced" class="text-2xl font-black text-emerald-600 mt-0.5">0</p>
+            <span class="text-[10px] text-emerald-600 font-semibold">Selesai Diproses</span>
           </div>
         </div>
 
@@ -111,26 +141,24 @@
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-slate-50">
             <div>
-              <h2 class="font-bold text-slate-800 text-sm">Tabel Monitoring & Operasional Pembacaan Meter</h2>
-              <p class="text-[11px] text-slate-400">Verifikasi visual foto & pemrosesan billing otomatis</p>
+              <h2 class="font-bold text-slate-800 text-sm">Tabel Monitoring Pembacaan Meter Industri</h2>
+              <p class="text-[11px] text-slate-400">Verifikasi visual foto, BPM, & pemrosesan billing</p>
             </div>
 
-            <!-- FITUR PERBAIKAN: Filter Status & Export CSV -->
-            <div class="flex items-center gap-2 flex-wrap">
-              <select id="statusFilter" onchange="renderTable()" class="px-2.5 py-1.5 text-xs font-semibold bg-white border border-slate-200 rounded-lg text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+            <div class="flex items-center gap-2">
+              <select id="statusFilter" onchange="renderTable()" class="px-2.5 py-1.5 text-xs font-semibold bg-white border border-slate-200 rounded-lg text-slate-600 focus:outline-none shadow-sm">
                 <option value="ALL">Semua Status Workflow</option>
                 <option value="Pending Verification">Pending Verification</option>
                 <option value="Verified">Verified (Ready Billing)</option>
-                <option value="Invoiced">Invoiced & Blast</option>
-                <option value="ANOMALI">⚠️ Khusus Anomali</option>
+                <option value="Invoiced">Invoiced</option>
               </select>
 
-              <button onclick="exportToCSV()" class="px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition shadow-sm flex items-center gap-1">
-                📥 Ekspor CSV
+              <button onclick="downloadPDFReport()" class="px-3 py-1.5 text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition shadow-sm">
+                📄 Cetak PDF Laporan
               </button>
-
-              <button onclick="fetchData()" class="px-3 py-1.5 text-xs font-semibold bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-100 transition shadow-sm">
-                🔄 Refresh
+              
+              <button onclick="exportToCSV()" class="px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition shadow-sm">
+                📥 Ekspor CSV
               </button>
             </div>
           </div>
@@ -142,13 +170,13 @@
                   <th class="p-3.5">Pelanggan Industri</th>
                   <th class="p-3.5">Stand Meter (Lalu vs Skrg)</th>
                   <th class="p-3.5">Volume (m³)</th>
-                  <th class="p-3.5">Deteksi Anomali</th>
+                  <th class="p-3.5">Total Tagihan (Rp)</th>
                   <th class="p-3.5">Status Alur Kerja</th>
-                  <th class="p-3.5 text-center">Aksi Cepat</th>
+                  <th class="p-3.5 text-center">Aksi Operasional</th>
                 </tr>
               </thead>
               <tbody id="tableBody" class="divide-y divide-slate-100">
-                <!-- Data dimasukkan via Javascript -->
+                <!-- Data dari Supabase -->
               </tbody>
             </table>
           </div>
@@ -157,57 +185,65 @@
     </div>
   </div>
 
-  <!-- MODAL DETAIL -->
+  <!-- ==================== 3. MODAL DETAIL & FOTO BPM ==================== -->
   <div id="detailModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100">
+    <div class="bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-100 max-h-[90vh] flex flex-col">
       <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
-        <h3 class="font-bold text-sm">Detail Pembacaan Meter Industri</h3>
+        <h3 class="font-bold text-sm">Detail Pembacaan Meter & Dokumen BPM</h3>
         <button onclick="closeModal()" class="text-slate-400 hover:text-white transition">✕</button>
       </div>
 
-      <div class="p-6 space-y-4 text-xs">
-        <div class="border-b pb-3">
-          <p class="text-slate-400 font-semibold uppercase text-[10px]">Nama Perusahaan / Akun</p>
-          <h4 id="modalNama" class="text-base font-extrabold text-slate-800">-</h4>
-          <p class="text-slate-500 mt-0.5">ID Pelanggan: <span id="modalId" class="font-mono text-blue-600 font-bold">-</span></p>
+      <div class="p-6 space-y-4 text-xs overflow-y-auto flex-1">
+        <div class="border-b pb-3 flex justify-between items-start">
+          <div>
+            <p class="text-slate-400 font-semibold uppercase text-[10px]">Nama Perusahaan / Akun</p>
+            <h4 id="modalNama" class="text-base font-extrabold text-slate-800">-</h4>
+            <p class="text-slate-500 mt-0.5">ID Pelanggan: <span id="modalId" class="font-mono text-blue-600 font-bold">-</span> | <span id="modalKelas" class="font-bold text-amber-600">Kelas Gold</span></p>
+          </div>
+          <button id="aiOCRBtn" onclick="runAICorrection()" class="hidden px-3 py-1.5 bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-lg font-bold text-[11px] border border-purple-300">
+            🤖 Koreksi Otomatis dari BPM/Foto
+          </button>
         </div>
 
+        <!-- PREVIEW FOTO METERAN & BPM -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-slate-50 p-2 border rounded-xl">
+            <p class="text-[10px] font-bold text-slate-500 mb-1">📷 Foto Fisik Meteran</p>
+            <img id="modalFotoMeter" src="https://via.placeholder.com/300x200?text=Foto+Meteran+Tidak+Ada" class="w-full h-40 object-cover rounded-lg border bg-slate-200" alt="Foto Meter" />
+          </div>
+          <div class="bg-slate-50 p-2 border rounded-xl">
+            <p class="text-[10px] font-bold text-slate-500 mb-1">📄 Foto Dokumen BPM (Bukti Pembacaan Meter)</p>
+            <img id="modalFotoBPM" src="https://via.placeholder.com/300x200?text=Foto+BPM+Tidak+Ada" class="w-full h-40 object-cover rounded-lg border bg-slate-200" alt="Foto BPM" />
+          </div>
+        </div>
+
+        <!-- INPUT FORM EDIT METER (Hanya untuk Solihin/Kabul) -->
         <div class="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
           <div>
             <p class="text-slate-400 font-medium">Stand Bulan Lalu</p>
             <p id="modalLalu" class="text-sm font-bold text-slate-700">0 m³</p>
           </div>
           <div>
-            <p class="text-slate-400 font-medium">Stand Bulan Ini</p>
-            <p id="modalSkrg" class="text-sm font-bold text-blue-700">0 m³</p>
+            <label class="block text-slate-500 font-bold mb-0.5">Stand Bulan Ini (m³)</label>
+            <input id="modalInputSkrg" type="number" class="w-full p-2 border border-slate-300 rounded-lg text-sm font-bold text-blue-700 focus:ring-2 focus:ring-blue-500 bg-white" disabled />
           </div>
           <div>
-            <p class="text-slate-400 font-medium">Total Pemakaian</p>
+            <p class="text-slate-400 font-medium">Total Pemakaian Volume</p>
             <p id="modalUsage" class="text-sm font-extrabold text-emerald-600">0 m³</p>
           </div>
           <div>
-            <p class="text-slate-400 font-medium">Rata-Rata Historis</p>
-            <p id="modalAvg" class="text-sm font-bold text-slate-700">0 m³</p>
+            <p class="text-slate-400 font-medium">Estimasi Tagihan (Rp12.500/m³)</p>
+            <p id="modalEstTagihan" class="text-sm font-extrabold text-blue-700">Rp0</p>
           </div>
-        </div>
-
-        <div class="border p-3 rounded-xl space-y-1">
-          <p class="text-slate-400 font-medium text-[10px]">Status Penamaan File Otomatis (Auto-Rename):</p>
-          <code id="modalFileName" class="text-blue-700 bg-blue-50 px-2 py-1 rounded block border border-blue-200 font-mono text-[11px] break-all">
-            -
-          </code>
-        </div>
-
-        <!-- FITUR IMPROVEMENT: Log Riwayat Singkat -->
-        <div class="border p-3 rounded-xl space-y-1 bg-slate-50">
-          <p class="text-slate-500 font-bold text-[10px] uppercase">Audit Trail / Log Aktivitas:</p>
-          <p id="modalAuditLog" class="text-slate-600 text-[11px] italic">Sistem mencatat pembacaan dibuat dari pangkalan data Supabase.</p>
         </div>
       </div>
 
-      <div class="bg-slate-50 p-4 border-t border-slate-200 flex justify-end gap-2">
+      <div class="bg-slate-50 p-4 border-t border-slate-200 flex justify-between items-center">
         <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition">Tutup</button>
-        <button id="modalActionBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition shadow">Setujui & Teruskan ke Billing</button>
+        <div class="flex gap-2">
+          <button id="modalRejectBtn" onclick="rejectItem()" class="hidden px-4 py-2 bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-bold rounded-lg border border-rose-300 transition">⚠️ Reject / Koreksi Ulang</button>
+          <button id="modalActionBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition shadow">-</button>
+        </div>
       </div>
     </div>
   </div>
@@ -219,10 +255,48 @@
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let allData = [];
-    let currentOperatorFilter = 'ALL';
+    let currentUser = null;
+    let activeItem = null;
+
+    // DATA USER & HAK AKSES
+    const USERS = {
+      solihin: { name: "Pak Solihin", role: "Meter Reader / Verifikator", access: "READING", avatar: "PS" },
+      kabul: { name: "Pak Kabul", role: "Meter Reader / Verifikator", access: "READING", avatar: "PK" },
+      yaya: { name: "Pak Yaya", role: "Tim Billing & Invoicing", access: "BILLING", avatar: "PY" }
+    };
+
+    function handleLogin() {
+      const selected = document.getElementById('userRoleSelect').value;
+      currentUser = USERS[selected];
+
+      document.getElementById('currentUserName').innerText = currentUser.name;
+      document.getElementById('currentUserRole').innerText = currentUser.role;
+      document.getElementById('currentUserAvatar').innerText = currentUser.avatar;
+
+      document.getElementById('loginModal').classList.add('hidden');
+      document.getElementById('appLayout').classList.remove('hidden');
+
+      fetchData();
+      subscribeRealtime();
+    }
+
+    function handleLogout() {
+      currentUser = null;
+      document.getElementById('appLayout').classList.add('hidden');
+      document.getElementById('loginModal').classList.remove('hidden');
+    }
+
+    // REALTIME SUBSCRIPTION SUPABASE
+    function subscribeRealtime() {
+      db.channel('public:SIMBA-IN')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'SIMBA-IN' }, () => {
+          fetchData();
+        })
+        .subscribe();
+    }
 
     async function fetchData() {
-      const { data, error } = await db.from('admin_pembacaan_meter').select('*').order('id', { ascending: true });
+      const { data, error } = await db.from('SIMBA-IN').select('*').order('id', { ascending: true });
       if (!error && data) {
         allData = data;
         updateMetrics();
@@ -233,19 +307,7 @@
     function updateMetrics() {
       document.getElementById('countPending').innerText = allData.filter(d => d.status === 'Pending Verification').length;
       document.getElementById('countVerified').innerText = allData.filter(d => d.status === 'Verified').length;
-      
-      // Hitung jumlah anomali (>20% dari rata-rata)
-      const anomaliCount = allData.filter(d => {
-        const usage = (d.stand_sekarang || 0) - (d.stand_lalu || 0);
-        return d.avg_usage && Math.abs(usage - d.avg_usage) / d.avg_usage > 0.2;
-      }).length;
-
-      document.getElementById('countAnomali').innerText = anomaliCount;
-    }
-
-    function filterOperator(op) {
-      currentOperatorFilter = op;
-      renderTable();
+      document.getElementById('countInvoiced').innerText = allData.filter(d => d.status === 'Invoiced').length;
     }
 
     function filterStatus(status) {
@@ -255,45 +317,43 @@
 
     function renderTable() {
       const search = document.getElementById('searchInput').value.toLowerCase();
-      const selectedStatus = document.getElementById('statusFilter').value;
+      const statusFilter = document.getElementById('statusFilter').value;
+      const kelasFilter = document.getElementById('kelasFilter').value;
+      const bulanFilter = document.getElementById('bulanFilter').value;
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
 
       const filtered = allData.filter(item => {
-        const usage = (item.stand_sekarang || 0) - (item.stand_lalu || 0);
-        const isAnomali = item.avg_usage ? Math.abs(usage - item.avg_usage) / item.avg_usage > 0.2 : false;
-
-        const matchSearch = item.nama_industri.toLowerCase().includes(search) || item.id_pelanggan.includes(search);
-        const matchOp = currentOperatorFilter === 'ALL' ? true : item.petugas_meter === currentOperatorFilter;
-        
-        let matchStatus = true;
-        if (selectedStatus === 'ANOMALI') {
-          matchStatus = isAnomali;
-        } else if (selectedStatus !== 'ALL') {
-          matchStatus = item.status === selectedStatus;
-        }
-
-        return matchSearch && matchOp && matchStatus;
+        const matchSearch = item.nama_industri?.toLowerCase().includes(search) || item.id_pelanggan?.includes(search);
+        const matchStatus = statusFilter === 'ALL' ? true : item.status === statusFilter;
+        const matchKelas = kelasFilter === 'ALL' ? true : item.kelas === kelasFilter;
+        const matchBulan = bulanFilter === 'ALL' ? true : item.bulan === bulanFilter;
+        return matchSearch && matchStatus && matchKelas && matchBulan;
       });
 
       filtered.forEach(item => {
         const usage = (item.stand_sekarang || 0) - (item.stand_lalu || 0);
-        const isAnomali = item.avg_usage ? Math.abs(usage - item.avg_usage) / item.avg_usage > 0.2 : false;
+        const totalTagihan = item.total_tagihan || (usage * 12500);
 
         let statusBadge = '';
         if (item.status === 'Pending Verification') {
-          statusBadge = `<span class="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-bold">Verifikasi Solihin/Kabul</span>`;
+          statusBadge = `<span class="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-bold">Pending Solihin/Kabul</span>`;
         } else if (item.status === 'Verified') {
-          statusBadge = `<span class="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded text-[10px] font-bold">Verified (Ready Billing)</span>`;
+          statusBadge = `<span class="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded text-[10px] font-bold">Verified (Pak Yaya)</span>`;
+        } else if (item.status === 'Rejected') {
+          statusBadge = `<span class="bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded text-[10px] font-bold">Rejected / Koreksi</span>`;
         } else {
-          statusBadge = `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[10px] font-bold">Invoiced & e-Materai Sent</span>`;
+          statusBadge = `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[10px] font-bold">Invoiced & Sent Email</span>`;
         }
 
+        // HAK AKSES TOMBOL AKSI
         let actionBtn = '';
-        if (item.status === 'Pending Verification') {
-          actionBtn = `<button onclick="approveItem(${item.id})" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold text-[11px]">Setujui</button>`;
-        } else if (item.status === 'Verified') {
-          actionBtn = `<button onclick="blastItem(${item.id}, ${usage})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md font-semibold text-[11px]">Blast</button>`;
+        if (currentUser.access === 'READING' && (item.status === 'Pending Verification' || item.status === 'Rejected')) {
+          actionBtn = `<button onclick="openModal(${item.id})" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-semibold text-[11px]">Verifikasi</button>`;
+        } else if (currentUser.access === 'BILLING' && item.status === 'Verified') {
+          actionBtn = `<button onclick="blastEmailInvoice(${item.id}, ${totalTagihan})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md font-semibold text-[11px]">📧 Email Invoice</button>`;
+        } else {
+          actionBtn = `<button onclick="openModal(${item.id})" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-md font-medium text-[11px]">Lihat Detail</button>`;
         }
 
         const tr = document.createElement('tr');
@@ -301,22 +361,17 @@
         tr.innerHTML = `
           <td class="p-3.5">
             <p class="font-bold text-slate-800">${item.nama_industri}</p>
-            <p class="text-[10px] text-slate-400 font-mono">ID: ${item.id_pelanggan} | ${item.kelas || '-'}</p>
+            <p class="text-[10px] text-slate-400 font-mono">ID: ${item.id_pelanggan} | <span class="font-bold text-amber-600">${item.kelas || 'Gold'}</span></p>
           </td>
           <td class="p-3.5">
             <p class="text-slate-400">Lalu: ${item.stand_lalu ? item.stand_lalu.toLocaleString() : 0}</p>
             <p class="font-bold text-blue-700">Skrg: ${item.stand_sekarang ? item.stand_sekarang.toLocaleString() : 0}</p>
           </td>
           <td class="p-3.5 font-extrabold text-slate-700">${usage.toLocaleString()} m³</td>
-          <td class="p-3.5">
-            ${isAnomali 
-              ? `<span class="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded-full font-bold">⚠️ Anomali >20%</span>`
-              : `<span class="bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.5 rounded-full font-semibold">✓ Normal</span>`}
-          </td>
+          <td class="p-3.5 font-extrabold text-blue-700">Rp${totalTagihan.toLocaleString()}</td>
           <td class="p-3.5">${statusBadge}</td>
           <td class="p-3.5 text-center">
             <div class="flex items-center justify-center gap-1.5">
-              <button onclick="openModal(${item.id})" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-md">👁️</button>
               ${actionBtn}
             </div>
           </td>
@@ -325,80 +380,119 @@
       });
     }
 
-    async function approveItem(id) {
-      const { error } = await db.from('admin_pembacaan_meter').update({ status: 'Verified' }).eq('id', id);
-      if (!error) fetchData();
-    }
-
-    async function blastItem(id, usage) {
-      const total = usage * 12500;
-      const { error } = await db.from('admin_pembacaan_meter').update({ status: 'Invoiced', total_tagihan: total }).eq('id', id);
-      if (!error) {
-        alert('📧 E-Invoice & e-Materai PERURI Berhasil Terkirim ke Industri!');
-        fetchData();
-      }
-    }
-
     function openModal(id) {
-      const activeItem = allData.find(d => d.id === id);
+      activeItem = allData.find(d => d.id === id);
       if (!activeItem) return;
 
       const usage = (activeItem.stand_sekarang || 0) - (activeItem.stand_lalu || 0);
       document.getElementById('modalNama').innerText = activeItem.nama_industri;
       document.getElementById('modalId').innerText = activeItem.id_pelanggan;
+      document.getElementById('modalKelas').innerText = `Kelas ${activeItem.kelas || 'Gold'}`;
       document.getElementById('modalLalu').innerText = `${activeItem.stand_lalu ? activeItem.stand_lalu.toLocaleString() : 0} m³`;
-      document.getElementById('modalSkrg').innerText = `${activeItem.stand_sekarang ? activeItem.stand_sekarang.toLocaleString() : 0} m³`;
+      document.getElementById('modalInputSkrg').value = activeItem.stand_sekarang || 0;
       document.getElementById('modalUsage').innerText = `${usage.toLocaleString()} m³`;
-      document.getElementById('modalAvg').innerText = `${activeItem.avg_usage ? activeItem.avg_usage.toLocaleString() : 0} m³`;
-      document.getElementById('modalFileName').innerText = activeItem.file_name || `${activeItem.id_pelanggan}_${activeItem.nama_industri.replace(/\s+/g, '-')}_20260922.jpg`;
-      
-      document.getElementById('modalAuditLog').innerText = `Status saat ini: [${activeItem.status}]. Ditugaskan kepada: ${activeItem.petugas_meter || 'Tim Operasional'}.`;
+      document.getElementById('modalEstTagihan').innerText = `Rp${(usage * 12500).toLocaleString()}`;
 
-      const btn = document.getElementById('modalActionBtn');
-      if (activeItem.status === 'Pending Verification') {
-        btn.classList.remove('hidden');
-        btn.onclick = () => { approveItem(activeItem.id); closeModal(); };
+      // Set URL Foto dari Supabase
+      if (activeItem.foto) {
+        document.getElementById('modalFotoMeter').src = activeItem.foto;
+        document.getElementById('modalFotoBPM').src = activeItem.foto_bpm || activeItem.foto;
+      }
+
+      const inputSkrg = document.getElementById('modalInputSkrg');
+      const actionBtn = document.getElementById('modalActionBtn');
+      const rejectBtn = document.getElementById('modalRejectBtn');
+      const aiBtn = document.getElementById('aiOCRBtn');
+
+      // KONTROL OTORITAS DI DALAM MODAL
+      if (currentUser.access === 'READING' && (activeItem.status === 'Pending Verification' || activeItem.status === 'Rejected')) {
+        inputSkrg.disabled = false;
+        aiBtn.classList.remove('hidden');
+        rejectBtn.classList.remove('hidden');
+        actionBtn.innerText = "Setujui Reading & Kirim ke Pak Yaya";
+        actionBtn.className = "px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition shadow";
+        actionBtn.onclick = approveReading;
       } else {
-        btn.classList.add('hidden');
+        inputSkrg.disabled = true;
+        aiBtn.classList.add('hidden');
+        rejectBtn.classList.add('hidden');
+        actionBtn.innerText = "Tutup";
+        actionBtn.className = "px-4 py-2 bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition";
+        actionBtn.onclick = closeModal;
       }
 
       document.getElementById('detailModal').classList.remove('hidden');
+    }
+
+    // SIMULASI KOREKSI AI DARI FOTO BPM
+    function runAICorrection() {
+      alert('🤖 AI Scanning Dokumen BPM... Menemukan angka stand meter yang sesuai!');
+      const newStand = (activeItem.stand_lalu || 0) + 1250;
+      document.getElementById('modalInputSkrg').value = newStand;
+      document.getElementById('modalUsage').innerText = `1,250 m³`;
+      document.getElementById('modalEstTagihan').innerText = `Rp${(1250 * 12500).toLocaleString()}`;
+    }
+
+    async function approveReading() {
+      const newStand = parseInt(document.getElementById('modalInputSkrg').value);
+      const usage = newStand - (activeItem.stand_lalu || 0);
+      const total = usage * 12500;
+
+      const { error } = await db.from('SIMBA-IN').update({
+        stand_sekarang: newStand,
+        total_tagihan: total,
+        status: 'Verified'
+      }).eq('id', activeItem.id);
+
+      if (!error) {
+        closeModal();
+        fetchData();
+      }
+    }
+
+    async function rejectItem() {
+      const { error } = await db.from('SIMBA-IN').update({ status: 'Rejected' }).eq('id', activeItem.id);
+      if (!error) {
+        closeModal();
+        fetchData();
+      }
+    }
+
+    // EMAIL BLAST DENGAN SIMULASI EMAIL PAK YAYA
+    async function blastEmailInvoice(id, totalTagihan) {
+      const { error } = await db.from('SIMBA-IN').update({ status: 'Invoiced' }).eq('id', id);
+      if (!error) {
+        alert(`📧 E-Invoice Tagihan Rp${totalTagihan.toLocaleString()} Berhasil Dikirimkan melalui Server Email Pak Yaya!`);
+        fetchData();
+      }
     }
 
     function closeModal() {
       document.getElementById('detailModal').classList.add('hidden');
     }
 
-    // FITUR IMPROVEMENT: Ekspor data ke file CSV
+    // CETAK LAPORAN PDF
+    function downloadPDFReport() {
+      const element = document.getElementById('dashboardReportContent');
+      html2pdf().from(element).save(`Laporan_SIMBA-IN_${new Date().toISOString().slice(0,10)}.pdf`);
+    }
+
+    // EKSPOR CSV
     function exportToCSV() {
-      if (allData.length === 0) return alert('Tidak ada data untuk diekspor!');
-
-      let csvContent = "data:text/csv;charset=utf-8,ID Pelanggan,Nama Industri,Stand Lalu,Stand Sekarang,Volume (m3),Status,Petugas\n";
-
+      let csvContent = "data:text/csv;charset=utf-8,ID Pelanggan,Nama Industri,Kelas,Stand Lalu,Stand Sekarang,Total Tagihan,Status\n";
       allData.forEach(item => {
         const usage = (item.stand_sekarang || 0) - (item.stand_lalu || 0);
-        const row = [
-          `"${item.id_pelanggan}"`,
-          `"${item.nama_industri}"`,
-          item.stand_lalu || 0,
-          item.stand_sekarang || 0,
-          usage,
-          `"${item.status}"`,
-          `"${item.petugas_meter || '-'}"`
-        ].join(",");
-        csvContent += row + "\n";
+        const total = item.total_tagihan || (usage * 12500);
+        csvContent += `"${item.id_pelanggan}","${item.nama_industri}","${item.kelas || 'Gold'}",${item.stand_lalu || 0},${item.stand_sekarang || 0},${total},"${item.status}"\n`;
       });
-
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `SIMBA-IN_Report_${new Date().toISOString().slice(0,10)}.csv`);
+      link.setAttribute("download", `Rekap_SIMBA-IN.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
-
-    fetchData();
   </script>
 </body>
 </html>
