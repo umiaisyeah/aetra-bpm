@@ -102,14 +102,15 @@
           </svg>
         </div>
 
-        <nav class="space-y-1.5">
-          <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold bg-aetra-orange text-white shadow-md">
+        <!-- NAVIGATION WITH DYNAMIC ACTIVE STATE -->
+        <nav class="space-y-1.5" id="sidebarNav">
+          <button id="nav-overview" onclick="selectNav('nav-overview', 'ALL')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold bg-aetra-orange text-white shadow-md transition">
             📊 Overview SIMBA-IN
           </button>
-          <button onclick="filterStatus('Pending Verification')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition">
+          <button id="nav-pending" onclick="selectNav('nav-pending', 'Pending Verification')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition">
             <span>✔️ Verifikasi Reading</span>
           </button>
-          <button onclick="filterStatus('Verified')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition">
+          <button id="nav-verified" onclick="selectNav('nav-verified', 'Verified')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition">
             <span>🧾 Billing & Invoicing</span>
           </button>
         </nav>
@@ -222,7 +223,7 @@
 
           <!-- METRIC CARDS RINGKASAN INTEGRASI -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
-            <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-orange transition flex items-center justify-between">
+            <div onclick="selectNav('nav-pending', 'Pending Verification')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-orange transition flex items-center justify-between">
               <div>
                 <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Perlu Verifikasi Reading</p>
                 <p id="countPending" class="text-2xl font-black text-aetra-orange mt-0.5">0</p>
@@ -231,7 +232,7 @@
               <span class="text-2xl">🔍</span>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-blue transition flex items-center justify-between">
+            <div onclick="selectNav('nav-verified', 'Verified')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-blue transition flex items-center justify-between">
               <div>
                 <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Ready for Billing</p>
                 <p id="countVerified" class="text-2xl font-black text-aetra-blue dark:text-blue-400 mt-0.5">0</p>
@@ -260,7 +261,7 @@
             </div>
 
             <div class="flex items-center gap-2 flex-wrap">
-              <select id="statusFilter" onchange="renderTable()" class="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-600 dark:text-slate-200 focus:outline-none shadow-sm">
+              <select id="statusFilter" onchange="onStatusFilterSelectChange()" class="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-600 dark:text-slate-200 focus:outline-none shadow-sm">
                 <option value="ALL">Semua Status Workflow</option>
                 <option value="Pending Verification">Pending Verification</option>
                 <option value="Verified">Verified (Ready Billing)</option>
@@ -524,6 +525,53 @@
           cutout: '70%'
         }
       });
+    }
+
+    // MANAJEMEN TAMPILAN SIDEBAR BERUBAH WARNA SAAT DIKLIK
+    function selectNav(btnId, statusVal) {
+      // 1. Reset seluruh style tombol di sidebar
+      const navButtons = document.querySelectorAll('.nav-item');
+      navButtons.forEach(btn => {
+        btn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition";
+      });
+
+      // 2. Terapkan style aktif (Orange Aetra) ke tombol yang dipilih
+      const activeBtn = document.getElementById(btnId);
+      if (activeBtn) {
+        activeBtn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold bg-aetra-orange text-white shadow-md transition";
+      }
+
+      // 3. Update dropdown status filter & refresh tabel
+      document.getElementById('statusFilter').value = statusVal;
+      renderTable();
+    }
+
+    // Jika dropdown status di atas tabel diubah manual oleh pengguna
+    function onStatusFilterSelectChange() {
+      const val = document.getElementById('statusFilter').value;
+      if (val === 'ALL') {
+        highlightNavOnly('nav-overview');
+      } else if (val === 'Pending Verification') {
+        highlightNavOnly('nav-pending');
+      } else if (val === 'Verified') {
+        highlightNavOnly('nav-verified');
+      } else {
+        highlightNavOnly(null); // Jika status selain opsi utama (e.g. Invoiced)
+      }
+      renderTable();
+    }
+
+    function highlightNavOnly(btnId) {
+      const navButtons = document.querySelectorAll('.nav-item');
+      navButtons.forEach(btn => {
+        btn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition";
+      });
+      if (btnId) {
+        const activeBtn = document.getElementById(btnId);
+        if (activeBtn) {
+          activeBtn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold bg-aetra-orange text-white shadow-md transition";
+        }
+      }
     }
 
     function filterStatus(status) {
