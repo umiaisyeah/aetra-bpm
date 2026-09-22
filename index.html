@@ -226,7 +226,7 @@
               <div>
                 <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Perlu Verifikasi Reading</p>
                 <p id="countPending" class="text-xl font-black text-aetra-orange mt-0.5">0</p>
-                <span class="text-[9px] text-aetra-orange font-bold">Otoritas Tim Meter Reading (Pak Solihin / Pak Kabul)</span>
+                <span class="text-[9px] text-aetra-orange font-bold">Otoritas Tim Meter Reading</span>
               </div>
               <span class="text-xl">🔍</span>
             </div>
@@ -254,7 +254,7 @@
         <!-- ANNOUNCEMENT -->
         <div class="bg-aetra-darkblue text-white rounded-xl p-3 px-4 text-xs flex items-center gap-3 shadow-md">
           <span class="bg-aetra-orange text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-md shrink-0">Info Sistem</span>
-          <p class="font-medium">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026. Hak akses ketat: Tim Meter Reading (Pak Solihin & Pak Kabul) & Tim Billing (Pak Yaya).</p>
+          <p class="font-medium">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026. Hak akses terpisah: Tim Meter Reading (Pak Solihin & Pak Kabul) & Tim Billing (Pak Yaya).</p>
         </div>
 
         <!-- TABEL DATA -->
@@ -329,7 +329,7 @@
         </div>
 
         <div id="modalPermissionWarning" class="hidden p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl text-blue-800 dark:text-blue-300 font-semibold">
-          ℹ️ Anda masuk sebagai Tim Billing (Pak Yaya). Stand meter dikunci dan hanya dapat diedit oleh Tim Meter Reading (Pak Solihin / Pak Kabul).
+          ℹ️ Anda masuk sebagai Tim Billing (Pak Yaya). Stand meter dikunci dan hanya dapat diedit oleh Tim Meter Reading.
         </div>
 
         <div id="modalPendingBox" class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-xl">
@@ -672,7 +672,7 @@
       const isReadingTeam = currentUser.permission === 'reading';
       const isBillingTeam = currentUser.permission === 'billing';
 
-      // Kontrol Hak Akses Ketat: Pak Yaya (Billing), Pak Solihin & Pak Kabul (Meter Reading)
+      // Hak akses ketat sesuai permintaan
       inputSkrg.disabled = !isReadingTeam || activeModalItem.status !== 'Pending Verification';
       document.getElementById('aiOCRBtn').classList.toggle('hidden', !isReadingTeam);
       document.getElementById('modalPermissionWarning').classList.toggle('hidden', isReadingTeam);
@@ -696,7 +696,7 @@
       } else if(isBillingTeam) {
         rejectBtn.classList.add('hidden');
         if(activeModalItem.status === 'Verified') {
-          actionBtn.innerText = '🧾 Generate PDF & Buka Outlook';
+          actionBtn.innerText = '🧾 Generate PDF & Kirim via Outlook';
           actionBtn.onclick = processBillingAndEmail;
           actionBtn.classList.remove('hidden');
         } else if(activeModalItem.status === 'Invoiced') {
@@ -743,7 +743,6 @@
       refreshDashboard();
     }
 
-    // Fungsi pemrosesan Billing & Invoicing (Otoritas Pak Yaya)
     function processBillingAndEmail() {
       if(!activeModalItem) return;
 
@@ -780,11 +779,11 @@
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      // 1. Generate & Unduh File PDF secara otomatis ke perangkat
+      // 1. Generate dan download PDF terlebih dahulu
       html2pdf().from(printElement).save().then(() => {
         printElement.classList.add('hidden');
 
-        // 2. Langsung mengarahkan/membuka aplikasi Outlook dengan parameter surel yang dituju
+        // 2. Otomatis membuka aplikasi Outlook via mailto setelah PDF terunduh
         const recipientEmail = activeModalItem.email;
         const emailSubject = encodeURIComponent(`Invoice Tagihan Air Industri Periode September 2026 - ${activeModalItem.customer_name}`);
         const emailBody = encodeURIComponent(
@@ -793,7 +792,7 @@
           `- ID Pelanggan: ${activeModalItem.customer_id}\n` +
           `- Volume Pemakaian: ${activeModalItem.volume.toLocaleString()} m³\n` +
           `- Total Tagihan${isOver5jt ? ' (Termasuk Bea Materai Rp 10.000)' : ''}: Rp ${activeModalItem.total_bill.toLocaleString()}\n\n` +
-          `Catatan: File PDF Invoice telah diunduh ke perangkat Anda. Silakan lampirkan file tersebut pada email ini sebelum dikirim ke pihak industri.\n\n` +
+          `Catatan: File PDF Invoice telah diunduh ke perangkat Anda. Mohon lampirkan file tersebut pada email ini sebelum dikirim.\n\n` +
           `Terima kasih atas kerja sama Anda.\n\n` +
           `Hormat kami,\n` +
           `Pak Yaya (Tim Billing & Invoicing)\n` +
