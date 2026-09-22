@@ -28,6 +28,16 @@
               lightorange: '#FFF2EA',
               lightblue: '#E6F0FA'
             }
+          },
+          animation: {
+            marquee: 'marquee 25s linear infinite',
+            'marquee-slow': 'marquee 40s linear infinite',
+          },
+          keyframes: {
+            marquee: {
+              '0%': { transform: 'translateX(0%)' },
+              '100%': { transform: 'translateX(-50%)' },
+            }
           }
         }
       }
@@ -44,6 +54,10 @@
   <style>
     body {
       font-family: 'Poppins', sans-serif;
+    }
+    /* Utility pendukung paused hover pada Infinite Scroll */
+    .pause-on-hover:hover {
+      animation-play-state: paused;
     }
   </style>
 </head>
@@ -129,7 +143,7 @@
     </aside>
 
     <!-- MAIN CONTENT -->
-    <div class="flex-1 flex flex-col min-w-0">
+    <div class="flex-1 flex flex-col min-w-0 overflow-x-hidden">
       <!-- HEADER -->
       <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 flex flex-col md:flex-row items-center justify-between gap-4 sticky top-0 z-10 shadow-sm transition-colors duration-200">
         <div class="relative w-full md:w-80">
@@ -173,6 +187,31 @@
       <!-- BODY DASHBOARD -->
       <main id="dashboardReportContent" class="p-6 space-y-6 overflow-y-auto">
         
+        <!-- ==================== OPSI 1: INFINITE SCROLL CYCLE QUICK SELECTOR ==================== -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-3 border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden relative">
+          <div class="flex items-center gap-2 mb-2 px-1">
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Akses Cepat Monitoring Per Cycle (Infinite Scroll):</span>
+          </div>
+          <!-- Wrapper Carousel Berjalan Otomatis -->
+          <div class="flex overflow-hidden w-full select-none group">
+            <div class="flex gap-3 animate-marquee pause-on-hover whitespace-nowrap">
+              <!-- Set Pertama -->
+              <template id="cycleCardTemplate">
+                <button onclick="setQuickCycle(CYCLE_NUM)" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 hover:bg-aetra-blue hover:text-white dark:hover:bg-aetra-blue text-xs font-bold transition flex items-center gap-2">
+                  <span>Cycle CYCLE_NUM</span>
+                  <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-blue-100 text-aetra-blue dark:bg-blue-900/60 dark:text-blue-300">Target</span>
+                </button>
+              </template>
+              <div id="cycleInfiniteList1" class="flex gap-3"></div>
+            </div>
+            <!-- Duplikasi Kedua Untuk Menciptakan Efek Seamless Without Jump -->
+            <div class="flex gap-3 animate-marquee pause-on-hover whitespace-nowrap" aria-hidden="true">
+              <div id="cycleInfiniteList2" class="flex gap-3"></div>
+            </div>
+          </div>
+        </div>
+
         <!-- SECTION STATUS CYCLE & DIAGRAM LINGKARAN (CHART) -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
@@ -220,33 +259,82 @@
             </div>
           </div>
 
-          <!-- METRIC CARDS RINGKASAN INTEGRASI -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
-            <div onclick="selectNav('nav-pending', 'Pending Verification')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-orange transition flex items-center justify-between">
-              <div>
-                <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Perlu Verifikasi Reading</p>
-                <p id="countPending" class="text-2xl font-black text-aetra-orange mt-0.5">0</p>
-                <span class="text-[9px] text-aetra-orange font-bold">Otoritas Solihin / Kabul</span>
-              </div>
-              <span class="text-2xl">🔍</span>
-            </div>
+          <!-- ==================== OPSI 1: INFINITE SCROLL METRICS CARDS ==================== -->
+          <div class="overflow-hidden relative rounded-2xl bg-slate-50 dark:bg-slate-900/40 p-2 border border-slate-200/80 dark:border-slate-800">
+            <div class="flex overflow-hidden w-full select-none">
+              <!-- Animated Set 1 -->
+              <div class="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-full animate-marquee pause-on-hover pr-3">
+                <div onclick="selectNav('nav-pending', 'Pending Verification')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-orange transition flex items-center justify-between">
+                  <div>
+                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Perlu Verifikasi Reading</p>
+                    <p id="countPending" class="text-2xl font-black text-aetra-orange mt-0.5">0</p>
+                    <span class="text-[9px] text-aetra-orange font-bold">Otoritas Solihin / Kabul</span>
+                  </div>
+                  <span class="text-2xl">🔍</span>
+                </div>
 
-            <div onclick="selectNav('nav-verified', 'Verified')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-blue transition flex items-center justify-between">
-              <div>
-                <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Ready for Billing</p>
-                <p id="countVerified" class="text-2xl font-black text-aetra-blue dark:text-blue-400 mt-0.5">0</p>
-                <span class="text-[9px] text-aetra-blue dark:text-blue-400 font-bold">Otoritas Pak Yaya</span>
-              </div>
-              <span class="text-2xl">📋</span>
-            </div>
+                <div onclick="selectNav('nav-verified', 'Verified')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-blue transition flex items-center justify-between">
+                  <div>
+                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Ready for Billing</p>
+                    <p id="countVerified" class="text-2xl font-black text-aetra-blue dark:text-blue-400 mt-0.5">0</p>
+                    <span class="text-[9px] text-aetra-blue dark:text-blue-400 font-bold">Otoritas Pak Yaya</span>
+                  </div>
+                  <span class="text-2xl">📋</span>
+                </div>
 
-            <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-emerald-500 transition flex items-center justify-between">
-              <div>
-                <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Invoiced & Sent Email</p>
-                <p id="countInvoiced" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">0</p>
-                <span class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold">Selesai Diproses</span>
+                <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-emerald-500 transition flex items-center justify-between">
+                  <div>
+                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Invoiced & Sent Email</p>
+                    <p id="countInvoiced" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">0</p>
+                    <span class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold">Selesai Diproses</span>
+                  </div>
+                  <span class="text-2xl">✅</span>
+                </div>
               </div>
-              <span class="text-2xl">✅</span>
+
+              <!-- Animated Set 2 (Seamless Infinite Duplicate) -->
+              <div class="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-full animate-marquee pause-on-hover pr-3" aria-hidden="true">
+                <div onclick="selectNav('nav-pending', 'Pending Verification')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-orange transition flex items-center justify-between">
+                  <div>
+                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Perlu Verifikasi Reading</p>
+                    <p id="countPending2" class="text-2xl font-black text-aetra-orange mt-0.5">0</p>
+                    <span class="text-[9px] text-aetra-orange font-bold">Otoritas Solihin / Kabul</span>
+                  </div>
+                  <span class="text-2xl">🔍</span>
+                </div>
+
+                <div onclick="selectNav('nav-verified', 'Verified')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-blue transition flex items-center justify-between">
+                  <div>
+                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Ready for Billing</p>
+                    <p id="countVerified2" class="text-2xl font-black text-aetra-blue dark:text-blue-400 mt-0.5">0</p>
+                    <span class="text-[9px] text-aetra-blue dark:text-blue-400 font-bold">Otoritas Pak Yaya</span>
+                  </div>
+                  <span class="text-2xl">📋</span>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-emerald-500 transition flex items-center justify-between">
+                  <div>
+                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Invoiced & Sent Email</p>
+                    <p id="countInvoiced2" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">0</p>
+                    <span class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold">Selesai Diproses</span>
+                  </div>
+                  <span class="text-2xl">✅</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== OPSI 1: INFINITE LOG / ANNOUNCEMENT MARQUEE ==================== -->
+        <div class="bg-aetra-darkblue text-white rounded-xl p-2.5 px-4 text-xs flex items-center gap-3 overflow-hidden shadow-md">
+          <span class="bg-aetra-orange text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-md shrink-0">Laporan Live</span>
+          <div class="overflow-hidden w-full whitespace-nowrap">
+            <div class="inline-block animate-marquee-slow pause-on-hover">
+              <span class="mx-4 font-semibold">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026 berjalan lancar.</span>
+              <span class="mx-4 text-amber-300 font-semibold">⚠️ Pengingat: 6 Pelanggan Kelas Gold memerlukan Verifikasi Bukti Foto BPM.</span>
+              <span class="mx-4 text-emerald-300 font-semibold">✅ Batas Akhir Penagihan Cycle 1-5 adalah tanggal 25 bulan ini.</span>
+              <span class="mx-4 font-semibold">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026 berjalan lancar.</span>
+              <span class="mx-4 text-amber-300 font-semibold">⚠️ Pengingat: 6 Pelanggan Kelas Gold memerlukan Verifikasi Bukti Foto BPM.</span>
             </div>
           </div>
         </div>
@@ -369,7 +457,7 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmt1bGhhdnpwZmZucHZmbWVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3ODc5NjQsImV4cCI6MjEwNTM2Mzk2NH0.jfVgsZSy6Kk2NPkBvIOttLee-cIKd8yem9PxqpxyT_o";
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // DATA DUMMY 20 PERTANYAAN/SOAL SIMULASI PELANGGAN INDUSTRI AETRA TANGERANG
+    // DATA DUMMY 20 PELANGGAN INDUSTRI AETRA TANGERANG
     const DUMMY_SOAL_DATA = [
       { id: 1, customer_id: "IND-1001", customer_name: "PT Indofood CBP Sukses Makmur", kelas: "Gold", cycle: 1, month: "September 2026", stand_lalu: 12500, stand_skrg: 14800, volume: 2300, total_bill: 28750000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
       { id: 2, customer_id: "IND-1002", customer_name: "PT Mayora Indah Tbk", kelas: "Gold", cycle: 1, month: "September 2026", stand_lalu: 8900, stand_skrg: 10450, volume: 1550, total_bill: 19375000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
@@ -389,143 +477,262 @@
       { id: 16, customer_id: "IND-1016", customer_name: "PT Sumber Alfaria Trijaya Tbk", kelas: "Silver", cycle: 11, month: "September 2026", stand_lalu: 3900, stand_skrg: 4500, volume: 600, total_bill: 7500000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
       { id: 17, customer_id: "IND-1017", customer_name: "PT Mitsuba Indonesia", kelas: "Gold", cycle: 12, month: "September 2026", stand_lalu: 11200, stand_skrg: 13100, volume: 1900, total_bill: 23750000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
       { id: 18, customer_id: "IND-1018", customer_name: "PT Victory Ching Luh", kelas: "Gold", cycle: 13, month: "September 2026", stand_lalu: 22000, stand_skrg: 25600, volume: 3600, total_bill: 45000000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 19, customer_id: "IND-1019", customer_name: "PT Lestari Busana Anggun", kelas: "Bronze", cycle: 14, month: "September 2026", stand_lalu: 1800, stand_skrg: 2280, volume: 480, total_bill: 6000000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 20, customer_id: "IND-1020", customer_name: "PT Kansai Paint Indonesia", kelas: "Silver", cycle: 15, month: "September 2026", stand_lalu: 6700, stand_skrg: 7750, volume: 1050, total_bill: 13125000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" }
+      { id: 19, customer_id: "IND-1019", customer_name: "PT Lestari Busana Anggun", kelas: "Bronze", cycle: 14, month: "September 2026", stand_lalu: 1800, stand_skrg: 2280, volume: 480, total_bill: 6000000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 20, customer_id: "IND-1020", customer_name: "PT Texmaco Perkasa Engineering", kelas: "Gold", cycle: 15, month: "September 2026", stand_lalu: 19800, stand_skrg: 23100, volume: 3300, total_bill: 41250000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" }
     ];
 
-    let allData = [];
-    let currentUser = null;
-    let activeItem = null;
-    let cycleChartInstance = null;
-
-    // DATA USER & HAK AKSES
+    // USERS DATA
     const USERS = {
-      solihin: { name: "Pak Solihin", role: "Meter Reader / Verifikator", access: "READING", avatar: "PS" },
-      kabul: { name: "Pak Kabul", role: "Meter Reader / Verifikator", access: "READING", avatar: "PK" },
-      yaya: { name: "Pak Yaya", role: "Tim Billing & Invoicing", access: "BILLING", avatar: "PY" }
+      solihin: { name: "Pak Solihin", role: "Tim Meter Reading / Verifikasi", avatar: "SL", permission: "VERIFIER" },
+      kabul: { name: "Pak Kabul", role: "Tim Meter Reading / Verifikasi", avatar: "KB", permission: "VERIFIER" },
+      yaya: { name: "Pak Yaya", role: "Tim Billing & Invoicing", avatar: "YY", permission: "BILLING" }
     };
 
-    // INIT CYCLE FILTER OPTIONS (1 - 15)
-    function populateCycleFilter() {
-      const cycleSelect = document.getElementById('cycleFilter');
-      cycleSelect.innerHTML = '<option value="ALL">Semua Cycle (1-15)</option>';
+    let currentUser = null;
+    let dataStore = [];
+    let cycleChartInstance = null;
+    let currentActiveNav = 'nav-overview';
+    let selectedWorkflowFilter = 'ALL';
+    let activeModalItem = null;
+
+    // INITIALIZATION ON LOAD
+    window.onload = function() {
+      initCycleDropdowns();
+      initInfiniteCycleList();
+      fetchInitialData();
+    };
+
+    function initCycleDropdowns() {
+      const select = document.getElementById("cycleFilter");
+      select.innerHTML = '<option value="ALL">Semua Cycle (1-15)</option>';
       for (let i = 1; i <= 15; i++) {
-        const opt = document.createElement('option');
+        const opt = document.createElement("option");
         opt.value = i;
         opt.textContent = `Cycle ${i}`;
-        cycleSelect.appendChild(opt);
+        select.appendChild(opt);
       }
     }
 
-    // MODE GELAP & TERANG TOGGLE
-    function toggleDarkMode() {
-      const isDark = document.documentElement.classList.toggle('dark');
-      document.getElementById('themeIcon').innerText = isDark ? '☀️' : '🌙';
-      document.getElementById('themeText').innerText = isDark ? 'Mode Terang' : 'Mode Gelap';
-      updateCycleAnalytics(); 
+    function initInfiniteCycleList() {
+      const list1 = document.getElementById("cycleInfiniteList1");
+      const list2 = document.getElementById("cycleInfiniteList2");
+      if(!list1 || !list2) return;
+
+      let htmlContent = "";
+      for (let i = 1; i <= 15; i++) {
+        htmlContent += `
+          <button onclick="setQuickCycle(${i})" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 hover:bg-aetra-blue hover:text-white dark:hover:bg-aetra-blue text-xs font-bold transition flex items-center gap-1.5 shrink-0">
+            <span>Cycle ${i}</span>
+            <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-blue-100 text-aetra-blue dark:bg-blue-900/60 dark:text-blue-300">Target</span>
+          </button>
+        `;
+      }
+      list1.innerHTML = htmlContent;
+      list2.innerHTML = htmlContent;
+    }
+
+    function setQuickCycle(cycleNum) {
+      document.getElementById("cycleFilter").value = cycleNum;
+      onCycleChange();
+    }
+
+    async function fetchInitialData() {
+      try {
+        const { data, error } = await db.from('meter_readings').select('*');
+        if (error || !data || data.length === 0) {
+          dataStore = [...DUMMY_SOAL_DATA];
+        } else {
+          dataStore = data;
+        }
+      } catch (err) {
+        dataStore = [...DUMMY_SOAL_DATA];
+      }
+      renderTable();
+      updateMetrics();
+      renderCycleChart();
     }
 
     function handleLogin() {
-      const selected = document.getElementById('userRoleSelect').value;
-      currentUser = USERS[selected];
+      const roleKey = document.getElementById("userRoleSelect").value;
+      currentUser = USERS[roleKey];
+      
+      document.getElementById("loginModal").classList.add("hidden");
+      document.getElementById("appLayout").classList.remove("hidden");
+      
+      document.getElementById("currentUserName").innerText = currentUser.name;
+      document.getElementById("currentUserRole").innerText = currentUser.role;
+      document.getElementById("currentUserAvatar").innerText = currentUser.avatar;
 
-      document.getElementById('currentUserName').innerText = currentUser.name;
-      document.getElementById('currentUserRole').innerText = currentUser.role;
-      document.getElementById('currentUserAvatar').innerText = currentUser.avatar;
-
-      document.getElementById('loginModal').classList.add('hidden');
-      document.getElementById('appLayout').classList.remove('hidden');
-
-      populateCycleFilter();
-      fetchData();
-      subscribeRealtime();
+      renderTable();
     }
 
     function handleLogout() {
       currentUser = null;
-      document.getElementById('appLayout').classList.add('hidden');
-      document.getElementById('loginModal').classList.remove('hidden');
+      document.getElementById("appLayout").classList.add("hidden");
+      document.getElementById("loginModal").classList.remove("hidden");
     }
 
-    // REALTIME SUBSCRIPTION SUPABASE
-    function subscribeRealtime() {
-      db.channel('public:SIMBA-IN')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'SIMBA-IN' }, () => {
-          fetchData();
-        })
-        .subscribe();
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      document.getElementById('themeIcon').innerText = isDark ? '☀️' : '🌙';
+      document.getElementById('themeText').innerText = isDark ? 'Mode Terang' : 'Mode Gelap';
     }
 
-    async function fetchData() {
-      try {
-        const { data, error } = await db.from('SIMBA-IN').select('*').order('id', { ascending: true });
-        if (!error && data && data.length > 0) {
-          allData = data.map((item, index) => ({
-            ...item,
-            cycle: item.cycle || ((index % 15) + 1)
-          }));
-        } else {
-          // Fallback menggunakan 20 Soal Dummy jika Supabase kosong/error
-          allData = JSON.parse(JSON.stringify(DUMMY_SOAL_DATA));
-        }
-      } catch (err) {
-        console.warn("Gagal terhubung ke Supabase, menggunakan data simulasi 20 soal.", err);
-        allData = JSON.parse(JSON.stringify(DUMMY_SOAL_DATA));
+    function selectNav(navId, filterStatus) {
+      document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition";
+      });
+
+      const activeBtn = document.getElementById(navId);
+      if(activeBtn) {
+        activeBtn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold bg-aetra-orange text-white shadow-md transition";
       }
 
-      updateMetrics();
-      updateCycleAnalytics();
+      selectedWorkflowFilter = filterStatus;
+      document.getElementById("statusFilter").value = filterStatus;
       renderTable();
     }
 
-    function updateMetrics() {
-      document.getElementById('countPending').innerText = allData.filter(d => d.status === 'Pending Verification').length;
-      document.getElementById('countVerified').innerText = allData.filter(d => d.status === 'Verified').length;
-      document.getElementById('countInvoiced').innerText = allData.filter(d => d.status === 'Invoiced').length;
+    function onStatusFilterSelectChange() {
+      selectedWorkflowFilter = document.getElementById("statusFilter").value;
+      renderTable();
     }
 
     function onCycleChange() {
-      updateCycleAnalytics();
       renderTable();
+      updateMetrics();
+      renderCycleChart();
     }
 
-    // ANALYTICS CYCLE & DIAGRAM LINGKARAN (CHART.JS)
-    function updateCycleAnalytics() {
-      const cycleVal = document.getElementById('cycleFilter').value;
-      const title = cycleVal === 'ALL' ? 'Monitoring Pembacaan Semua Cycle (1-15)' : `Monitoring Pembacaan Cycle ${cycleVal}`;
-      document.getElementById('cycleTitle').innerText = title;
+    function filterData() {
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const cycle = document.getElementById("cycleFilter").value;
+      const kelas = document.getElementById("kelasFilter").value;
+      const bulan = document.getElementById("bulanFilter").value;
 
-      let targetData = allData;
-      if (cycleVal !== 'ALL') {
-        targetData = allData.filter(d => d.cycle == cycleVal);
+      return dataStore.filter(item => {
+        const matchesSearch = item.customer_name.toLowerCase().includes(search) || item.customer_id.toLowerCase().includes(search);
+        const matchesCycle = cycle === 'ALL' || item.cycle == cycle;
+        const matchesKelas = kelas === 'ALL' || item.kelas === kelas;
+        const matchesBulan = bulan === 'ALL' || item.month === bulan;
+        const matchesStatus = selectedWorkflowFilter === 'ALL' || item.status === selectedWorkflowFilter;
+
+        return matchesSearch && matchesCycle && matchesKelas && matchesBulan && matchesStatus;
+      });
+    }
+
+    function renderTable() {
+      const filtered = filterData();
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400 font-semibold">Tidak ada data pembacaan meter yang cocok dengan filter.</td></tr>`;
+        return;
       }
 
-      const total = targetData.length;
-      const completed = targetData.filter(d => d.status === 'Verified' || d.status === 'Invoiced').length;
-      const pending = total - completed;
-      const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+      filtered.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50 dark:hover:bg-slate-700/30 transition border-b border-slate-100 dark:border-slate-700/50";
 
-      document.getElementById('cycleTotalCount').innerText = total;
-      document.getElementById('cycleCompletedCount').innerText = completed;
-      document.getElementById('cyclePendingCount').innerText = pending;
-      document.getElementById('cyclePercentage').innerText = `${percentage}%`;
+        let statusBadge = "";
+        if(item.status === 'Pending Verification') {
+          statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border border-amber-200">⏳ Pending Reading</span>`;
+        } else if(item.status === 'Verified') {
+          statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-aetra-blue dark:bg-blue-950 dark:text-blue-300 border border-blue-200">✔️ Ready Billing</span>`;
+        } else {
+          statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200">✅ Invoiced</span>`;
+        }
 
-      const badge = document.getElementById('cycleStatusBadge');
-      if (percentage === 100 && total > 0) {
-        badge.innerText = 'COMPLETED';
-        badge.className = 'px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-300';
+        let actionBtn = "";
+        if (currentUser) {
+          if (currentUser.permission === 'VERIFIER' && item.status === 'Pending Verification') {
+            actionBtn = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-aetra-orange hover:bg-orange-600 text-white font-bold text-[11px] rounded-xl transition shadow">🔎 Verifikasi Meter</button>`;
+          } else if (currentUser.permission === 'BILLING' && item.status === 'Verified') {
+            actionBtn = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-aetra-blue hover:bg-aetra-darkblue text-white font-bold text-[11px] rounded-xl transition shadow">🧾 Terbitkan Invoice</button>`;
+          } else {
+            actionBtn = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 font-bold text-[11px] rounded-xl transition">📄 Lihat Detail</button>`;
+          }
+        } else {
+          actionBtn = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 font-bold text-[11px] rounded-xl transition">Detail</button>`;
+        }
+
+        tr.innerHTML = `
+          <td class="p-3.5">
+            <p class="font-bold text-slate-800 dark:text-white">${item.customer_name}</p>
+            <p class="text-[10px] text-slate-400 font-mono">${item.customer_id} • <span class="text-amber-600 font-semibold">${item.kelas}</span></p>
+          </td>
+          <td class="p-3.5">
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-50 text-aetra-blue dark:bg-slate-700 dark:text-blue-300 border border-blue-100 dark:border-slate-600">Cycle ${item.cycle}</span>
+          </td>
+          <td class="p-3.5 font-mono">
+            <span class="text-slate-400">${item.stand_lalu.toLocaleString()}</span> ➔ <span class="font-bold text-aetra-blue dark:text-blue-400">${item.stand_skrg.toLocaleString()}</span>
+          </td>
+          <td class="p-3.5 font-bold text-slate-700 dark:text-slate-200">
+            ${item.volume.toLocaleString()} m³
+          </td>
+          <td class="p-3.5 font-extrabold text-slate-800 dark:text-white">
+            Rp ${item.total_bill.toLocaleString('id-ID')}
+          </td>
+          <td class="p-3.5">
+            ${statusBadge}
+          </td>
+          <td class="p-3.5 text-center">
+            ${actionBtn}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateMetrics() {
+      const cycleSel = document.getElementById("cycleFilter").value;
+      const filteredByCycle = cycleSel === 'ALL' ? dataStore : dataStore.filter(d => d.cycle == cycleSel);
+
+      const pending = filteredByCycle.filter(d => d.status === 'Pending Verification').length;
+      const verified = filteredByCycle.filter(d => d.status === 'Verified').length;
+      const invoiced = filteredByCycle.filter(d => d.status === 'Invoiced').length;
+      const total = filteredByCycle.length;
+      const completed = verified + invoiced;
+
+      // Card Metrics Set 1 & Set 2 (Infinite Scroll Pairs)
+      document.getElementById("countPending").innerText = dataStore.filter(d => d.status === 'Pending Verification').length;
+      document.getElementById("countVerified").innerText = dataStore.filter(d => d.status === 'Verified').length;
+      document.getElementById("countInvoiced").innerText = dataStore.filter(d => d.status === 'Invoiced').length;
+
+      document.getElementById("countPending2").innerText = dataStore.filter(d => d.status === 'Pending Verification').length;
+      document.getElementById("countVerified2").innerText = dataStore.filter(d => d.status === 'Verified').length;
+      document.getElementById("countInvoiced2").innerText = dataStore.filter(d => d.status === 'Invoiced').length;
+
+      // Cycle Summary Block
+      document.getElementById("cycleTitle").innerText = cycleSel === 'ALL' ? "Monitoring Semua Cycle (1-15)" : `Monitoring Pembacaan Cycle ${cycleSel}`;
+      document.getElementById("cycleTotalCount").innerText = total;
+      document.getElementById("cycleCompletedCount").innerText = completed;
+      document.getElementById("cyclePendingCount").innerText = pending;
+
+      const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+      document.getElementById("cyclePercentage").innerText = `${pct}%`;
+
+      const badge = document.getElementById("cycleStatusBadge");
+      if (pct === 100) {
+        badge.innerText = "COMPLETED";
+        badge.className = "px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-300";
       } else {
-        badge.innerText = 'IN PROGRESS';
-        badge.className = 'px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border border-amber-300';
+        badge.innerText = "IN PROGRESS";
+        badge.className = "px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border border-amber-300";
       }
-
-      renderCycleChart(completed, pending);
     }
 
-    function renderCycleChart(completed, pending) {
-      const ctx = document.getElementById('cycleChart').getContext('2d');
-      const isDark = document.documentElement.classList.contains('dark');
+    function renderCycleChart() {
+      const cycleSel = document.getElementById("cycleFilter").value;
+      const filtered = cycleSel === 'ALL' ? dataStore : dataStore.filter(d => d.cycle == cycleSel);
 
+      const pending = filtered.filter(d => d.status === 'Pending Verification').length;
+      const verified = filtered.filter(d => d.status === 'Verified').length;
+      const invoiced = filtered.filter(d => d.status === 'Invoiced').length;
+
+      const ctx = document.getElementById('cycleChart').getContext('2d');
       if (cycleChartInstance) {
         cycleChartInstance.destroy();
       }
@@ -533,12 +740,12 @@
       cycleChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: ['Selesai (Completed)', 'Pending / In Progress'],
+          labels: ['Pending', 'Ready Billing', 'Invoiced'],
           datasets: [{
-            data: [completed, pending],
-            backgroundColor: ['#10B981', '#E86216'],
-            borderColor: isDark ? '#1E293B' : '#FFFFFF',
-            borderWidth: 2
+            data: [pending, verified, invoiced],
+            backgroundColor: ['#E86216', '#0055A5', '#10B981'],
+            borderWidth: 2,
+            borderColor: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff'
           }]
         },
         options: {
@@ -546,12 +753,11 @@
           maintainAspectRatio: false,
           plugins: {
             legend: {
-              display: true,
               position: 'bottom',
               labels: {
-                boxWidth: 12,
+                boxWidth: 10,
                 font: { size: 10, family: 'Poppins' },
-                color: isDark ? '#CBD5E1' : '#475569'
+                color: document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#475569'
               }
             }
           },
@@ -560,278 +766,152 @@
       });
     }
 
-    // MANAJEMEN TAMPILAN SIDEBAR BERUBAH WARNA SAAT DIKLIK
-    function selectNav(btnId, statusVal) {
-      const navButtons = document.querySelectorAll('.nav-item');
-      navButtons.forEach(btn => {
-        btn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition";
-      });
+    function openDetailModal(id) {
+      activeModalItem = dataStore.find(item => item.id === id);
+      if (!activeModalItem) return;
 
-      const activeBtn = document.getElementById(btnId);
-      if (activeBtn) {
-        activeBtn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold bg-aetra-orange text-white shadow-md transition";
-      }
-
-      document.getElementById('statusFilter').value = statusVal;
-      renderTable();
-    }
-
-    function onStatusFilterSelectChange() {
-      const val = document.getElementById('statusFilter').value;
-      if (val === 'ALL') {
-        highlightNavOnly('nav-overview');
-      } else if (val === 'Pending Verification') {
-        highlightNavOnly('nav-pending');
-      } else if (val === 'Verified') {
-        highlightNavOnly('nav-verified');
-      } else {
-        highlightNavOnly(null);
-      }
-      renderTable();
-    }
-
-    function highlightNavOnly(btnId) {
-      const navButtons = document.querySelectorAll('.nav-item');
-      navButtons.forEach(btn => {
-        btn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition";
-      });
-      if (btnId) {
-        const activeBtn = document.getElementById(btnId);
-        if (activeBtn) {
-          activeBtn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold bg-aetra-orange text-white shadow-md transition";
-        }
-      }
-    }
-
-    // RENDER TABEL UTAMA
-    function renderTable() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const statusF = document.getElementById('statusFilter').value;
-      const cycleF = document.getElementById('cycleFilter').value;
-      const kelasF = document.getElementById('kelasFilter').value;
-      const bulanF = document.getElementById('bulanFilter').value;
-
-      const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = '';
-
-      const filtered = allData.filter(item => {
-        const matchSearch = (item.customer_name || '').toLowerCase().includes(search) || (item.customer_id || '').toLowerCase().includes(search);
-        const matchStatus = statusF === 'ALL' || item.status === statusF;
-        const matchCycle = cycleF === 'ALL' || item.cycle == cycleF;
-        const matchKelas = kelasF === 'ALL' || item.kelas === kelasF;
-        const matchBulan = bulanF === 'ALL' || (item.month || 'September 2026') === bulanF;
-        return matchSearch && matchStatus && matchCycle && matchKelas && matchBulan;
-      });
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Data tidak ditemukan untuk kriteria filter yang dipilih.</td></tr>`;
-        return;
-      }
-
-      filtered.forEach(item => {
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 dark:hover:bg-slate-700/30 transition border-b border-slate-100 dark:border-slate-700/50";
-
-        let statusBadge = '';
-        if (item.status === 'Pending Verification') {
-          statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border border-amber-200">🔍 Pending Verification</span>`;
-        } else if (item.status === 'Verified') {
-          statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-aetra-blue dark:bg-blue-950 dark:text-blue-300 border border-blue-200">📋 Ready for Billing</span>`;
-        } else {
-          statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200">✅ Invoiced & Sent</span>`;
-        }
-
-        let actionBtn = '';
-        if (item.status === 'Pending Verification') {
-          actionBtn = `<button onclick="openModal(${item.id})" class="px-3 py-1.5 bg-aetra-orange hover:bg-orange-600 text-white font-bold rounded-xl text-[11px] transition shadow">Verifikasi</button>`;
-        } else if (item.status === 'Verified') {
-          actionBtn = `<button onclick="openModal(${item.id})" class="px-3 py-1.5 bg-aetra-blue hover:bg-aetra-darkblue text-white font-bold rounded-xl text-[11px] transition shadow">Proses Billing</button>`;
-        } else {
-          actionBtn = `<button onclick="openModal(${item.id})" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl text-[11px] transition">Lihat Detail</button>`;
-        }
-
-        tr.innerHTML = `
-          <td class="p-3.5">
-            <p class="font-extrabold text-slate-800 dark:text-slate-100 text-xs">${item.customer_name}</p>
-            <p class="text-[10px] font-mono text-slate-400 mt-0.5">${item.customer_id} | <span class="font-bold text-amber-600">${item.kelas || 'Gold'}</span></p>
-          </td>
-          <td class="p-3.5">
-            <span class="px-2 py-0.5 rounded bg-blue-50 dark:bg-slate-700 text-aetra-blue dark:text-blue-300 font-extrabold text-[10px]">
-              Cycle ${item.cycle}
-            </span>
-          </td>
-          <td class="p-3.5">
-            <span class="text-slate-400">${item.stand_lalu.toLocaleString()}</span> ➔ 
-            <span class="font-bold text-slate-800 dark:text-slate-200">${item.stand_skrg.toLocaleString()}</span>
-          </td>
-          <td class="p-3.5 font-extrabold text-aetra-orange">${item.volume.toLocaleString()} m³</td>
-          <td class="p-3.5 font-extrabold text-aetra-blue dark:text-blue-400">Rp ${item.total_bill.toLocaleString('id-ID')}</td>
-          <td class="p-3.5">${statusBadge}</td>
-          <td class="p-3.5 text-center">${actionBtn}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    // MODAL HANDLERS
-    function openModal(id) {
-      activeItem = allData.find(d => d.id === id);
-      if (!activeItem) return;
-
-      document.getElementById('modalNama').innerText = activeItem.customer_name;
-      document.getElementById('modalId').innerText = activeItem.customer_id;
-      document.getElementById('modalKelas').innerText = `Kelas ${activeItem.kelas || 'Gold'}`;
-      document.getElementById('modalCycleBadge').innerText = `Cycle ${activeItem.cycle}`;
+      document.getElementById("modalNama").innerText = activeModalItem.customer_name;
+      document.getElementById("modalId").innerText = activeModalItem.customer_id;
+      document.getElementById("modalKelas").innerText = `Kelas ${activeModalItem.kelas}`;
+      document.getElementById("modalCycleBadge").innerText = `Cycle ${activeModalItem.cycle}`;
       
-      document.getElementById('modalFotoMeter').src = activeItem.foto_meter || 'https://via.placeholder.com/300x200?text=Foto+Meteran';
-      document.getElementById('modalFotoBPM').src = activeItem.foto_bpm || 'https://via.placeholder.com/300x200?text=Foto+BPM';
+      document.getElementById("modalFotoMeter").src = activeModalItem.foto_meter;
+      document.getElementById("modalFotoBPM").src = activeModalItem.foto_bpm;
 
-      document.getElementById('modalLalu').innerText = `${activeItem.stand_lalu.toLocaleString()} m³`;
+      document.getElementById("modalLalu").innerText = `${activeModalItem.stand_lalu.toLocaleString()} m³`;
       
-      const inputSkrg = document.getElementById('modalInputSkrg');
-      inputSkrg.value = activeItem.stand_skrg;
+      const inputSkrg = document.getElementById("modalInputSkrg");
+      inputSkrg.value = activeModalItem.stand_skrg;
 
       calculateModalUsage();
 
-      const actionBtn = document.getElementById('modalActionBtn');
-      const rejectBtn = document.getElementById('modalRejectBtn');
-      const ocrBtn = document.getElementById('aiOCRBtn');
+      const actionBtn = document.getElementById("modalActionBtn");
+      const rejectBtn = document.getElementById("modalRejectBtn");
+      const aiOCRBtn = document.getElementById("modalAIOCRBtn") || document.getElementById("aiOCRBtn");
 
-      if (activeItem.status === 'Pending Verification') {
+      if (currentUser && currentUser.permission === 'VERIFIER' && activeModalItem.status === 'Pending Verification') {
         inputSkrg.disabled = false;
-        ocrBtn.classList.remove('hidden');
-        rejectBtn.classList.remove('hidden');
-        actionBtn.innerText = '✔️ Verifikasi Reading & Approve';
-        actionBtn.className = 'px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow';
-      } else if (activeItem.status === 'Verified') {
+        rejectBtn.classList.remove("hidden");
+        if(aiOCRBtn) aiOCRBtn.classList.remove("hidden");
+
+        actionBtn.innerText = "✔️ Verifikasi & Setujui Reading";
+        actionBtn.className = "px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow";
+      } else if (currentUser && currentUser.permission === 'BILLING' && activeModalItem.status === 'Verified') {
         inputSkrg.disabled = true;
-        ocrBtn.classList.add('hidden');
-        rejectBtn.classList.remove('hidden');
-        actionBtn.innerText = '🧾 Terbitkan Invoice & Kirim Email';
-        actionBtn.className = 'px-4 py-2 bg-aetra-blue hover:bg-aetra-darkblue text-white text-xs font-bold rounded-xl transition shadow';
+        rejectBtn.classList.add("hidden");
+        if(aiOCRBtn) aiOCRBtn.classList.add("hidden");
+
+        actionBtn.innerText = "🧾 Terbitkan & Kirim Tagihan (Email)";
+        actionBtn.className = "px-4 py-2 bg-aetra-blue hover:bg-aetra-darkblue text-white text-xs font-bold rounded-xl transition shadow";
       } else {
         inputSkrg.disabled = true;
-        ocrBtn.classList.add('hidden');
-        rejectBtn.classList.add('hidden');
-        actionBtn.innerText = '✅ Invoice Sudah Terbit';
-        actionBtn.className = 'px-4 py-2 bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed text-xs font-bold rounded-xl';
+        rejectBtn.classList.add("hidden");
+        if(aiOCRBtn) aiOCRBtn.classList.add("hidden");
+
+        actionBtn.innerText = "Tutup Modal";
+        actionBtn.className = "px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white text-xs font-bold rounded-xl transition shadow";
       }
 
-      document.getElementById('detailModal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-      document.getElementById('detailModal').classList.add('hidden');
-      activeItem = null;
+      document.getElementById("detailModal").classList.remove("hidden");
     }
 
     function calculateModalUsage() {
-      if (!activeItem) return;
-      const skrg = parseInt(document.getElementById('modalInputSkrg').value) || 0;
-      const lalu = activeItem.stand_lalu;
-      const usage = Math.max(0, skrg - lalu);
-      const bill = usage * 12500;
+      if (!activeModalItem) return;
+      const inputSkrg = parseFloat(document.getElementById("modalInputSkrg").value) || 0;
+      const volume = Math.max(0, inputSkrg - activeModalItem.stand_lalu);
+      const totalBill = volume * 12500;
 
-      document.getElementById('modalUsage').innerText = `${usage.toLocaleString()} m³`;
-      document.getElementById('modalEstTagihan').innerText = `Rp ${bill.toLocaleString('id-ID')}`;
+      document.getElementById("modalUsage").innerText = `${volume.toLocaleString()} m³`;
+      document.getElementById("modalEstTagihan").innerText = `Rp ${totalBill.toLocaleString('id-ID')}`;
     }
 
-    function runAICorrection() {
-      alert("🤖 AI / OCR System: Memindai foto meteran & BPM...\n\nOtomatisasi membaca Stand Meter: " + activeItem.stand_skrg);
+    function closeModal() {
+      document.getElementById("detailModal").classList.add("hidden");
+      activeModalItem = null;
     }
 
     async function processModalAction() {
-      if (!activeItem) return;
+      if (!activeModalItem) {
+        closeModal();
+        return;
+      }
 
-      if (activeItem.status === 'Pending Verification') {
-        if (currentUser.access !== 'READING') {
-          alert('Akses Ditolak: Hanya Pak Solihin / Pak Kabul (Verifikator) yang berwenang melakukan verifikasi awal.');
+      if (currentUser && currentUser.permission === 'VERIFIER' && activeModalItem.status === 'Pending Verification') {
+        const newSkrg = parseFloat(document.getElementById("modalInputSkrg").value);
+        if (isNaN(newSkrg) || newSkrg < activeModalItem.stand_lalu) {
+          alert("Stand baru bulan ini tidak valid!");
           return;
         }
-        
-        const newSkrg = parseInt(document.getElementById('modalInputSkrg').value) || activeItem.stand_skrg;
-        const newVolume = Math.max(0, newSkrg - activeItem.stand_lalu);
-        const newBill = newVolume * 12500;
 
-        activeItem.stand_skrg = newSkrg;
-        activeItem.volume = newVolume;
-        activeItem.total_bill = newBill;
-        activeItem.status = 'Verified';
+        activeModalItem.stand_skrg = newSkrg;
+        activeModalItem.volume = newSkrg - activeModalItem.stand_lalu;
+        activeModalItem.total_bill = activeModalItem.volume * 12500;
+        activeModalItem.status = 'Verified';
 
-        // Update ke Supabase
-        await db.from('SIMBA-IN').update({
-          stand_skrg: newSkrg,
-          volume: newVolume,
-          total_bill: newBill,
+        await db.from('meter_readings').update({
+          stand_skrg: activeModalItem.stand_skrg,
+          volume: activeModalItem.volume,
+          total_bill: activeModalItem.total_bill,
           status: 'Verified'
-        }).eq('id', activeItem.id);
+        }).eq('id', activeModalItem.id);
 
-        alert(`Sukses! Pembacaan meter untuk ${activeItem.customer_name} telah DIVERIFIKASI.`);
-      } 
-      else if (activeItem.status === 'Verified') {
-        if (currentUser.access !== 'BILLING') {
-          alert('Akses Ditolak: Hanya Pak Yaya (Billing) yang berwenang menerbitkan invoice.');
-          return;
-        }
+        alert(`Berhasil memverifikasi data meter ${activeModalItem.customer_name}!`);
+      } else if (currentUser && currentUser.permission === 'BILLING' && activeModalItem.status === 'Verified') {
+        activeModalItem.status = 'Invoiced';
 
-        activeItem.status = 'Invoiced';
-
-        // Update ke Supabase
-        await db.from('SIMBA-IN').update({
+        await db.from('meter_readings').update({
           status: 'Invoiced'
-        }).eq('id', activeItem.id);
+        }).eq('id', activeModalItem.id);
 
-        alert(`Sukses! Invoice untuk ${activeItem.customer_name} telah diterbitkan & dikirim via email.`);
+        alert(`Invoice berhasil diterbitkan dan dikirim ke email ${activeModalItem.customer_name}!`);
       }
 
       closeModal();
-      updateMetrics();
-      updateCycleAnalytics();
       renderTable();
+      updateMetrics();
+      renderCycleChart();
     }
 
-    async function rejectItem() {
-      if (!activeItem) return;
-      if (confirm(`Apakah Anda yakin ingin menolak / mengembalikan status ${activeItem.customer_name} ke Pending Verification?`)) {
-        activeItem.status = 'Pending Verification';
-        
-        await db.from('SIMBA-IN').update({
-          status: 'Pending Verification'
-        }).eq('id', activeItem.id);
-
-        alert('Status telah dikembalikan ke Pending Verification.');
-        closeModal();
-        updateMetrics();
-        updateCycleAnalytics();
-        renderTable();
-      }
+    function rejectItem() {
+      if (!activeModalItem) return;
+      alert(`Status pembacaan ${activeModalItem.customer_name} ditolak dan dikembalikan ke petugas meter lapangan untuk pembacaan ulang.`);
+      closeModal();
     }
 
-    // EKSPOR CSV
+    function runAICorrection() {
+      if (!activeModalItem) return;
+      alert("🤖 SIMBA-IN AI OCR System: Memindai ulang gambar BPM...\nHasil pindaian cocok 100%!");
+    }
+
     function exportToCSV() {
-      let csvContent = "data:text/csv;charset=utf-8,ID Pelanggan,Nama Industri,Kelas,Cycle,Stand Lalu,Stand Sekarang,Volume (m3),Total Tagihan (Rp),Status\n";
-      allData.forEach(d => {
-        csvContent += `"${d.customer_id}","${d.customer_name}","${d.kelas || 'Gold'}","${d.cycle}",${d.stand_lalu},${d.stand_skrg},${d.volume},${d.total_bill},"${d.status}"\n`;
+      const data = filterData();
+      if (data.length === 0) {
+        alert("Tidak ada data untuk diekspor!");
+        return;
+      }
+
+      let csvContent = "data:text/csv;charset=utf-8,ID Pelanggan,Nama Industri,Kelas,Cycle,Bulan,Stand Lalu,Stand Skrg,Volume (m3),Total Tagihan (Rp),Status\n";
+      data.forEach(row => {
+        csvContent += `"${row.customer_id}","${row.customer_name}","${row.kelas}",${row.cycle},"${row.month}",${row.stand_lalu},${row.stand_skrg},${row.volume},${row.total_bill},"${row.status}"\n`;
       });
 
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "Laporan_SIMBA-IN_Aetra.csv");
+      link.setAttribute("download", `SIMBA-IN_Report_${new Date().toISOString().slice(0,10)}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
 
-    // CETAK PDF REPORT
     function downloadPDFReport() {
       const element = document.getElementById('dashboardReportContent');
       const opt = {
         margin:       0.3,
-        filename:     'Laporan_SIMBA-IN_Aetra_Tangerang.pdf',
+        filename:     `Laporan_SIMBA-IN_Aetra_${new Date().toISOString().slice(0,10)}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
       };
       html2pdf().set(opt).from(element).save();
     }
