@@ -1,549 +1,308 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin SIMBA-IN - PT Aetra Air Tangerang</title>
-  
-  <!-- Google Fonts: Poppins -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Pembacaan Meter</title>
+    <!-- Chart.js CDN untuk Visualisasi Diagram Lingkaran -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            /* Variabel Warna Mode Terang */
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Poppins', 'sans-serif'],
-          },
-          colors: {
-            aetra: {
-              blue: '#0055A5',
-              darkblue: '#003E78',
-              orange: '#E86216',
-              lightorange: '#FFF2EA',
-              lightblue: '#E6F0FA'
+        [data-theme="dark"] {
+            /* Variabel Warna Mode Gelap */
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --border-color: #333333;
+            --primary-color: #375a7f;
+            --success-color: #2b8a3e;
+            --warning-color: #e0a800;
+            --danger-color: #c82333;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .theme-toggle-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .theme-toggle-btn:hover {
+            opacity: 0.9;
+        }
+
+        .filter-section {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 16px;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
             }
-          }
         }
-      }
-    }
-  </script>
 
-  <!-- Supabase JS CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- html2pdf.js CDN untuk Cetak PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+        .card {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px var(--shadow-color);
+        }
 
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-    }
-  </style>
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: white;
+            margin-top: 10px;
+        }
+
+        .bg-success { background-color: var(--success-color); }
+        .bg-warning { background-color: var(--warning-color); color: #000; }
+
+        .stat-group {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .chart-container {
+            position: relative;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+    </style>
 </head>
-<body class="bg-slate-100 font-sans text-slate-800 antialiased">
+<body>
 
-  <!-- ==================== 1. MODAL LOGIN ==================== -->
-  <div id="loginModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
-      <div class="text-center mb-6">
-        <!-- Logo Aetra Tangerang SVG/Graphic -->
-        <div class="flex justify-center mb-3">
-          <div class="bg-white p-2 rounded-xl shadow-md border border-slate-100 flex items-center justify-center">
-            <svg class="h-12" viewBox="0 0 240 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Flame/Water Symbol -->
-              <path d="M180 15 C175 30 185 40 180 55 C175 40 165 30 180 15 Z" fill="#0055A5"/>
-              <!-- Blue Wings/Hands -->
-              <path d="M150 40 C170 20 200 25 210 40 C190 35 170 45 150 40 Z" fill="#0055A5"/>
-              <!-- Orange Wings/Hands -->
-              <path d="M140 50 C165 30 205 35 215 55 C190 50 165 60 140 50 Z" fill="#E86216"/>
-              <!-- Text 'aetra' -->
-              <text x="10" y="65" fill="#0055A5" font-family="'Poppins', sans-serif" font-weight="800" font-size="52">aetra</text>
-              <!-- Text 'tangerang' -->
-              <text x="35" y="88" fill="#0055A5" font-family="'Poppins', sans-serif" font-weight="600" font-size="20" letter-spacing="1">tangerang</text>
-            </svg>
-          </div>
-        </div>
-        <h2 class="text-xl font-bold text-aetra-blue">Masuk SIMBA-IN</h2>
-        <p class="text-xs text-slate-400 mt-1">PT Aetra Air Tangerang - Dashboard Internal</p>
-      </div>
-
-      <div class="space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Pilih Pengguna / Peran Staf</label>
-          <select id="userRoleSelect" class="w-full p-3 border border-slate-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-aetra-blue bg-slate-50">
-            <option value="solihin">Pak Solihin (Tim Meter Reading / Verifikasi)</option>
-            <option value="kabul">Pak Kabul (Tim Meter Reading / Verifikasi)</option>
-            <option value="yaya">Pak Yaya (Tim Billing & Invoicing)</option>
-          </select>
-        </div>
-
-        <button onclick="handleLogin()" class="w-full py-3 bg-aetra-blue hover:bg-aetra-darkblue text-white rounded-xl font-bold text-xs shadow-lg transition">
-          🚀 Masuk ke Dashboard
-        </button>
-      </div>
+<div class="container">
+    <!-- Header & Mode Switcher -->
+    <div class="header">
+        <h2>Dashboard Pembacaan Meter</h2>
+        <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">🌙 Mode Gelap</button>
     </div>
-  </div>
 
-  <!-- ==================== 2. LAYOUT UTAMA DASHBOARD ==================== -->
-  <div id="appLayout" class="flex min-h-screen hidden">
-    <!-- SIDEBAR -->
-    <aside class="w-64 bg-aetra-darkblue text-slate-200 flex flex-col justify-between p-4 hidden md:flex border-r border-blue-900 shadow-xl">
-      <div>
-        <!-- LOGO HEADER SIDEBAR -->
-        <div class="bg-white rounded-xl p-3 mb-6 shadow-md border border-blue-100 flex items-center justify-center">
-          <svg class="h-10 w-full" viewBox="0 0 240 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M180 15 C175 30 185 40 180 55 C175 40 165 30 180 15 Z" fill="#0055A5"/>
-            <path d="M150 40 C170 20 200 25 210 40 C190 35 170 45 150 40 Z" fill="#0055A5"/>
-            <path d="M140 50 C165 30 205 35 215 55 C190 50 165 60 140 50 Z" fill="#E86216"/>
-            <text x="10" y="65" fill="#0055A5" font-family="'Poppins', sans-serif" font-weight="800" font-size="52">aetra</text>
-            <text x="35" y="88" fill="#0055A5" font-family="'Poppins', sans-serif" font-weight="600" font-size="20" letter-spacing="1">tangerang</text>
-          </svg>
-        </div>
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <label for="cycleSelect">Pilih Cycle:</label>
+        <select id="cycleSelect" onchange="updateDashboard()">
+            <!-- Option 1 - 15 generated dynamically -->
+        </select>
+    </div>
 
-        <nav class="space-y-1.5">
-          <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold bg-aetra-orange text-white shadow-md">
-            📊 Overview SIMBA-IN
-          </button>
-          <button onclick="filterStatus('Pending Verification')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition">
-            <span>✔️ Verifikasi Reading</span>
-          </button>
-          <button onclick="filterStatus('Verified')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition">
-            <span>🧾 Billing & Invoicing</span>
-          </button>
-        </nav>
-      </div>
-
-      <div class="pt-4 border-t border-blue-800/60 flex items-center justify-between px-1">
-        <div class="flex items-center gap-2">
-          <div id="currentUserAvatar" class="w-8 h-8 rounded-full bg-aetra-orange text-white flex items-center justify-center font-bold text-xs shadow-md">AD</div>
-          <div>
-            <p id="currentUserName" class="text-xs font-bold text-white">-</p>
-            <p id="currentUserRole" class="text-[10px] text-blue-200">-</p>
-          </div>
-        </div>
-        <button onclick="handleLogout()" class="text-blue-200 hover:text-rose-300 text-xs font-bold transition">Keluar</button>
-      </div>
-    </aside>
-
-    <!-- MAIN CONTENT -->
-    <div class="flex-1 flex flex-col min-w-0">
-      <!-- HEADER -->
-      <header class="bg-white border-b border-slate-200 p-4 flex flex-col md:flex-row items-center justify-between gap-4 sticky top-0 z-10 shadow-sm">
-        <div class="relative w-full md:w-80">
-          <input
-            id="searchInput"
-            type="text"
-            placeholder="Cari ID Pelanggan atau Nama Industri..."
-            oninput="renderTable()"
-            class="w-full pl-4 pr-4 py-2 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-aetra-blue bg-slate-50 font-medium"
-          />
-        </div>
-
-        <div class="flex items-center gap-3 w-full md:w-auto justify-between flex-wrap">
-          <!-- Filter Kelas Industri -->
-          <select id="kelasFilter" onchange="renderTable()" class="px-3 py-2 text-xs font-semibold bg-white border border-slate-300 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-aetra-blue">
-            <option value="ALL">Semua Kelas</option>
-            <option value="Gold">Kelas Gold</option>
-            <option value="Silver">Kelas Silver</option>
-            <option value="Bronze">Kelas Bronze</option>
-          </select>
-
-          <!-- Filter Bulan -->
-          <select id="bulanFilter" onchange="renderTable()" class="px-3 py-2 text-xs font-semibold bg-white border border-slate-300 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-aetra-blue">
-            <option value="ALL">Semua Bulan</option>
-            <option value="September 2026">September 2026</option>
-            <option value="Agustus 2026">Agustus 2026</option>
-          </select>
-
-          <span class="hidden lg:inline-flex items-center gap-1.5 text-[11px] text-aetra-blue font-bold bg-aetra-lightblue border border-blue-200 px-3 py-1.5 rounded-full">
-            <span class="w-2.5 h-2.5 rounded-full bg-aetra-orange animate-pulse"></span> Realtime Supabase Active
-          </span>
-        </div>
-      </header>
-
-      <!-- BODY DASHBOARD -->
-      <main id="dashboardReportContent" class="p-6 space-y-6 overflow-y-auto">
-        <!-- METRIC CARDS -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-aetra-orange transition">
-            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Perlu Verifikasi Reading</p>
-            <p id="countPending" class="text-3xl font-black text-aetra-orange mt-1">0</p>
-            <span class="text-[10px] text-aetra-orange font-bold">Otoritas Solihin / Kabul</span>
-          </div>
-
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-aetra-blue transition">
-            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Ready for Billing</p>
-            <p id="countVerified" class="text-3xl font-black text-aetra-blue mt-1">0</p>
-            <span class="text-[10px] text-aetra-blue font-bold">Otoritas Pak Yaya</span>
-          </div>
-
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-500 transition">
-            <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Invoiced & Sent Email</p>
-            <p id="countInvoiced" class="text-3xl font-black text-emerald-600 mt-1">0</p>
-            <span class="text-[10px] text-emerald-600 font-bold">Selesai Diproses</span>
-          </div>
-        </div>
-
-        <!-- TABEL DATA -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-slate-50/80">
-            <div>
-              <h2 class="font-extrabold text-aetra-blue text-sm">Tabel Monitoring Pembacaan Meter Industri</h2>
-              <p class="text-[11px] text-slate-400 font-medium">Verifikasi visual foto, BPM, & pemrosesan billing</p>
+    <!-- Main Content Layout -->
+    <div class="grid-layout">
+        <!-- Status Summary Card -->
+        <div class="card">
+            <h3 id="cycleTitle">Status Cycle Pembacaan</h3>
+            <p>Status Completion: <span id="completionBadge" class="status-badge">Completed</span></p>
+            
+            <div class="stat-group">
+                <span>Total Pelanggan:</span>
+                <strong id="totalPelanggan">0</strong>
             </div>
-
-            <div class="flex items-center gap-2">
-              <select id="statusFilter" onchange="renderTable()" class="px-3 py-1.5 text-xs font-semibold bg-white border border-slate-200 rounded-xl text-slate-600 focus:outline-none shadow-sm">
-                <option value="ALL">Semua Status Workflow</option>
-                <option value="Pending Verification">Pending Verification</option>
-                <option value="Verified">Verified (Ready Billing)</option>
-                <option value="Invoiced">Invoiced</option>
-              </select>
-
-              <button onclick="downloadPDFReport()" class="px-3 py-1.5 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-xl transition shadow-sm">
-                📄 Cetak PDF
-              </button>
-              
-              <button onclick="exportToCSV()" class="px-3 py-1.5 text-xs font-bold bg-aetra-blue hover:bg-aetra-darkblue text-white rounded-xl transition shadow-sm">
-                📥 Ekspor CSV
-              </button>
+            <div class="stat-group">
+                <span>Sudah Dibaca:</span>
+                <strong id="sudahDibaca">0</strong>
             </div>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr class="bg-slate-100 text-aetra-darkblue uppercase font-extrabold border-b border-slate-200 text-[10px] tracking-wider">
-                  <th class="p-3.5">Pelanggan Industri</th>
-                  <th class="p-3.5">Stand Meter (Lalu vs Skrg)</th>
-                  <th class="p-3.5">Volume (m³)</th>
-                  <th class="p-3.5">Total Tagihan (Rp)</th>
-                  <th class="p-3.5">Status Alur Kerja</th>
-                  <th class="p-3.5 text-center">Aksi Operasional</th>
-                </tr>
-              </thead>
-              <tbody id="tableBody" class="divide-y divide-slate-100 font-medium">
-                <!-- Data dari Supabase -->
-              </tbody>
-            </table>
-          </div>
+            <div class="stat-group">
+                <span>Belum Dibaca:</span>
+                <strong id="belumDibaca">0</strong>
+            </div>
+            <div class="stat-group">
+                <span>Persentase Kemajuan:</span>
+                <strong id="persentaseProgress">0%</strong>
+            </div>
         </div>
-      </main>
+
+        <!-- Diagram Lingkaran Card -->
+        <div class="card">
+            <h3>Visualisasi Status Pembacaan</h3>
+            <div class="chart-container">
+                <canvas id="cyclePieChart"></canvas>
+            </div>
+        </div>
     </div>
-  </div>
+</div>
 
-  <!-- ==================== 3. MODAL DETAIL & FOTO BPM ==================== -->
-  <div id="detailModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-100 max-h-[90vh] flex flex-col">
-      <div class="bg-aetra-darkblue text-white p-4 flex justify-between items-center">
-        <h3 class="font-bold text-sm">Detail Pembacaan Meter & Dokumen BPM</h3>
-        <button onclick="closeModal()" class="text-blue-200 hover:text-white transition text-base font-bold">✕</button>
-      </div>
+<script>
+    // 1. Data Dummy Pembacaan Meter Cycle 1 - 15
+    const cycleData = {};
+    for (let i = 1; i <= 15; i++) {
+        const total = 100;
+        // Membuat beberapa cycle otomatis selesai (completed) dan sebagian belum (in-progress)
+        const sudah = (i % 3 === 0) ? total : Math.floor(Math.random() * 40) + 60; 
+        cycleData[`Cycle ${i}`] = {
+            total: total,
+            sudahDibaca: sudah,
+            belumDibaca: total - sudah
+        };
+    }
 
-      <div class="p-6 space-y-4 text-xs overflow-y-auto flex-1">
-        <div class="border-b border-slate-200 pb-3 flex justify-between items-start">
-          <div>
-            <p class="text-slate-400 font-bold uppercase text-[10px]">Nama Perusahaan / Akun</p>
-            <h4 id="modalNama" class="text-base font-extrabold text-aetra-blue">-</h4>
-            <p class="text-slate-500 mt-0.5">ID Pelanggan: <span id="modalId" class="font-mono text-aetra-orange font-bold">-</span> | <span id="modalKelas" class="font-bold text-amber-600">Kelas Gold</span></p>
-          </div>
-          <button id="aiOCRBtn" onclick="runAICorrection()" class="hidden px-3 py-1.5 bg-aetra-lightorange text-aetra-orange hover:bg-orange-100 rounded-xl font-bold text-[11px] border border-orange-300 transition">
-            🤖 Koreksi Otomatis dari BPM/Foto
-          </button>
-        </div>
+    let pieChart;
 
-        <!-- PREVIEW FOTO METERAN & BPM -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="bg-slate-50 p-2.5 border rounded-xl">
-            <p class="text-[10px] font-bold text-slate-500 mb-1">📷 Foto Fisik Meteran</p>
-            <img id="modalFotoMeter" src="https://via.placeholder.com/300x200?text=Foto+Meteran+Tidak+Ada" class="w-full h-40 object-cover rounded-lg border bg-slate-200" alt="Foto Meter" />
-          </div>
-          <div class="bg-slate-50 p-2.5 border rounded-xl">
-            <p class="text-[10px] font-bold text-slate-500 mb-1">📄 Foto Dokumen BPM (Bukti Pembacaan Meter)</p>
-            <img id="modalFotoBPM" src="https://via.placeholder.com/300x200?text=Foto+BPM+Tidak+Ada" class="w-full h-40 object-cover rounded-lg border bg-slate-200" alt="Foto BPM" />
-          </div>
-        </div>
+    // 2. Inisialisasi Dropdown Filter Cycle
+    function initDropdown() {
+        const select = document.getElementById("cycleSelect");
+        for (let i = 1; i <= 15; i++) {
+            const opt = document.createElement("option");
+            opt.value = `Cycle ${i}`;
+            opt.textContent = `Cycle ${i}`;
+            select.appendChild(opt);
+        }
+    }
 
-        <!-- INPUT FORM EDIT METER (Hanya untuk Solihin/Kabul) -->
-        <div class="grid grid-cols-2 gap-4 bg-aetra-lightblue p-4 rounded-2xl border border-blue-200">
-          <div>
-            <p class="text-slate-500 font-medium text-[11px]">Stand Bulan Lalu</p>
-            <p id="modalLalu" class="text-sm font-bold text-slate-800">0 m³</p>
-          </div>
-          <div>
-            <label class="block text-aetra-blue font-bold mb-0.5 text-[11px]">Stand Bulan Ini (m³)</label>
-            <input id="modalInputSkrg" type="number" class="w-full p-2 border border-blue-300 rounded-xl text-sm font-bold text-aetra-blue focus:ring-2 focus:ring-aetra-blue bg-white" disabled />
-          </div>
-          <div>
-            <p class="text-slate-500 font-medium text-[11px]">Total Pemakaian Volume</p>
-            <p id="modalUsage" class="text-sm font-extrabold text-aetra-orange">0 m³</p>
-          </div>
-          <div>
-            <p class="text-slate-500 font-medium text-[11px]">Estimasi Tagihan (Rp12.500/m³)</p>
-            <p id="modalEstTagihan" class="text-sm font-extrabold text-aetra-blue">Rp0</p>
-          </div>
-        </div>
-      </div>
+    // 3. Fungsi Update Dashboard ketika Filter Berubah
+    function updateDashboard() {
+        const selectedCycle = document.getElementById("cycleSelect").value;
+        const data = cycleData[selectedCycle];
 
-      <div class="bg-slate-50 p-4 border-t border-slate-200 flex justify-between items-center">
-        <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition">Tutup</button>
-        <div class="flex gap-2">
-          <button id="modalRejectBtn" onclick="rejectItem()" class="hidden px-4 py-2 bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-bold rounded-xl border border-rose-300 transition">⚠️ Reject / Koreksi Ulang</button>
-          <button id="modalActionBtn" class="px-4 py-2 bg-aetra-blue hover:bg-aetra-darkblue text-white text-xs font-bold rounded-xl transition shadow">-</button>
-        </div>
-      </div>
-    </div>
-  </div>
+        document.getElementById("cycleTitle").innerText = `Status ${selectedCycle}`;
+        document.getElementById("totalPelanggan").innerText = data.total;
+        document.getElementById("sudahDibaca").innerText = data.sudahDibaca;
+        document.getElementById("belumDibaca").innerText = data.belumDibaca;
 
-  <!-- JAVASCRIPT LOGIC -->
-  <script>
-    const SUPABASE_URL = "https://gjfkulhavzpffnpvfmel.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmt1bGhhdnpwZmZucHZmbWVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3ODc5NjQsImV4cCI6MjEwNTM2Mzk2NH0.jfVgsZSy6Kk2NPkBvIOttLee-cIKd8yem9PxqpxyT_o";
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const percentage = ((data.sudahDibaca / data.total) * 100).toFixed(1);
+        document.getElementById("persentaseProgress").innerText = `${percentage}%`;
 
-    let allData = [];
-    let currentUser = null;
-    let activeItem = null;
+        const badge = document.getElementById("completionBadge");
+        if (data.sudahDibaca === data.total) {
+            badge.innerText = "Completed";
+            badge.className = "status-badge bg-success";
+        } else {
+            badge.innerText = "In Progress";
+            badge.className = "status-badge bg-warning";
+        }
 
-    // DATA USER & HAK AKSES
-    const USERS = {
-      solihin: { name: "Pak Solihin", role: "Meter Reader / Verifikator", access: "READING", avatar: "PS" },
-      kabul: { name: "Pak Kabul", role: "Meter Reader / Verifikator", access: "READING", avatar: "PK" },
-      yaya: { name: "Pak Yaya", role: "Tim Billing & Invoicing", access: "BILLING", avatar: "PY" }
+        updateChart(data.sudahDibaca, data.belumDibaca);
+    }
+
+    // 4. Inisialisasi & Update Diagram Lingkaran (Chart.js)
+    function updateChart(sudah, belum) {
+        const ctx = document.getElementById('cyclePieChart').getContext('2d');
+        const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+        const textColor = isDarkMode ? '#e0e0e0' : '#333333';
+
+        if (pieChart) {
+            pieChart.destroy(); // Hapus chart lama sebelum membuat chart baru
+        }
+
+        pieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Sudah Dibaca', 'Belum Dibaca'],
+                datasets: [{
+                    data: [sudah, belum],
+                    backgroundColor: ['#28a745', '#dc3545'],
+                    borderWidth: 2,
+                    borderColor: isDarkMode ? '#1e1e1e' : '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: textColor
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 5. Fitur Mode Gelap / Mode Terang
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.getElementById("themeBtn");
+        
+        if (body.getAttribute("data-theme") === "dark") {
+            body.removeAttribute("data-theme");
+            btn.innerText = "🌙 Mode Gelap";
+        } else {
+            body.setAttribute("data-theme", "dark");
+            btn.innerText = "☀️ Mode Terang";
+        }
+        
+        // Refresh chart agar warna label/border menyesuaikan dengan tema yang aktif
+        const selectedCycle = document.getElementById("cycleSelect").value;
+        const data = cycleData[selectedCycle];
+        updateChart(data.sudahDibaca, data.belumDibaca);
+    }
+
+    // Inisialisasi awal saat halaman dimuat
+    window.onload = function() {
+        initDropdown();
+        updateDashboard();
     };
+</script>
 
-    function handleLogin() {
-      const selected = document.getElementById('userRoleSelect').value;
-      currentUser = USERS[selected];
-
-      document.getElementById('currentUserName').innerText = currentUser.name;
-      document.getElementById('currentUserRole').innerText = currentUser.role;
-      document.getElementById('currentUserAvatar').innerText = currentUser.avatar;
-
-      document.getElementById('loginModal').classList.add('hidden');
-      document.getElementById('appLayout').classList.remove('hidden');
-
-      fetchData();
-      subscribeRealtime();
-    }
-
-    function handleLogout() {
-      currentUser = null;
-      document.getElementById('appLayout').classList.add('hidden');
-      document.getElementById('loginModal').classList.remove('hidden');
-    }
-
-    // REALTIME SUBSCRIPTION SUPABASE
-    function subscribeRealtime() {
-      db.channel('public:SIMBA-IN')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'SIMBA-IN' }, () => {
-          fetchData();
-        })
-        .subscribe();
-    }
-
-    async function fetchData() {
-      const { data, error } = await db.from('SIMBA-IN').select('*').order('id', { ascending: true });
-      if (!error && data) {
-        allData = data;
-        updateMetrics();
-        renderTable();
-      }
-    }
-
-    function updateMetrics() {
-      document.getElementById('countPending').innerText = allData.filter(d => d.status === 'Pending Verification').length;
-      document.getElementById('countVerified').innerText = allData.filter(d => d.status === 'Verified').length;
-      document.getElementById('countInvoiced').innerText = allData.filter(d => d.status === 'Invoiced').length;
-    }
-
-    function filterStatus(status) {
-      document.getElementById('statusFilter').value = status;
-      renderTable();
-    }
-
-    function renderTable() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const statusFilter = document.getElementById('statusFilter').value;
-      const kelasFilter = document.getElementById('kelasFilter').value;
-      const bulanFilter = document.getElementById('bulanFilter').value;
-      const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = '';
-
-      const filtered = allData.filter(item => {
-        const matchSearch = item.nama_industri?.toLowerCase().includes(search) || item.id_pelanggan?.includes(search);
-        const matchStatus = statusFilter === 'ALL' ? true : item.status === statusFilter;
-        const matchKelas = kelasFilter === 'ALL' ? true : item.kelas === kelasFilter;
-        const matchBulan = bulanFilter === 'ALL' ? true : item.bulan === bulanFilter;
-        return matchSearch && matchStatus && matchKelas && matchBulan;
-      });
-
-      filtered.forEach(item => {
-        const usage = (item.stand_sekarang || 0) - (item.stand_lalu || 0);
-        const totalTagihan = item.total_tagihan || (usage * 12500);
-
-        let statusBadge = '';
-        if (item.status === 'Pending Verification') {
-          statusBadge = `<span class="bg-aetra-lightorange text-aetra-orange border border-orange-200 px-2 py-0.5 rounded-md text-[10px] font-bold">Pending Solihin/Kabul</span>`;
-        } else if (item.status === 'Verified') {
-          statusBadge = `<span class="bg-aetra-lightblue text-aetra-blue border border-blue-200 px-2 py-0.5 rounded-md text-[10px] font-bold">Verified (Pak Yaya)</span>`;
-        } else if (item.status === 'Rejected') {
-          statusBadge = `<span class="bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-md text-[10px] font-bold">Rejected / Koreksi</span>`;
-        } else {
-          statusBadge = `<span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md text-[10px] font-bold">Invoiced & Sent Email</span>`;
-        }
-
-        // HAK AKSES TOMBOL AKSI
-        let actionBtn = '';
-        if (currentUser.access === 'READING' && (item.status === 'Pending Verification' || item.status === 'Rejected')) {
-          actionBtn = `<button onclick="openModal(${item.id})" class="px-2.5 py-1 bg-aetra-blue hover:bg-aetra-darkblue text-white rounded-lg font-bold text-[11px] shadow-sm">Verifikasi</button>`;
-        } else if (currentUser.access === 'BILLING' && item.status === 'Verified') {
-          actionBtn = `<button onclick="blastEmailInvoice(${item.id}, ${totalTagihan})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[11px] shadow-sm">📧 Email Invoice</button>`;
-        } else {
-          actionBtn = `<button onclick="openModal(${item.id})" class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-semibold text-[11px]">Lihat Detail</button>`;
-        }
-
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50 transition';
-        tr.innerHTML = `
-          <td class="p-3.5">
-            <p class="font-bold text-slate-800">${item.nama_industri}</p>
-            <p class="text-[10px] text-slate-400 font-mono">ID: ${item.id_pelanggan} | <span class="font-bold text-aetra-orange">${item.kelas || 'Gold'}</span></p>
-          </td>
-          <td class="p-3.5">
-            <p class="text-slate-400">Lalu: ${item.stand_lalu ? item.stand_lalu.toLocaleString() : 0}</p>
-            <p class="font-bold text-aetra-blue">Skrg: ${item.stand_sekarang ? item.stand_sekarang.toLocaleString() : 0}</p>
-          </td>
-          <td class="p-3.5 font-extrabold text-slate-700">${usage.toLocaleString()} m³</td>
-          <td class="p-3.5 font-extrabold text-aetra-blue">Rp${totalTagihan.toLocaleString()}</td>
-          <td class="p-3.5">${statusBadge}</td>
-          <td class="p-3.5 text-center">
-            <div class="flex items-center justify-center gap-1.5">
-              ${actionBtn}
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function openModal(id) {
-      activeItem = allData.find(d => d.id === id);
-      if (!activeItem) return;
-
-      const usage = (activeItem.stand_sekarang || 0) - (activeItem.stand_lalu || 0);
-      document.getElementById('modalNama').innerText = activeItem.nama_industri;
-      document.getElementById('modalId').innerText = activeItem.id_pelanggan;
-      document.getElementById('modalKelas').innerText = `Kelas ${activeItem.kelas || 'Gold'}`;
-      document.getElementById('modalLalu').innerText = `${activeItem.stand_lalu ? activeItem.stand_lalu.toLocaleString() : 0} m³`;
-      document.getElementById('modalInputSkrg').value = activeItem.stand_sekarang || 0;
-      document.getElementById('modalUsage').innerText = `${usage.toLocaleString()} m³`;
-      document.getElementById('modalEstTagihan').innerText = `Rp${(usage * 12500).toLocaleString()}`;
-
-      // Set URL Foto dari Supabase
-      if (activeItem.foto) {
-        document.getElementById('modalFotoMeter').src = activeItem.foto;
-        document.getElementById('modalFotoBPM').src = activeItem.foto_bpm || activeItem.foto;
-      }
-
-      const inputSkrg = document.getElementById('modalInputSkrg');
-      const actionBtn = document.getElementById('modalActionBtn');
-      const rejectBtn = document.getElementById('modalRejectBtn');
-      const aiBtn = document.getElementById('aiOCRBtn');
-
-      // KONTROL OTORITAS DI DALAM MODAL
-      if (currentUser.access === 'READING' && (activeItem.status === 'Pending Verification' || activeItem.status === 'Rejected')) {
-        inputSkrg.disabled = false;
-        aiBtn.classList.remove('hidden');
-        rejectBtn.classList.remove('hidden');
-        actionBtn.innerText = "Setujui Reading & Kirim ke Pak Yaya";
-        actionBtn.className = "px-4 py-2 bg-aetra-blue hover:bg-aetra-darkblue text-white text-xs font-bold rounded-xl transition shadow";
-        actionBtn.onclick = approveReading;
-      } else {
-        inputSkrg.disabled = true;
-        aiBtn.classList.add('hidden');
-        rejectBtn.classList.add('hidden');
-        actionBtn.innerText = "Tutup";
-        actionBtn.className = "px-4 py-2 bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition";
-        actionBtn.onclick = closeModal;
-      }
-
-      document.getElementById('detailModal').classList.remove('hidden');
-    }
-
-    // SIMULASI KOREKSI AI DARI FOTO BPM
-    function runAICorrection() {
-      alert('🤖 AI Scanning Dokumen BPM... Menemukan angka stand meter yang sesuai!');
-      const newStand = (activeItem.stand_lalu || 0) + 1250;
-      document.getElementById('modalInputSkrg').value = newStand;
-      document.getElementById('modalUsage').innerText = `1,250 m³`;
-      document.getElementById('modalEstTagihan').innerText = `Rp${(1250 * 12500).toLocaleString()}`;
-    }
-
-    async function approveReading() {
-      const newStand = parseInt(document.getElementById('modalInputSkrg').value);
-      const usage = newStand - (activeItem.stand_lalu || 0);
-      const total = usage * 12500;
-
-      const { error } = await db.from('SIMBA-IN').update({
-        stand_sekarang: newStand,
-        total_tagihan: total,
-        status: 'Verified'
-      }).eq('id', activeItem.id);
-
-      if (!error) {
-        closeModal();
-        fetchData();
-      }
-    }
-
-    async function rejectItem() {
-      const { error } = await db.from('SIMBA-IN').update({ status: 'Rejected' }).eq('id', activeItem.id);
-      if (!error) {
-        closeModal();
-        fetchData();
-      }
-    }
-
-    // EMAIL BLAST DENGAN SIMULASI EMAIL PAK YAYA
-    async function blastEmailInvoice(id, totalTagihan) {
-      const { error } = await db.from('SIMBA-IN').update({ status: 'Invoiced' }).eq('id', id);
-      if (!error) {
-        alert(`📧 E-Invoice Tagihan Rp${totalTagihan.toLocaleString()} Berhasil Dikirimkan melalui Server Email Pak Yaya!`);
-        fetchData();
-      }
-    }
-
-    function closeModal() {
-      document.getElementById('detailModal').classList.add('hidden');
-    }
-
-    // CETAK LAPORAN PDF
-    function downloadPDFReport() {
-      const element = document.getElementById('dashboardReportContent');
-      html2pdf().from(element).save(`Laporan_SIMBA-IN_Aetra_${new Date().toISOString().slice(0,10)}.pdf`);
-    }
-
-    // EKSPOR CSV
-    function exportToCSV() {
-      let csvContent = "data:text/csv;charset=utf-8,ID Pelanggan,Nama Industri,Kelas,Stand Lalu,Stand Sekarang,Total Tagihan,Status\n";
-      allData.forEach(item => {
-        const usage = (item.stand_sekarang || 0) - (item.stand_lalu || 0);
-        const total = item.total_tagihan || (usage * 12500);
-        csvContent += `"${item.id_pelanggan}","${item.nama_industri}","${item.kelas || 'Gold'}",${item.stand_lalu || 0},${item.stand_sekarang || 0},${total},"${item.status}"\n`;
-      });
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `Rekap_SIMBA-IN_Aetra.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  </script>
 </body>
 </html>
