@@ -86,12 +86,11 @@
     </div>
   </div>
 
-  <!-- ==================== 2. LAYOUT UTAMA DASHBOARD (Fixed Sidebar & Scrollable Content) ==================== -->
+  <!-- ==================== 2. LAYOUT UTAMA DASHBOARD ==================== -->
   <div id="appLayout" class="flex h-screen overflow-hidden hidden">
-    <!-- SIDEBAR (Fixed/Static, Tidak Ikut Scroll) -->
+    <!-- SIDEBAR -->
     <aside class="w-64 bg-aetra-darkblue dark:bg-slate-950 text-slate-200 flex flex-col justify-between p-4 hidden md:flex border-r border-blue-900 dark:border-slate-800 shadow-xl shrink-0 h-full">
       <div>
-        <!-- LOGO HEADER SIDEBAR -->
         <div class="bg-white rounded-xl p-3 mb-6 shadow-md border border-blue-100 flex items-center justify-center">
           <svg class="h-10 w-full" viewBox="0 0 240 100" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M180 15 C175 30 185 40 180 55 C175 40 165 30 180 15 Z" fill="#0055A5"/>
@@ -102,7 +101,6 @@
           </svg>
         </div>
 
-        <!-- NAVIGATION WITH DYNAMIC ACTIVE STATE -->
         <nav class="space-y-1.5" id="sidebarNav">
           <button id="nav-overview" onclick="selectNav('nav-overview', 'ALL')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold bg-aetra-orange text-white shadow-md transition">
             📊 Overview SIMBA-IN
@@ -121,9 +119,9 @@
       </div>
     </aside>
 
-    <!-- MAIN CONTENT CONTAINER (Scrollable Area) -->
+    <!-- MAIN CONTENT CONTAINER -->
     <div class="flex-1 flex flex-col min-w-0 h-full overflow-y-auto">
-      <!-- HEADER (Data User & Tombol Keluar di Pojok Kanan Atas) -->
+      <!-- HEADER -->
       <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 flex flex-col md:flex-row items-center justify-between gap-4 sticky top-0 z-20 shadow-sm transition-colors duration-200">
         <div class="relative w-full md:w-80">
           <input
@@ -135,14 +133,11 @@
           />
         </div>
 
-        <!-- Bagian Kanan Atas: Filter, Dark Mode, Data User & Tombol Keluar -->
         <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end flex-wrap">
-          <!-- Filter Cycle Pembacaan Meter 1-15 -->
           <select id="cycleFilter" onchange="onCycleChange()" class="px-3 py-2 text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-700 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-aetra-blue">
             <option value="ALL">Semua Cycle (1-15)</option>
           </select>
 
-          <!-- Filter Kelas Industri -->
           <select id="kelasFilter" onchange="renderTable()" class="px-3 py-2 text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-700 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-aetra-blue">
             <option value="ALL">Semua Kelas</option>
             <option value="Gold">Kelas Gold</option>
@@ -150,22 +145,18 @@
             <option value="Bronze">Kelas Bronze</option>
           </select>
 
-          <!-- Filter Bulan -->
           <select id="bulanFilter" onchange="renderTable()" class="px-3 py-2 text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-700 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-aetra-blue">
             <option value="ALL">Semua Bulan</option>
             <option value="September 2026">September 2026</option>
             <option value="Agustus 2026">Agustus 2026</option>
           </select>
 
-          <!-- Toggle Dark / Light Mode -->
           <button onclick="toggleDarkMode()" id="darkModeToggleBtn" class="px-3 py-2 text-xs font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition flex items-center gap-1">
             <span id="themeIcon">🌙</span> <span id="themeText">Mode Gelap</span>
           </button>
 
-          <!-- Divider Vertikal -->
           <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 hidden md:block"></div>
 
-          <!-- Data User & Tombol Keluar di Pojok Kanan Atas -->
           <div class="flex items-center gap-3">
             <div class="flex items-center gap-2">
               <div id="currentUserAvatar" class="w-8 h-8 rounded-full bg-aetra-orange text-white flex items-center justify-center font-bold text-xs shadow-md">AD</div>
@@ -184,7 +175,7 @@
       <!-- BODY DASHBOARD -->
       <main id="dashboardReportContent" class="p-6 space-y-6">
         
-        <!-- SECTION STATUS CYCLE & DIAGRAM LINGKARAN (CHART) -->
+        <!-- SECTION STATUS CYCLE & DIAGRAM -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           <!-- SUMMARY PANEL CYCLE -->
@@ -217,13 +208,9 @@
                 </div>
               </div>
             </div>
-
-            <div class="mt-4 pt-3 border-t dark:border-slate-700">
-              <p class="text-[10px] text-slate-400 text-center">Data sinkron otomatis dengan jadwal pembacaan mingguan</p>
-            </div>
           </div>
 
-          <!-- DIAGRAM LINGKARAN (CHART.JS) -->
+          <!-- DIAGRAM LINGKARAN -->
           <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
             <h3 class="font-bold text-slate-800 dark:text-slate-100 text-xs uppercase tracking-wider mb-2">Visualisasi Keterbacaan Cycle</h3>
             <div class="w-full max-w-[220px] h-[200px] relative flex items-center justify-center">
@@ -262,7 +249,7 @@
           </div>
         </div>
 
-        <!-- ANNOUNCEMENT / LAPORAN STATIS -->
+        <!-- ANNOUNCEMENT -->
         <div class="bg-aetra-darkblue text-white rounded-xl p-3 px-4 text-xs flex items-center gap-3 shadow-md">
           <span class="bg-aetra-orange text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-md shrink-0">Info Sistem</span>
           <p class="font-medium">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026 berjalan lancar. Batas akhir penagihan Cycle 1-5 adalah tanggal 25.</p>
@@ -303,7 +290,7 @@
                   <th class="p-3.5">Stand Meter (Lalu vs Skrg)</th>
                   <th class="p-3.5">Volume (m³)</th>
                   <th class="p-3.5">Total Tagihan (Rp)</th>
-                  <th class="p-3.5">Status Alur Kerja</th>
+                  <th class="p-3.5">Status Alur Kerja & Keterangan</th>
                   <th class="p-3.5 text-center">Aksi Operasional</th>
                 </tr>
               </thead>
@@ -335,6 +322,12 @@
           <button id="aiOCRBtn" onclick="runAICorrection()" class="hidden px-3 py-1.5 bg-aetra-lightorange text-aetra-orange hover:bg-orange-100 rounded-xl font-bold text-[11px] border border-orange-300 transition">
             🤖 Koreksi Otomatis dari BPM/Foto
           </button>
+        </div>
+
+        <!-- KETERANGAN / ALASAN PENDING ATAU PERGESERAN HARI BACA -->
+        <div id="modalPendingBox" class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-xl">
+          <p class="text-[10px] font-extrabold text-amber-800 dark:text-amber-400 uppercase">Catatan Status / Pergeseran Hari Baca:</p>
+          <p id="modalPendingReason" class="text-xs font-semibold text-amber-900 dark:text-amber-200 mt-0.5">-</p>
         </div>
 
         <!-- PREVIEW FOTO METERAN & BPM -->
@@ -387,10 +380,10 @@
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let globalData = [
-      { id: 1, customer_id: "IND-1001", customer_name: "PT Indofood CBP Sukses Makmur", kelas: "Gold", cycle: 1, month: "September 2026", stand_lalu: 12500, stand_skrg: 14800, volume: 2300, total_bill: 28750000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 2, customer_id: "IND-1002", customer_name: "PT Mayora Indah Tbk", kelas: "Gold", cycle: 1, month: "September 2026", stand_lalu: 8900, stand_skrg: 10450, volume: 1550, total_bill: 19375000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 3, customer_id: "IND-1003", customer_name: "PT Gajah Tunggal Tbk", kelas: "Gold", cycle: 2, month: "September 2026", stand_lalu: 34200, stand_skrg: 39000, volume: 4800, total_bill: 60000000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 4, customer_id: "IND-1004", customer_name: "PT Torabika Eka Semesta", kelas: "Silver", cycle: 2, month: "September 2026", stand_lalu: 5400, stand_skrg: 6250, volume: 850, total_bill: 10625000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" }
+      { id: 1, customer_id: "IND-1001", customer_name: "PT Indofood CBP Sukses Makmur", kelas: "Gold", cycle: 1, month: "September 2026", stand_lalu: 12500, stand_skrg: 14800, volume: 2300, total_bill: 28750000, status: "Pending Verification", pending_reason: "Pergeseran hari baca +1 hari karena gerbang area pabrik terkunci (maintenance terjadwal).", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 2, customer_id: "IND-1002", customer_name: "PT Mayora Indah Tbk", kelas: "Gold", cycle: 1, month: "September 2026", stand_lalu: 8900, stand_skrg: 10450, volume: 1550, total_bill: 19375000, status: "Verified", pending_reason: "-", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 3, customer_id: "IND-1003", customer_name: "PT Gajah Tunggal Tbk", kelas: "Gold", cycle: 2, month: "September 2026", stand_lalu: 34200, stand_skrg: 39000, volume: 4800, total_bill: 60000000, status: "Pending Verification", pending_reason: "Pergeseran hari baca +2 hari menunggu izin eskalasi safety keamanan pabrik.", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 4, customer_id: "IND-1004", customer_name: "PT Torabika Eka Semesta", kelas: "Silver", cycle: 2, month: "September 2026", stand_lalu: 5400, stand_skrg: 6250, volume: 850, total_bill: 10625000, status: "Invoiced", pending_reason: "-", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" }
     ];
 
     let currentUser = null;
@@ -491,6 +484,10 @@
         if(item.status === 'Verified') badgeClass = 'bg-blue-100 text-blue-700 border-blue-300';
         if(item.status === 'Invoiced') badgeClass = 'bg-emerald-100 text-emerald-700 border-emerald-300';
 
+        let reasonSub = item.status === 'Pending Verification' && item.pending_reason !== '-' 
+          ? `<p class="text-[10px] text-amber-600 dark:text-amber-400 mt-1 font-normal">⚠️ ${item.pending_reason}</p>` 
+          : '';
+
         html += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
           <td class="p-3.5">
             <p class="font-bold text-slate-800 dark:text-white">${item.customer_name}</p>
@@ -502,6 +499,7 @@
           <td class="p-3.5 font-bold text-slate-800 dark:text-white">Rp ${item.total_bill.toLocaleString()}</td>
           <td class="p-3.5">
             <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border ${badgeClass}">${item.status}</span>
+            ${reasonSub}
           </td>
           <td class="p-3.5 text-center">
             <button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-aetra-lightblue hover:bg-blue-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-aetra-blue dark:text-blue-300 rounded-xl font-bold transition">
@@ -573,12 +571,18 @@
       document.getElementById('modalFotoBPM').src = activeModalItem.foto_bpm;
       document.getElementById('modalLalu').innerText = activeModalItem.stand_lalu.toLocaleString() + ' m³';
       
+      const pendingBox = document.getElementById('modalPendingBox');
+      if (activeModalItem.status === 'Pending Verification' && activeModalItem.pending_reason !== '-') {
+        pendingBox.classList.remove('hidden');
+        document.getElementById('modalPendingReason').innerText = activeModalItem.pending_reason;
+      } else {
+        pendingBox.classList.add('hidden');
+      }
+      
       const inputSkrg = document.getElementById('modalInputSkrg');
       inputSkrg.value = activeModalItem.stand_skrg;
 
       const isMeterReader = currentUser.role.includes('Meter Reading');
-      const isBilling = currentUser.role.includes('Billing');
-
       inputSkrg.disabled = !isMeterReader && activeModalItem.status !== 'Pending Verification';
       document.getElementById('aiOCRBtn').classList.toggle('hidden', !isMeterReader);
 
@@ -606,8 +610,8 @@
 
     function calculateModalUsage() {
       const skrg = parseFloat(document.getElementById('modalInputSkrg').value) || 0;
-      constalu = activeModalItem ? activeModalItem.stand_lalu : 0;
-      const vol = Math.max(0, skrg -alu);
+      const lalu = activeModalItem ? activeModalItem.stand_lalu : 0;
+      const vol = Math.max(0, skrg - lalu);
       const estBill = vol * 12500;
 
       document.getElementById('modalUsage').innerText = vol.toLocaleString() + ' m³';
@@ -625,6 +629,7 @@
       activeModalItem.volume = Math.max(0, newSkrg - activeModalItem.stand_lalu);
       activeModalItem.total_bill = activeModalItem.volume * 12500;
       activeModalItem.status = 'Verified';
+      activeModalItem.pending_reason = '-';
 
       closeModal();
       renderTable();
@@ -640,6 +645,7 @@
 
     function rejectItem() {
       activeModalItem.status = 'Pending Verification';
+      activeModalItem.pending_reason = 'Ditolak/dikoreksi kembali oleh verifikator. Menunggu pembacaan ulang meter.';
       closeModal();
       renderTable();
       updateDashboardMetrics();
@@ -664,9 +670,9 @@
     }
 
     function exportToCSV() {
-      let csv = 'ID Pelanggan,Nama Industri,Kelas,Cycle,Volume,Tagihan,Status\n';
+      let csv = 'ID Pelanggan,Nama Industri,Kelas,Cycle,Volume,Tagihan,Status,Keterangan Pending\n';
       globalData.forEach(i => {
-        csv += `"${i.customer_id}","${i.customer_name}","${i.kelas}",${i.cycle},${i.volume},${i.total_bill},"${i.status}"\n`;
+        csv += `"${i.customer_id}","${i.customer_name}","${i.kelas}",${i.cycle},${i.volume},${i.total_bill},"${i.status}","${i.pending_reason}"\n`;
       });
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
