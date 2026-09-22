@@ -146,7 +146,6 @@
           <!-- Filter Cycle Pembacaan Meter 1-15 -->
           <select id="cycleFilter" onchange="onCycleChange()" class="px-3 py-2 text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-700 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-aetra-blue">
             <option value="ALL">Semua Cycle (1-15)</option>
-            <!-- Generated dynamically in JS -->
           </select>
 
           <!-- Filter Kelas Industri -->
@@ -292,7 +291,7 @@
                 </tr>
               </thead>
               <tbody id="tableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-medium">
-                <!-- Data dari Supabase -->
+                <!-- Data dari Supabase / Fallback 20 Soal -->
               </tbody>
             </table>
           </div>
@@ -341,7 +340,7 @@
           </div>
           <div>
             <label class="block text-aetra-blue dark:text-blue-300 font-bold mb-0.5 text-[11px]">Stand Bulan Ini (m³)</label>
-            <input id="modalInputSkrg" type="number" class="w-full p-2 border border-blue-300 dark:border-slate-500 rounded-xl text-sm font-bold text-aetra-blue dark:text-white focus:ring-2 focus:ring-aetra-blue bg-white dark:bg-slate-800" disabled />
+            <input id="modalInputSkrg" type="number" oninput="calculateModalUsage()" class="w-full p-2 border border-blue-300 dark:border-slate-500 rounded-xl text-sm font-bold text-aetra-blue dark:text-white focus:ring-2 focus:ring-aetra-blue bg-white dark:bg-slate-800" disabled />
           </div>
           <div>
             <p class="text-slate-500 dark:text-slate-400 font-medium text-[11px]">Total Pemakaian Volume</p>
@@ -358,17 +357,41 @@
         <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition">Tutup</button>
         <div class="flex gap-2">
           <button id="modalRejectBtn" onclick="rejectItem()" class="hidden px-4 py-2 bg-rose-100 hover:bg-rose-200 dark:bg-rose-950 dark:hover:bg-rose-900 text-rose-700 dark:text-rose-300 text-xs font-bold rounded-xl border border-rose-300 dark:border-rose-800 transition">⚠️ Reject / Koreksi Ulang</button>
-          <button id="modalActionBtn" class="px-4 py-2 bg-aetra-blue hover:bg-aetra-darkblue text-white text-xs font-bold rounded-xl transition shadow">-</button>
+          <button id="modalActionBtn" onclick="processModalAction()" class="px-4 py-2 bg-aetra-blue hover:bg-aetra-darkblue text-white text-xs font-bold rounded-xl transition shadow">-</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- JAVASCRIPT LOGIC -->
+  <!-- JAVASCRIPT LOGIC INTEGRATED -->
   <script>
     const SUPABASE_URL = "https://gjfkulhavzpffnpvfmel.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmt1bGhhdnpwZmZucHZmbWVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3ODc5NjQsImV4cCI6MjEwNTM2Mzk2NH0.jfVgsZSy6Kk2NPkBvIOttLee-cIKd8yem9PxqpxyT_o";
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // DATA DUMMY 20 PERTANYAAN/SOAL SIMULASI PELANGGAN INDUSTRI AETRA TANGERANG
+    const DUMMY_SOAL_DATA = [
+      { id: 1, customer_id: "IND-1001", customer_name: "PT Indofood CBP Sukses Makmur", kelas: "Gold", cycle: 1, month: "September 2026", stand_lalu: 12500, stand_skrg: 14800, volume: 2300, total_bill: 28750000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 2, customer_id: "IND-1002", customer_name: "PT Mayora Indah Tbk", kelas: "Gold", cycle: 1, month: "September 2026", stand_lalu: 8900, stand_skrg: 10450, volume: 1550, total_bill: 19375000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 3, customer_id: "IND-1003", customer_name: "PT Gajah Tunggal Tbk", kelas: "Gold", cycle: 2, month: "September 2026", stand_lalu: 34200, stand_skrg: 39000, volume: 4800, total_bill: 60000000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 4, customer_id: "IND-1004", customer_name: "PT Torabika Eka Semesta", kelas: "Silver", cycle: 2, month: "September 2026", stand_lalu: 5400, stand_skrg: 6250, volume: 850, total_bill: 10625000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 5, customer_id: "IND-1005", customer_name: "PT Unilever Indonesia Tbk", kelas: "Gold", cycle: 3, month: "September 2026", stand_lalu: 21000, stand_skrg: 24500, volume: 3500, total_bill: 43750000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 6, customer_id: "IND-1006", customer_name: "PT Paragon Technology and Innovation", kelas: "Silver", cycle: 3, month: "September 2026", stand_lalu: 4100, stand_skrg: 4800, volume: 700, total_bill: 8750000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 7, customer_id: "IND-1007", customer_name: "PT Asia Pulp & Paper (APP)", kelas: "Gold", cycle: 4, month: "September 2026", stand_lalu: 45000, stand_skrg: 51200, volume: 6200, total_bill: 77500000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 8, customer_id: "IND-1008", customer_name: "PT Pratama Abadi Industri", kelas: "Silver", cycle: 4, month: "September 2026", stand_lalu: 7800, stand_skrg: 8950, volume: 1150, total_bill: 14375000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 9, customer_id: "IND-1009", customer_name: "PT Ching Luh Indonesia", kelas: "Gold", cycle: 5, month: "September 2026", stand_lalu: 18500, stand_skrg: 21700, volume: 3200, total_bill: 40000000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 10, customer_id: "IND-1010", customer_name: "PT Dispo Asri Plastic", kelas: "Bronze", cycle: 5, month: "September 2026", stand_lalu: 1200, stand_skrg: 1550, volume: 350, total_bill: 4375000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 11, customer_id: "IND-1011", customer_name: "PT Surya Rengo Containers", kelas: "Silver", cycle: 6, month: "September 2026", stand_lalu: 6300, stand_skrg: 7200, volume: 900, total_bill: 11250000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 12, customer_id: "IND-1012", customer_name: "PT Astra Otoparts Tbk", kelas: "Gold", cycle: 7, month: "September 2026", stand_lalu: 15400, stand_skrg: 17900, volume: 2500, total_bill: 31250000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 13, customer_id: "IND-1013", customer_name: "PT Olympic Gypsum", kelas: "Bronze", cycle: 8, month: "September 2026", stand_lalu: 2300, stand_skrg: 2750, volume: 450, total_bill: 5625000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 14, customer_id: "IND-1014", customer_name: "PT Nippon Paint Indonesia", kelas: "Silver", cycle: 9, month: "September 2026", stand_lalu: 8100, stand_skrg: 9400, volume: 1300, total_bill: 16250000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 15, customer_id: "IND-1015", customer_name: "PT Polychem Indonesia Tbk", kelas: "Gold", cycle: 10, month: "September 2026", stand_lalu: 28900, stand_skrg: 33100, volume: 4200, total_bill: 52500000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 16, customer_id: "IND-1016", customer_name: "PT Sumber Alfaria Trijaya Tbk", kelas: "Silver", cycle: 11, month: "September 2026", stand_lalu: 3900, stand_skrg: 4500, volume: 600, total_bill: 7500000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 17, customer_id: "IND-1017", customer_name: "PT Mitsuba Indonesia", kelas: "Gold", cycle: 12, month: "September 2026", stand_lalu: 11200, stand_skrg: 13100, volume: 1900, total_bill: 23750000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 18, customer_id: "IND-1018", customer_name: "PT Victory Ching Luh", kelas: "Gold", cycle: 13, month: "September 2026", stand_lalu: 22000, stand_skrg: 25600, volume: 3600, total_bill: 45000000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 19, customer_id: "IND-1019", customer_name: "PT Lestari Busana Anggun", kelas: "Bronze", cycle: 14, month: "September 2026", stand_lalu: 1800, stand_skrg: 2280, volume: 480, total_bill: 6000000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 20, customer_id: "IND-1020", customer_name: "PT Kansai Paint Indonesia", kelas: "Silver", cycle: 15, month: "September 2026", stand_lalu: 6700, stand_skrg: 7750, volume: 1050, total_bill: 13125000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" }
+    ];
 
     let allData = [];
     let currentUser = null;
@@ -385,6 +408,7 @@
     // INIT CYCLE FILTER OPTIONS (1 - 15)
     function populateCycleFilter() {
       const cycleSelect = document.getElementById('cycleFilter');
+      cycleSelect.innerHTML = '<option value="ALL">Semua Cycle (1-15)</option>';
       for (let i = 1; i <= 15; i++) {
         const opt = document.createElement('option');
         opt.value = i;
@@ -398,7 +422,7 @@
       const isDark = document.documentElement.classList.toggle('dark');
       document.getElementById('themeIcon').innerText = isDark ? '☀️' : '🌙';
       document.getElementById('themeText').innerText = isDark ? 'Mode Terang' : 'Mode Gelap';
-      updateCycleAnalytics(); // Update Chart Colors for dark mode
+      updateCycleAnalytics(); 
     }
 
     function handleLogin() {
@@ -412,6 +436,7 @@
       document.getElementById('loginModal').classList.add('hidden');
       document.getElementById('appLayout').classList.remove('hidden');
 
+      populateCycleFilter();
       fetchData();
       subscribeRealtime();
     }
@@ -432,17 +457,25 @@
     }
 
     async function fetchData() {
-      const { data, error } = await db.from('SIMBA-IN').select('*').order('id', { ascending: true });
-      if (!error && data) {
-        // Asal fallback data jika kolom cycle kosong di DB
-        allData = data.map((item, index) => ({
-          ...item,
-          cycle: item.cycle || ((index % 15) + 1)
-        }));
-        updateMetrics();
-        updateCycleAnalytics();
-        renderTable();
+      try {
+        const { data, error } = await db.from('SIMBA-IN').select('*').order('id', { ascending: true });
+        if (!error && data && data.length > 0) {
+          allData = data.map((item, index) => ({
+            ...item,
+            cycle: item.cycle || ((index % 15) + 1)
+          }));
+        } else {
+          // Fallback menggunakan 20 Soal Dummy jika Supabase kosong/error
+          allData = JSON.parse(JSON.stringify(DUMMY_SOAL_DATA));
+        }
+      } catch (err) {
+        console.warn("Gagal terhubung ke Supabase, menggunakan data simulasi 20 soal.", err);
+        allData = JSON.parse(JSON.stringify(DUMMY_SOAL_DATA));
       }
+
+      updateMetrics();
+      updateCycleAnalytics();
+      renderTable();
     }
 
     function updateMetrics() {
@@ -529,24 +562,20 @@
 
     // MANAJEMEN TAMPILAN SIDEBAR BERUBAH WARNA SAAT DIKLIK
     function selectNav(btnId, statusVal) {
-      // 1. Reset seluruh style tombol di sidebar
       const navButtons = document.querySelectorAll('.nav-item');
       navButtons.forEach(btn => {
         btn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition";
       });
 
-      // 2. Terapkan style aktif (Orange Aetra) ke tombol yang dipilih
       const activeBtn = document.getElementById(btnId);
       if (activeBtn) {
         activeBtn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold bg-aetra-orange text-white shadow-md transition";
       }
 
-      // 3. Update dropdown status filter & refresh tabel
       document.getElementById('statusFilter').value = statusVal;
       renderTable();
     }
 
-    // Jika dropdown status di atas tabel diubah manual oleh pengguna
     function onStatusFilterSelectChange() {
       const val = document.getElementById('statusFilter').value;
       if (val === 'ALL') {
@@ -556,7 +585,7 @@
       } else if (val === 'Verified') {
         highlightNavOnly('nav-verified');
       } else {
-        highlightNavOnly(null); // Jika status selain opsi utama (e.g. Invoiced)
+        highlightNavOnly(null);
       }
       renderTable();
     }
@@ -574,195 +603,238 @@
       }
     }
 
-    function filterStatus(status) {
-      document.getElementById('statusFilter').value = status;
-      renderTable();
-    }
-
+    // RENDER TABEL UTAMA
     function renderTable() {
       const search = document.getElementById('searchInput').value.toLowerCase();
-      const statusFilter = document.getElementById('statusFilter').value;
-      const kelasFilter = document.getElementById('kelasFilter').value;
-      const bulanFilter = document.getElementById('bulanFilter').value;
-      const cycleFilter = document.getElementById('cycleFilter').value;
+      const statusF = document.getElementById('statusFilter').value;
+      const cycleF = document.getElementById('cycleFilter').value;
+      const kelasF = document.getElementById('kelasFilter').value;
+      const bulanF = document.getElementById('bulanFilter').value;
 
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
 
       const filtered = allData.filter(item => {
-        const matchSearch = item.nama_industri?.toLowerCase().includes(search) || item.id_pelanggan?.includes(search);
-        const matchStatus = statusFilter === 'ALL' ? true : item.status === statusFilter;
-        const matchKelas = kelasFilter === 'ALL' ? true : item.kelas === kelasFilter;
-        const matchBulan = bulanFilter === 'ALL' ? true : item.bulan === bulanFilter;
-        const matchCycle = cycleFilter === 'ALL' ? true : item.cycle == cycleFilter;
-        return matchSearch && matchStatus && matchKelas && matchBulan && matchCycle;
+        const matchSearch = (item.customer_name || '').toLowerCase().includes(search) || (item.customer_id || '').toLowerCase().includes(search);
+        const matchStatus = statusF === 'ALL' || item.status === statusF;
+        const matchCycle = cycleF === 'ALL' || item.cycle == cycleF;
+        const matchKelas = kelasF === 'ALL' || item.kelas === kelasF;
+        const matchBulan = bulanF === 'ALL' || (item.month || 'September 2026') === bulanF;
+        return matchSearch && matchStatus && matchCycle && matchKelas && matchBulan;
       });
 
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Data tidak ditemukan untuk kriteria filter yang dipilih.</td></tr>`;
+        return;
+      }
+
       filtered.forEach(item => {
-        const usage = (item.stand_sekarang || 0) - (item.stand_lalu || 0);
-        const totalTagihan = item.total_tagihan || (usage * 12500);
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 dark:hover:bg-slate-700/30 transition border-b border-slate-100 dark:border-slate-700/50";
 
         let statusBadge = '';
         if (item.status === 'Pending Verification') {
-          statusBadge = `<span class="bg-aetra-lightorange text-aetra-orange border border-orange-200 dark:bg-orange-950 dark:border-orange-800 px-2 py-0.5 rounded-md text-[10px] font-bold">Pending Solihin/Kabul</span>`;
+          statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border border-amber-200">🔍 Pending Verification</span>`;
         } else if (item.status === 'Verified') {
-          statusBadge = `<span class="bg-aetra-lightblue text-aetra-blue dark:bg-blue-950 dark:border-blue-800 border border-blue-200 px-2 py-0.5 rounded-md text-[10px] font-bold dark:text-blue-300">Verified (Pak Yaya)</span>`;
-        } else if (item.status === 'Rejected') {
-          statusBadge = `<span class="bg-rose-50 text-rose-700 dark:bg-rose-950 dark:border-rose-800 dark:text-rose-300 border border-rose-200 px-2 py-0.5 rounded-md text-[10px] font-bold">Rejected / Koreksi</span>`;
+          statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-aetra-blue dark:bg-blue-950 dark:text-blue-300 border border-blue-200">📋 Ready for Billing</span>`;
         } else {
-          statusBadge = `<span class="bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-300 border border-emerald-200 px-2 py-0.5 rounded-md text-[10px] font-bold">Invoiced & Sent Email</span>`;
+          statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200">✅ Invoiced & Sent</span>`;
         }
 
-        // HAK AKSES TOMBOL AKSI
         let actionBtn = '';
-        if (currentUser.access === 'READING' && (item.status === 'Pending Verification' || item.status === 'Rejected')) {
-          actionBtn = `<button onclick="openModal(${item.id})" class="px-2.5 py-1 bg-aetra-blue hover:bg-aetra-darkblue text-white rounded-lg font-bold text-[11px] shadow-sm">Verifikasi</button>`;
-        } else if (currentUser.access === 'BILLING' && item.status === 'Verified') {
-          actionBtn = `<button onclick="blastEmailInvoice(${item.id}, ${totalTagihan})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-[11px] shadow-sm">📧 Email Invoice</button>`;
+        if (item.status === 'Pending Verification') {
+          actionBtn = `<button onclick="openModal(${item.id})" class="px-3 py-1.5 bg-aetra-orange hover:bg-orange-600 text-white font-bold rounded-xl text-[11px] transition shadow">Verifikasi</button>`;
+        } else if (item.status === 'Verified') {
+          actionBtn = `<button onclick="openModal(${item.id})" class="px-3 py-1.5 bg-aetra-blue hover:bg-aetra-darkblue text-white font-bold rounded-xl text-[11px] transition shadow">Proses Billing</button>`;
         } else {
-          actionBtn = `<button onclick="openModal(${item.id})" class="px-2 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 rounded-lg font-semibold text-[11px]">Lihat Detail</button>`;
+          actionBtn = `<button onclick="openModal(${item.id})" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl text-[11px] transition">Lihat Detail</button>`;
         }
 
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-700/40 transition';
         tr.innerHTML = `
           <td class="p-3.5">
-            <p class="font-bold text-slate-800 dark:text-white">${item.nama_industri}</p>
-            <p class="text-[10px] text-slate-400 font-mono">ID: ${item.id_pelanggan} | <span class="font-bold text-aetra-orange">${item.kelas || 'Gold'}</span></p>
-          </td>
-          <td class="p-3.5 font-bold text-aetra-blue dark:text-blue-400">
-            Cycle ${item.cycle || 1}
+            <p class="font-extrabold text-slate-800 dark:text-slate-100 text-xs">${item.customer_name}</p>
+            <p class="text-[10px] font-mono text-slate-400 mt-0.5">${item.customer_id} | <span class="font-bold text-amber-600">${item.kelas || 'Gold'}</span></p>
           </td>
           <td class="p-3.5">
-            <p class="text-slate-400">Lalu: ${item.stand_lalu ? item.stand_lalu.toLocaleString() : 0}</p>
-            <p class="font-bold text-aetra-blue dark:text-blue-300">Skrg: ${item.stand_sekarang ? item.stand_sekarang.toLocaleString() : 0}</p>
+            <span class="px-2 py-0.5 rounded bg-blue-50 dark:bg-slate-700 text-aetra-blue dark:text-blue-300 font-extrabold text-[10px]">
+              Cycle ${item.cycle}
+            </span>
           </td>
-          <td class="p-3.5 font-extrabold text-slate-700 dark:text-slate-200">${usage.toLocaleString()} m³</td>
-          <td class="p-3.5 font-extrabold text-aetra-blue dark:text-blue-400">Rp${totalTagihan.toLocaleString()}</td>
+          <td class="p-3.5">
+            <span class="text-slate-400">${item.stand_lalu.toLocaleString()}</span> ➔ 
+            <span class="font-bold text-slate-800 dark:text-slate-200">${item.stand_skrg.toLocaleString()}</span>
+          </td>
+          <td class="p-3.5 font-extrabold text-aetra-orange">${item.volume.toLocaleString()} m³</td>
+          <td class="p-3.5 font-extrabold text-aetra-blue dark:text-blue-400">Rp ${item.total_bill.toLocaleString('id-ID')}</td>
           <td class="p-3.5">${statusBadge}</td>
-          <td class="p-3.5 text-center">
-            <div class="flex items-center justify-center gap-1.5">
-              ${actionBtn}
-            </div>
-          </td>
+          <td class="p-3.5 text-center">${actionBtn}</td>
         `;
         tbody.appendChild(tr);
       });
     }
 
+    // MODAL HANDLERS
     function openModal(id) {
       activeItem = allData.find(d => d.id === id);
       if (!activeItem) return;
 
-      const usage = (activeItem.stand_sekarang || 0) - (activeItem.stand_lalu || 0);
-      document.getElementById('modalNama').innerText = activeItem.nama_industri;
-      document.getElementById('modalId').innerText = activeItem.id_pelanggan;
+      document.getElementById('modalNama').innerText = activeItem.customer_name;
+      document.getElementById('modalId').innerText = activeItem.customer_id;
       document.getElementById('modalKelas').innerText = `Kelas ${activeItem.kelas || 'Gold'}`;
-      document.getElementById('modalCycleBadge').innerText = `Cycle ${activeItem.cycle || 1}`;
-      document.getElementById('modalLalu').innerText = `${activeItem.stand_lalu ? activeItem.stand_lalu.toLocaleString() : 0} m³`;
-      document.getElementById('modalInputSkrg').value = activeItem.stand_sekarang || 0;
-      document.getElementById('modalUsage').innerText = `${usage.toLocaleString()} m³`;
-      document.getElementById('modalEstTagihan').innerText = `Rp${(usage * 12500).toLocaleString()}`;
+      document.getElementById('modalCycleBadge').innerText = `Cycle ${activeItem.cycle}`;
+      
+      document.getElementById('modalFotoMeter').src = activeItem.foto_meter || 'https://via.placeholder.com/300x200?text=Foto+Meteran';
+      document.getElementById('modalFotoBPM').src = activeItem.foto_bpm || 'https://via.placeholder.com/300x200?text=Foto+BPM';
 
-      if (activeItem.foto) {
-        document.getElementById('modalFotoMeter').src = activeItem.foto;
-        document.getElementById('modalFotoBPM').src = activeItem.foto_bpm || activeItem.foto;
-      }
-
+      document.getElementById('modalLalu').innerText = `${activeItem.stand_lalu.toLocaleString()} m³`;
+      
       const inputSkrg = document.getElementById('modalInputSkrg');
+      inputSkrg.value = activeItem.stand_skrg;
+
+      calculateModalUsage();
+
       const actionBtn = document.getElementById('modalActionBtn');
       const rejectBtn = document.getElementById('modalRejectBtn');
-      const aiBtn = document.getElementById('aiOCRBtn');
+      const ocrBtn = document.getElementById('aiOCRBtn');
 
-      if (currentUser.access === 'READING' && (activeItem.status === 'Pending Verification' || activeItem.status === 'Rejected')) {
+      if (activeItem.status === 'Pending Verification') {
         inputSkrg.disabled = false;
-        aiBtn.classList.remove('hidden');
+        ocrBtn.classList.remove('hidden');
         rejectBtn.classList.remove('hidden');
-        actionBtn.innerText = "Setujui Reading & Kirim ke Pak Yaya";
-        actionBtn.className = "px-4 py-2 bg-aetra-blue hover:bg-aetra-darkblue text-white text-xs font-bold rounded-xl transition shadow";
-        actionBtn.onclick = approveReading;
+        actionBtn.innerText = '✔️ Verifikasi Reading & Approve';
+        actionBtn.className = 'px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow';
+      } else if (activeItem.status === 'Verified') {
+        inputSkrg.disabled = true;
+        ocrBtn.classList.add('hidden');
+        rejectBtn.classList.remove('hidden');
+        actionBtn.innerText = '🧾 Terbitkan Invoice & Kirim Email';
+        actionBtn.className = 'px-4 py-2 bg-aetra-blue hover:bg-aetra-darkblue text-white text-xs font-bold rounded-xl transition shadow';
       } else {
         inputSkrg.disabled = true;
-        aiBtn.classList.add('hidden');
+        ocrBtn.classList.add('hidden');
         rejectBtn.classList.add('hidden');
-        actionBtn.innerText = "Tutup";
-        actionBtn.className = "px-4 py-2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition";
-        actionBtn.onclick = closeModal;
+        actionBtn.innerText = '✅ Invoice Sudah Terbit';
+        actionBtn.className = 'px-4 py-2 bg-slate-300 dark:bg-slate-700 text-slate-500 cursor-not-allowed text-xs font-bold rounded-xl';
       }
 
       document.getElementById('detailModal').classList.remove('hidden');
     }
 
-    function runAICorrection() {
-      alert('🤖 AI Scanning Dokumen BPM... Menemukan angka stand meter yang sesuai!');
-      const newStand = (activeItem.stand_lalu || 0) + 1250;
-      document.getElementById('modalInputSkrg').value = newStand;
-      document.getElementById('modalUsage').innerText = `1,250 m³`;
-      document.getElementById('modalEstTagihan').innerText = `Rp${(1250 * 12500).toLocaleString()}`;
+    function closeModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+      activeItem = null;
     }
 
-    async function approveReading() {
-      const newStand = parseInt(document.getElementById('modalInputSkrg').value);
-      const usage = newStand - (activeItem.stand_lalu || 0);
-      const total = usage * 12500;
+    function calculateModalUsage() {
+      if (!activeItem) return;
+      const skrg = parseInt(document.getElementById('modalInputSkrg').value) || 0;
+      const lalu = activeItem.stand_lalu;
+      const usage = Math.max(0, skrg - lalu);
+      const bill = usage * 12500;
 
-      const { error } = await db.from('SIMBA-IN').update({
-        stand_sekarang: newStand,
-        total_tagihan: total,
-        status: 'Verified'
-      }).eq('id', activeItem.id);
+      document.getElementById('modalUsage').innerText = `${usage.toLocaleString()} m³`;
+      document.getElementById('modalEstTagihan').innerText = `Rp ${bill.toLocaleString('id-ID')}`;
+    }
 
-      if (!error) {
-        closeModal();
-        fetchData();
+    function runAICorrection() {
+      alert("🤖 AI / OCR System: Memindai foto meteran & BPM...\n\nOtomatisasi membaca Stand Meter: " + activeItem.stand_skrg);
+    }
+
+    async function processModalAction() {
+      if (!activeItem) return;
+
+      if (activeItem.status === 'Pending Verification') {
+        if (currentUser.access !== 'READING') {
+          alert('Akses Ditolak: Hanya Pak Solihin / Pak Kabul (Verifikator) yang berwenang melakukan verifikasi awal.');
+          return;
+        }
+        
+        const newSkrg = parseInt(document.getElementById('modalInputSkrg').value) || activeItem.stand_skrg;
+        const newVolume = Math.max(0, newSkrg - activeItem.stand_lalu);
+        const newBill = newVolume * 12500;
+
+        activeItem.stand_skrg = newSkrg;
+        activeItem.volume = newVolume;
+        activeItem.total_bill = newBill;
+        activeItem.status = 'Verified';
+
+        // Update ke Supabase
+        await db.from('SIMBA-IN').update({
+          stand_skrg: newSkrg,
+          volume: newVolume,
+          total_bill: newBill,
+          status: 'Verified'
+        }).eq('id', activeItem.id);
+
+        alert(`Sukses! Pembacaan meter untuk ${activeItem.customer_name} telah DIVERIFIKASI.`);
+      } 
+      else if (activeItem.status === 'Verified') {
+        if (currentUser.access !== 'BILLING') {
+          alert('Akses Ditolak: Hanya Pak Yaya (Billing) yang berwenang menerbitkan invoice.');
+          return;
+        }
+
+        activeItem.status = 'Invoiced';
+
+        // Update ke Supabase
+        await db.from('SIMBA-IN').update({
+          status: 'Invoiced'
+        }).eq('id', activeItem.id);
+
+        alert(`Sukses! Invoice untuk ${activeItem.customer_name} telah diterbitkan & dikirim via email.`);
       }
+
+      closeModal();
+      updateMetrics();
+      updateCycleAnalytics();
+      renderTable();
     }
 
     async function rejectItem() {
-      const { error } = await db.from('SIMBA-IN').update({ status: 'Rejected' }).eq('id', activeItem.id);
-      if (!error) {
+      if (!activeItem) return;
+      if (confirm(`Apakah Anda yakin ingin menolak / mengembalikan status ${activeItem.customer_name} ke Pending Verification?`)) {
+        activeItem.status = 'Pending Verification';
+        
+        await db.from('SIMBA-IN').update({
+          status: 'Pending Verification'
+        }).eq('id', activeItem.id);
+
+        alert('Status telah dikembalikan ke Pending Verification.');
         closeModal();
-        fetchData();
+        updateMetrics();
+        updateCycleAnalytics();
+        renderTable();
       }
     }
 
-    async function blastEmailInvoice(id, totalTagihan) {
-      const { error } = await db.from('SIMBA-IN').update({ status: 'Invoiced' }).eq('id', id);
-      if (!error) {
-        alert(`📧 E-Invoice Tagihan Rp${totalTagihan.toLocaleString()} Berhasil Dikirimkan melalui Server Email Pak Yaya!`);
-        fetchData();
-      }
-    }
-
-    function closeModal() {
-      document.getElementById('detailModal').classList.add('hidden');
-    }
-
-    function downloadPDFReport() {
-      const element = document.getElementById('dashboardReportContent');
-      html2pdf().from(element).save(`Laporan_SIMBA-IN_Aetra_${new Date().toISOString().slice(0,10)}.pdf`);
-    }
-
+    // EKSPOR CSV
     function exportToCSV() {
-      let csvContent = "data:text/csv;charset=utf-8,ID Pelanggan,Nama Industri,Cycle,Kelas,Stand Lalu,Stand Sekarang,Total Tagihan,Status\n";
-      allData.forEach(item => {
-        const usage = (item.stand_sekarang || 0) - (item.stand_lalu || 0);
-        const total = item.total_tagihan || (usage * 12500);
-        csvContent += `"${item.id_pelanggan}","${item.nama_industri}",${item.cycle || 1},"${item.kelas || 'Gold'}",${item.stand_lalu || 0},${item.stand_sekarang || 0},${total},"${item.status}"\n`;
+      let csvContent = "data:text/csv;charset=utf-8,ID Pelanggan,Nama Industri,Kelas,Cycle,Stand Lalu,Stand Sekarang,Volume (m3),Total Tagihan (Rp),Status\n";
+      allData.forEach(d => {
+        csvContent += `"${d.customer_id}","${d.customer_name}","${d.kelas || 'Gold'}","${d.cycle}",${d.stand_lalu},${d.stand_skrg},${d.volume},${d.total_bill},"${d.status}"\n`;
       });
+
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `Rekap_SIMBA-IN_Aetra.csv`);
+      link.setAttribute("download", "Laporan_SIMBA-IN_Aetra.csv");
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
 
-    // ON PAGE INITIALIZATION
-    window.onload = function() {
-      populateCycleFilter();
-    };
+    // CETAK PDF REPORT
+    function downloadPDFReport() {
+      const element = document.getElementById('dashboardReportContent');
+      const opt = {
+        margin:       0.3,
+        filename:     'Laporan_SIMBA-IN_Aetra_Tangerang.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
   </script>
 </body>
 </html>
