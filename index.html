@@ -254,7 +254,7 @@
         <!-- ANNOUNCEMENT -->
         <div class="bg-aetra-darkblue text-white rounded-xl p-3 px-4 text-xs flex items-center gap-3 shadow-md">
           <span class="bg-aetra-orange text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-md shrink-0">Info Sistem</span>
-          <p class="font-medium">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026 berjalan lancar. Batas akhir penagihan Cycle 1-15 adalah tanggal 25.</p>
+          <p class="font-medium">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026 berjalan lancar. Tagihan > Rp 5 Juta otomatis dikenakan Bea Materai Rp 10.000.</p>
         </div>
 
         <!-- TABEL DATA -->
@@ -289,8 +289,10 @@
                 <tr class="bg-slate-100 dark:bg-slate-700/50 text-aetra-darkblue dark:text-slate-200 uppercase font-extrabold border-b border-slate-200 dark:border-slate-700 text-[10px] tracking-wider">
                   <th class="p-3.5">Pelanggan Industri</th>
                   <th class="p-3.5">Cycle</th>
-                  <th class="p-3.5">Stand Meter (Lalu vs Skrg)</th>
+                  <th class="p-3.5">Stand Lalu (m³)</th>
+                  <th class="p-3.5">Stand Skrg (m³)</th>
                   <th class="p-3.5">Volume (m³)</th>
+                  <th class="p-3.5">Bea Materai (Rp)</th>
                   <th class="p-3.5">Total Tagihan (Rp)</th>
                   <th class="p-3.5">Status Alur Kerja & Keterangan</th>
                   <th class="p-3.5 text-center">Aksi Operasional</th>
@@ -366,7 +368,7 @@
         <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition">Tutup</button>
         <div class="flex gap-2">
           <button id="modalRejectBtn" onclick="rejectItem()" class="hidden px-4 py-2 bg-rose-100 hover:bg-rose-200 dark:bg-rose-950 dark:hover:bg-rose-900 text-rose-700 dark:text-rose-300 text-xs font-bold rounded-xl border border-rose-300 dark:border-rose-800 transition">⚠️ Reject / Koreksi Ulang</button>
-          <button id="modalActionBtn" onclick="processModalAction()" class="px-4 py-2 bg-aetra-blue hover:bg-aetra-darkblue text-white text-xs font-bold rounded-xl transition shadow">-</button>
+          <button id="modalActionBtn" class="px-4 py-2 bg-aetra-blue hover:bg-aetra-darkblue text-white text-xs font-bold rounded-xl transition shadow">-</button>
         </div>
       </div>
     </div>
@@ -451,7 +453,6 @@
       yaya: { name: "Pak Yaya", role: "Tim Billing & Invoicing", avatar: "PY" }
     };
 
-    // Fungsi Update Real-Time Clock
     function updateRealtimeClock() {
       const now = new Date();
       const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -547,7 +548,7 @@
       const tbody = document.getElementById('tableBody');
       
       if(filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Tidak ada data yang sesuai filter.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">Tidak ada data yang sesuai filter.</td></tr>`;
         return;
       }
 
@@ -562,23 +563,29 @@
           : '';
 
         let baseCalc = item.volume * 12500;
-        let finalBill = baseCalc > 5000000 ? baseCalc + 10000 : baseCalc;
+        let isOver5jt = baseCalc > 5000000;
+        let materaiVal = isOver5jt ? 10000 : 0;
+        let finalBill = baseCalc + materaiVal;
 
-        html += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+        html += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/35 transition">
           <td class="p-3.5">
             <p class="font-bold text-slate-800 dark:text-white">${item.customer_name}</p>
             <p class="text-[10px] text-slate-400 font-mono">${item.customer_id} • <span class="text-amber-600 font-bold">${item.kelas}</span></p>
           </td>
           <td class="p-3.5 font-bold text-aetra-blue dark:text-blue-400">Cycle ${item.cycle}</td>
-          <td class="p-3.5 text-slate-600 dark:text-slate-300">${item.stand_lalu} vs ${item.stand_skrg}</td>
-          <td class="p-3.5 font-extrabold text-aetra-orange">${item.volume.toLocaleString()} m³</td>
-          <td class="p-3.5 font-bold text-slate-800 dark:text-white">Rp ${finalBill.toLocaleString()} ${baseCalc > 5000000 ? '<span class="text-[9px] text-blue-600 font-bold">(+Materai)</span>' : ''}</td>
+          <td class="p-3.5 text-slate-600 dark:text-slate-300 font-mono">${item.stand_lalu.toLocaleString()}</td>
+          <td class="p-3.5 text-slate-600 dark:text-slate-300 font-mono">${item.stand_skrg.toLocaleString()}</td>
+          <td class="p-3.5 font-extrabold text-aetra-orange font-mono">${item.volume.toLocaleString()} m³</td>
+          <td class="p-3.5 text-slate-700 dark:text-slate-300 font-mono">
+            ${materaiVal > 0 ? 'Rp 10.000 <span class="block text-[9px] text-blue-600 font-bold">(Tagihan > 5 Juta)</span>' : 'Rp 0'}
+          </td>
+          <td class="p-3.5 font-bold text-slate-800 dark:text-white font-mono">Rp ${finalBill.toLocaleString()}</td>
           <td class="p-3.5">
             <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border ${badgeClass}">${item.status}</span>
             ${reasonSub}
           </td>
           <td class="p-3.5 text-center">
-            <button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-aetra-lightblue hover:bg-blue-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-aetra-blue dark:text-blue-300 rounded-xl font-bold transition">
+            <button type="button" onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-aetra-lightblue hover:bg-blue-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-aetra-blue dark:text-blue-300 rounded-xl font-bold transition shadow-sm cursor-pointer">
               🔍 Detail & Aksi
             </button>
           </td>
@@ -643,7 +650,6 @@
       document.getElementById('modalNama').innerText = activeModalItem.customer_name;
       document.getElementById('modalId').innerText = activeModalItem.customer_id;
       document.getElementById('modalEmail').innerText = activeModalItem.email;
-      document.getElementById('modalKelas').innerText = `Kelas ${activeModalItem.kelas}`;
       document.getElementById('modalFotoMeter').src = activeModalItem.foto_meter;
       document.getElementById('modalFotoBPM').src = activeModalItem.foto_bpm;
       document.getElementById('modalLalu').innerText = activeModalItem.stand_lalu.toLocaleString() + ' m³';
@@ -804,9 +810,11 @@
     }
 
     function exportToCSV() {
-      let csv = 'ID Pelanggan,Nama Industri,Email,Kelas,Cycle,Volume,Tagihan,Status,Keterangan Pending\n';
+      let csv = 'ID Pelanggan,Nama Industri,Email,Kelas,Cycle,Stand Lalu,Stand Skrg,Volume,Materai,Total Tagihan,Status,Keterangan Pending\n';
       globalData.forEach(i => {
-        csv += `"${i.customer_id}","${i.customer_name}","${i.email}","${i.kelas}",${i.cycle},${i.volume},${i.total_bill},"${i.status}","${i.pending_reason}"\n`;
+        let base = i.volume * 12500;
+        let mat = base > 5000000 ? 10000 : 0;
+        csv += `"${i.customer_id}","${i.customer_name}","${i.email}","${i.kelas}",${i.cycle},${i.stand_lalu},${i.stand_skrg},${i.volume},${mat},${i.total_bill},"${i.status}","${i.pending_reason}"\n`;
       });
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
