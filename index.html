@@ -28,11 +28,11 @@
           <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold bg-blue-600 text-white shadow-md">
             📊 Overview Dashboard
           </button>
-          <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition">
-            ✔️ Verifikasi (Solihin/Kabul)
+          <button onclick="filterStatus('Pending Verification')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition">
+            <span>✔️ Verifikasi (Solihin/Kabul)</span>
           </button>
-          <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition">
-            🧾 Billing (Pak Yaya)
+          <button onclick="filterStatus('Verified')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition">
+            <span>🧾 Billing (Pak Yaya)</span>
           </button>
         </nav>
       </div>
@@ -53,7 +53,6 @@
       <!-- HEADER -->
       <header class="bg-white border-b border-slate-200 p-4 flex flex-col md:flex-row items-center justify-between gap-4 sticky top-0 z-10 shadow-sm">
         <div class="relative w-full md:w-96">
-          <!-- PERBAIKAN: Menggunakan class biasa, bukan className -->
           <input
             id="searchInput"
             type="text"
@@ -63,7 +62,8 @@
           />
         </div>
 
-        <div class="flex items-center gap-3 w-full md:w-auto justify-between">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-between flex-wrap">
+          <!-- Filter Operator Staf -->
           <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
             <span class="text-slate-500 px-2 font-medium">Staf:</span>
             <button onclick="filterOperator('ALL')" class="op-btn px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-600 text-white">Semua</button>
@@ -101,22 +101,38 @@
           </div>
 
           <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Invoiced & Blast</p>
-            <p id="countInvoiced" class="text-2xl font-black text-emerald-600 mt-0.5">0</p>
-            <span class="text-[10px] text-emerald-600 font-semibold">e-Materai Attached</span>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Deteksi Anomali Pemakaian</p>
+            <p id="countAnomali" class="text-2xl font-black text-rose-600 mt-0.5">0</p>
+            <span class="text-[10px] text-rose-600 font-semibold">Perlu Perhatian Cepat</span>
           </div>
         </div>
 
         <!-- TABEL DATA -->
         <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+          <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-slate-50">
             <div>
               <h2 class="font-bold text-slate-800 text-sm">Tabel Monitoring & Operasional Pembacaan Meter</h2>
               <p class="text-[11px] text-slate-400">Verifikasi visual foto & pemrosesan billing otomatis</p>
             </div>
-            <button onclick="fetchData()" class="px-3 py-1.5 text-xs font-semibold bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-100 transition shadow-sm">
-              🔄 Refresh
-            </button>
+
+            <!-- FITUR PERBAIKAN: Filter Status & Export CSV -->
+            <div class="flex items-center gap-2 flex-wrap">
+              <select id="statusFilter" onchange="renderTable()" class="px-2.5 py-1.5 text-xs font-semibold bg-white border border-slate-200 rounded-lg text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+                <option value="ALL">Semua Status Workflow</option>
+                <option value="Pending Verification">Pending Verification</option>
+                <option value="Verified">Verified (Ready Billing)</option>
+                <option value="Invoiced">Invoiced & Blast</option>
+                <option value="ANOMALI">⚠️ Khusus Anomali</option>
+              </select>
+
+              <button onclick="exportToCSV()" class="px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition shadow-sm flex items-center gap-1">
+                📥 Ekspor CSV
+              </button>
+
+              <button onclick="fetchData()" class="px-3 py-1.5 text-xs font-semibold bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-100 transition shadow-sm">
+                🔄 Refresh
+              </button>
+            </div>
           </div>
 
           <div class="overflow-x-auto">
@@ -181,6 +197,12 @@
             -
           </code>
         </div>
+
+        <!-- FITUR IMPROVEMENT: Log Riwayat Singkat -->
+        <div class="border p-3 rounded-xl space-y-1 bg-slate-50">
+          <p class="text-slate-500 font-bold text-[10px] uppercase">Audit Trail / Log Aktivitas:</p>
+          <p id="modalAuditLog" class="text-slate-600 text-[11px] italic">Sistem mencatat pembacaan dibuat dari pangkalan data Supabase.</p>
+        </div>
       </div>
 
       <div class="bg-slate-50 p-4 border-t border-slate-200 flex justify-end gap-2">
@@ -192,14 +214,12 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
-    // MASUKKAN URL DAN KEY SUPABASE KAMU DI SINI
     const SUPABASE_URL = "https://gjfkulhavzpffnpvfmel.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmt1bGhhdnpwZmZucHZmbWVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3ODc5NjQsImV4cCI6MjEwNTM2Mzk2NH0.jfVgsZSy6Kk2NPkBvIOttLee-cIKd8yem9PxqpxyT_o";
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let allData = [];
     let currentOperatorFilter = 'ALL';
-    let activeItem = null;
 
     async function fetchData() {
       const { data, error } = await db.from('admin_pembacaan_meter').select('*').order('id', { ascending: true });
@@ -213,7 +233,14 @@
     function updateMetrics() {
       document.getElementById('countPending').innerText = allData.filter(d => d.status === 'Pending Verification').length;
       document.getElementById('countVerified').innerText = allData.filter(d => d.status === 'Verified').length;
-      document.getElementById('countInvoiced').innerText = allData.filter(d => d.status === 'Invoiced').length;
+      
+      // Hitung jumlah anomali (>20% dari rata-rata)
+      const anomaliCount = allData.filter(d => {
+        const usage = (d.stand_sekarang || 0) - (d.stand_lalu || 0);
+        return d.avg_usage && Math.abs(usage - d.avg_usage) / d.avg_usage > 0.2;
+      }).length;
+
+      document.getElementById('countAnomali').innerText = anomaliCount;
     }
 
     function filterOperator(op) {
@@ -221,20 +248,37 @@
       renderTable();
     }
 
+    function filterStatus(status) {
+      document.getElementById('statusFilter').value = status;
+      renderTable();
+    }
+
     function renderTable() {
       const search = document.getElementById('searchInput').value.toLowerCase();
+      const selectedStatus = document.getElementById('statusFilter').value;
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
 
       const filtered = allData.filter(item => {
+        const usage = (item.stand_sekarang || 0) - (item.stand_lalu || 0);
+        const isAnomali = item.avg_usage ? Math.abs(usage - item.avg_usage) / item.avg_usage > 0.2 : false;
+
         const matchSearch = item.nama_industri.toLowerCase().includes(search) || item.id_pelanggan.includes(search);
         const matchOp = currentOperatorFilter === 'ALL' ? true : item.petugas_meter === currentOperatorFilter;
-        return matchSearch && matchOp;
+        
+        let matchStatus = true;
+        if (selectedStatus === 'ANOMALI') {
+          matchStatus = isAnomali;
+        } else if (selectedStatus !== 'ALL') {
+          matchStatus = item.status === selectedStatus;
+        }
+
+        return matchSearch && matchOp && matchStatus;
       });
 
       filtered.forEach(item => {
         const usage = (item.stand_sekarang || 0) - (item.stand_lalu || 0);
-        const isAnomali = Math.abs(usage - item.avg_usage) / item.avg_usage > 0.2;
+        const isAnomali = item.avg_usage ? Math.abs(usage - item.avg_usage) / item.avg_usage > 0.2 : false;
 
         let statusBadge = '';
         if (item.status === 'Pending Verification') {
@@ -257,7 +301,7 @@
         tr.innerHTML = `
           <td class="p-3.5">
             <p class="font-bold text-slate-800">${item.nama_industri}</p>
-            <p class="text-[10px] text-slate-400 font-mono">ID: ${item.id_pelanggan} | ${item.kelas}</p>
+            <p class="text-[10px] text-slate-400 font-mono">ID: ${item.id_pelanggan} | ${item.kelas || '-'}</p>
           </td>
           <td class="p-3.5">
             <p class="text-slate-400">Lalu: ${item.stand_lalu ? item.stand_lalu.toLocaleString() : 0}</p>
@@ -296,7 +340,7 @@
     }
 
     function openModal(id) {
-      activeItem = allData.find(d => d.id === id);
+      const activeItem = allData.find(d => d.id === id);
       if (!activeItem) return;
 
       const usage = (activeItem.stand_sekarang || 0) - (activeItem.stand_lalu || 0);
@@ -307,6 +351,8 @@
       document.getElementById('modalUsage').innerText = `${usage.toLocaleString()} m³`;
       document.getElementById('modalAvg').innerText = `${activeItem.avg_usage ? activeItem.avg_usage.toLocaleString() : 0} m³`;
       document.getElementById('modalFileName').innerText = activeItem.file_name || `${activeItem.id_pelanggan}_${activeItem.nama_industri.replace(/\s+/g, '-')}_20260922.jpg`;
+      
+      document.getElementById('modalAuditLog').innerText = `Status saat ini: [${activeItem.status}]. Ditugaskan kepada: ${activeItem.petugas_meter || 'Tim Operasional'}.`;
 
       const btn = document.getElementById('modalActionBtn');
       if (activeItem.status === 'Pending Verification') {
@@ -321,6 +367,35 @@
 
     function closeModal() {
       document.getElementById('detailModal').classList.add('hidden');
+    }
+
+    // FITUR IMPROVEMENT: Ekspor data ke file CSV
+    function exportToCSV() {
+      if (allData.length === 0) return alert('Tidak ada data untuk diekspor!');
+
+      let csvContent = "data:text/csv;charset=utf-8,ID Pelanggan,Nama Industri,Stand Lalu,Stand Sekarang,Volume (m3),Status,Petugas\n";
+
+      allData.forEach(item => {
+        const usage = (item.stand_sekarang || 0) - (item.stand_lalu || 0);
+        const row = [
+          `"${item.id_pelanggan}"`,
+          `"${item.nama_industri}"`,
+          item.stand_lalu || 0,
+          item.stand_sekarang || 0,
+          usage,
+          `"${item.status}"`,
+          `"${item.petugas_meter || '-'}"`
+        ].join(",");
+        csvContent += row + "\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `SIMBA-IN_Report_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
     fetchData();
