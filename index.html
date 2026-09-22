@@ -457,463 +457,448 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmt1bGhhdnpwZmZucHZmbWVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3ODc5NjQsImV4cCI6MjEwNTM2Mzk2NH0.jfVgsZSy6Kk2NPkBvIOttLee-cIKd8yem9PxqpxyT_o";
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // DATA DUMMY 20 PELANGGAN INDUSTRI AETRA TANGERANG
+    // DATA DUMMY LENGKAP 20 PELANGGAN INDUSTRI AETRA TANGERANG
     const DUMMY_SOAL_DATA = [
       { id: 1, customer_id: "IND-1001", customer_name: "PT Indofood CBP Sukses Makmur", kelas: "Gold", cycle: 1, month: "September 2026", stand_lalu: 12500, stand_skrg: 14800, volume: 2300, total_bill: 28750000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
       { id: 2, customer_id: "IND-1002", customer_name: "PT Mayora Indah Tbk", kelas: "Gold", cycle: 1, month: "September 2026", stand_lalu: 8900, stand_skrg: 10450, volume: 1550, total_bill: 19375000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
       { id: 3, customer_id: "IND-1003", customer_name: "PT Gajah Tunggal Tbk", kelas: "Gold", cycle: 2, month: "September 2026", stand_lalu: 34200, stand_skrg: 39000, volume: 4800, total_bill: 60000000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
       { id: 4, customer_id: "IND-1004", customer_name: "PT Torabika Eka Semesta", kelas: "Silver", cycle: 2, month: "September 2026", stand_lalu: 5400, stand_skrg: 6250, volume: 850, total_bill: 10625000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 5, customer_id: "IND-1005", customer_name: "PT Unilever Indonesia Tbk", kelas: "Gold", cycle: 3, month: "September 2026", stand_lalu: 21000, stand_skrg: 24500, volume: 3500, total_bill: 43750000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 6, customer_id: "IND-1006", customer_name: "PT Paragon Technology and Innovation", kelas: "Silver", cycle: 3, month: "September 2026", stand_lalu: 4100, stand_skrg: 4800, volume: 700, total_bill: 8750000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 7, customer_id: "IND-1007", customer_name: "PT Asia Pulp & Paper (APP)", kelas: "Gold", cycle: 4, month: "September 2026", stand_lalu: 45000, stand_skrg: 51200, volume: 6200, total_bill: 77500000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 8, customer_id: "IND-1008", customer_name: "PT Pratama Abadi Industri", kelas: "Silver", cycle: 4, month: "September 2026", stand_lalu: 7800, stand_skrg: 8950, volume: 1150, total_bill: 14375000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 9, customer_id: "IND-1009", customer_name: "PT Ching Luh Indonesia", kelas: "Gold", cycle: 5, month: "September 2026", stand_lalu: 18500, stand_skrg: 21700, volume: 3200, total_bill: 40000000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 10, customer_id: "IND-1010", customer_name: "PT Dispo Asri Plastic", kelas: "Bronze", cycle: 5, month: "September 2026", stand_lalu: 1200, stand_skrg: 1550, volume: 350, total_bill: 4375000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 11, customer_id: "IND-1011", customer_name: "PT Surya Rengo Containers", kelas: "Silver", cycle: 6, month: "September 2026", stand_lalu: 6300, stand_skrg: 7200, volume: 900, total_bill: 11250000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 12, customer_id: "IND-1012", customer_name: "PT Astra Otoparts Tbk", kelas: "Gold", cycle: 7, month: "September 2026", stand_lalu: 15400, stand_skrg: 17900, volume: 2500, total_bill: 31250000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 13, customer_id: "IND-1013", customer_name: "PT Olympic Gypsum", kelas: "Bronze", cycle: 8, month: "September 2026", stand_lalu: 2300, stand_skrg: 2750, volume: 450, total_bill: 5625000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 14, customer_id: "IND-1014", customer_name: "PT Nippon Paint Indonesia", kelas: "Silver", cycle: 9, month: "September 2026", stand_lalu: 8100, stand_skrg: 9400, volume: 1300, total_bill: 16250000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 15, customer_id: "IND-1015", customer_name: "PT Polychem Indonesia Tbk", kelas: "Gold", cycle: 10, month: "September 2026", stand_lalu: 28900, stand_skrg: 33100, volume: 4200, total_bill: 52500000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 16, customer_id: "IND-1016", customer_name: "PT Sumber Alfaria Trijaya Tbk", kelas: "Silver", cycle: 11, month: "September 2026", stand_lalu: 3900, stand_skrg: 4500, volume: 600, total_bill: 7500000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 17, customer_id: "IND-1017", customer_name: "PT Mitsuba Indonesia", kelas: "Gold", cycle: 12, month: "September 2026", stand_lalu: 11200, stand_skrg: 13100, volume: 1900, total_bill: 23750000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 18, customer_id: "IND-1018", customer_name: "PT Victory Ching Luh", kelas: "Gold", cycle: 13, month: "September 2026", stand_lalu: 22000, stand_skrg: 25600, volume: 3600, total_bill: 45000000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 19, customer_id: "IND-1019", customer_name: "PT Lestari Busana Anggun", kelas: "Bronze", cycle: 14, month: "September 2026", stand_lalu: 1800, stand_skrg: 2280, volume: 480, total_bill: 6000000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 20, customer_id: "IND-1020", customer_name: "PT Texmaco Perkasa Engineering", kelas: "Gold", cycle: 15, month: "September 2026", stand_lalu: 19800, stand_skrg: 23100, volume: 3300, total_bill: 41250000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" }
+      { id: 5, customer_id: "IND-1005", customer_name: "PT Paragon Technology and Innovation", kelas: "Gold", cycle: 3, month: "September 2026", stand_lalu: 15600, stand_skrg: 18100, volume: 2500, total_bill: 31250000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 6, customer_id: "IND-1006", customer_name: "PT Pratama Abadi Industri", kelas: "Silver", cycle: 3, month: "September 2026", stand_lalu: 11200, stand_skrg: 12800, volume: 1600, total_bill: 20000000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 7, customer_id: "IND-1007", customer_name: "PT KMK Global Sports", kelas: "Gold", cycle: 4, month: "September 2026", stand_lalu: 22100, stand_skrg: 25300, volume: 3200, total_bill: 40000000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 8, customer_id: "IND-1008", customer_name: "PT Asia Pulp & Paper (APP)", kelas: "Gold", cycle: 4, month: "September 2026", stand_lalu: 45000, stand_skrg: 51200, volume: 6200, total_bill: 77500000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 9, customer_id: "IND-1009", customer_name: "PT Unilever Indonesia Tbk", kelas: "Gold", cycle: 5, month: "September 2026", stand_lalu: 28000, stand_skrg: 31800, volume: 3800, total_bill: 47500000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 10, customer_id: "IND-1010", customer_name: "PT Hanjaya Mandala Sampoerna", kelas: "Silver", cycle: 5, month: "September 2026", stand_lalu: 9400, stand_skrg: 10600, volume: 1200, total_bill: 15000000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 11, customer_id: "IND-1011", customer_name: "PT Astra Otoparts Tbk", kelas: "Silver", cycle: 6, month: "September 2026", stand_lalu: 7300, stand_skrg: 8250, volume: 950, total_bill: 11875000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 12, customer_id: "IND-1012", customer_name: "PT Lion Metal Works Tbk", kelas: "Bronze", cycle: 7, month: "September 2026", stand_lalu: 3200, stand_skrg: 3650, volume: 450, total_bill: 5625000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 13, customer_id: "IND-1013", customer_name: "PT Polychem Indonesia Tbk", kelas: "Silver", cycle: 8, month: "September 2026", stand_lalu: 14100, stand_skrg: 15900, volume: 1800, total_bill: 22500000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 14, customer_id: "IND-1014", customer_name: "PT
+Akal Bangun Semesta", kelas: "Bronze", cycle: 9, month: "September 2026", stand_lalu: 2100, stand_skrg: 2420, volume: 320, total_bill: 4000000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 15, customer_id: "IND-1015", customer_name: "PT Goodyear Indonesia Tbk", kelas: "Gold", cycle: 10, month: "September 2026", stand_lalu: 18900, stand_skrg: 21600, volume: 2700, total_bill: 33750000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 16, customer_id: "IND-1016", customer_name: "PT Nippon Paint Indonesia", kelas: "Silver", cycle: 11, month: "September 2026", stand_lalu: 8800, stand_skrg: 9950, volume: 1150, total_bill: 14375000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 17, customer_id: "IND-1017", customer_name: "PT Kalbe Farma Tbk", kelas: "Gold", cycle: 12, month: "September 2026", stand_lalu: 26500, stand_skrg: 29900, volume: 3400, total_bill: 42500000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 18, customer_id: "IND-1018", customer_name: "PT Charoen Pokphand Indonesia", kelas: "Silver", cycle: 13, month: "September 2026", stand_lalu: 10500, stand_skrg: 11900, volume: 1400, total_bill: 17500000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
+      { id: 19, customer_id: "IND-1019", customer_name: "PT Santos Jaya Abadi", kelas: "Silver", cycle: 14, month: "September 2026", stand_lalu: 13200, stand_skrg: 14850, volume: 1650, total_bill: 20625000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
+      { id: 20, customer_id: "IND-1020", customer_name: "PT Asahimas Flat Glass Tbk", kelas: "Gold", cycle: 15, month: "September 2026", stand_lalu: 38900, stand_skrg: 44100, volume: 5200, total_bill: 65000000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" }
     ];
 
-    // USERS DATA
+    let currentRole = 'solihin';
+    let localData = [];
+    let selectedItem = null;
+    let myChart = null;
+
+    // USERS DICTIONARY
     const USERS = {
-      solihin: { name: "Pak Solihin", role: "Tim Meter Reading / Verifikasi", avatar: "SL", permission: "VERIFIER" },
-      kabul: { name: "Pak Kabul", role: "Tim Meter Reading / Verifikasi", avatar: "KB", permission: "VERIFIER" },
-      yaya: { name: "Pak Yaya", role: "Tim Billing & Invoicing", avatar: "YY", permission: "BILLING" }
+      solihin: { name: "Pak Solihin", role: "Verifier / Meter Reader", avatar: "SL" },
+      kabul: { name: "Pak Kabul", role: "Verifier / Meter Reader", avatar: "KB" },
+      yaya: { name: "Pak Yaya", role: "Billing & Invoicing Specialist", avatar: "YY" }
     };
 
-    let currentUser = null;
-    let dataStore = [];
-    let cycleChartInstance = null;
-    let currentActiveNav = 'nav-overview';
-    let selectedWorkflowFilter = 'ALL';
-    let activeModalItem = null;
-
-    // INITIALIZATION ON LOAD
-    window.onload = function() {
-      initCycleDropdowns();
-      initInfiniteCycleList();
-      fetchInitialData();
+    // INITIALIZATION
+    window.onload = async () => {
+      initCycleDropdown();
+      populateInfiniteCycleList();
+      await fetchInitialData();
+      checkSavedTheme();
     };
 
-    function initCycleDropdowns() {
-      const select = document.getElementById("cycleFilter");
-      select.innerHTML = '<option value="ALL">Semua Cycle (1-15)</option>';
+    function initCycleDropdown() {
+      const select = document.getElementById('cycleFilter');
+      select.innerHTML = `<option value="ALL">Semua Cycle (1-15)</option>`;
       for (let i = 1; i <= 15; i++) {
-        const opt = document.createElement("option");
-        opt.value = i;
-        opt.textContent = `Cycle ${i}`;
-        select.appendChild(opt);
+        select.innerHTML += `<option value="${i}">Cycle ${i}</option>`;
       }
     }
 
-    function initInfiniteCycleList() {
-      const list1 = document.getElementById("cycleInfiniteList1");
-      const list2 = document.getElementById("cycleInfiniteList2");
-      if(!list1 || !list2) return;
-
-      let htmlContent = "";
+    function populateInfiniteCycleList() {
+      const list1 = document.getElementById('cycleInfiniteList1');
+      const list2 = document.getElementById('cycleInfiniteList2');
+      let html = '';
       for (let i = 1; i <= 15; i++) {
-        htmlContent += `
-          <button onclick="setQuickCycle(${i})" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 hover:bg-aetra-blue hover:text-white dark:hover:bg-aetra-blue text-xs font-bold transition flex items-center gap-1.5 shrink-0">
-            <span>Cycle ${i}</span>
-            <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-blue-100 text-aetra-blue dark:bg-blue-900/60 dark:text-blue-300">Target</span>
-          </button>
-        `;
+        html += `<button onclick="setQuickCycle(${i})" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 hover:bg-aetra-blue hover:text-white dark:hover:bg-aetra-blue text-xs font-bold transition flex items-center gap-1.5 shrink-0">
+          <span>Cycle ${i}</span>
+          <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-blue-100 text-aetra-blue dark:bg-blue-900/60 dark:text-blue-300">Target</span>
+        </button>`;
       }
-      list1.innerHTML = htmlContent;
-      list2.innerHTML = htmlContent;
-    }
-
-    function setQuickCycle(cycleNum) {
-      document.getElementById("cycleFilter").value = cycleNum;
-      onCycleChange();
+      list1.innerHTML = html;
+      list2.innerHTML = html;
     }
 
     async function fetchInitialData() {
       try {
-        const { data, error } = await db.from('meter_readings').select('*');
+        const { data, error } = await db.from('simba_reading').select('*').order('id', { ascending: true });
         if (error || !data || data.length === 0) {
-          dataStore = [...DUMMY_SOAL_DATA];
+          localData = [...DUMMY_SOAL_DATA];
         } else {
-          dataStore = data;
+          localData = data;
         }
-      } catch (err) {
-        dataStore = [...DUMMY_SOAL_DATA];
+      } catch (e) {
+        localData = [...DUMMY_SOAL_DATA];
       }
       renderTable();
-      updateMetrics();
-      renderCycleChart();
     }
 
+    // LOGIN & LOGOUT
     function handleLogin() {
-      const roleKey = document.getElementById("userRoleSelect").value;
-      currentUser = USERS[roleKey];
+      const roleSelect = document.getElementById('userRoleSelect').value;
+      currentRole = roleSelect;
+      const user = USERS[currentRole];
       
-      document.getElementById("loginModal").classList.add("hidden");
-      document.getElementById("appLayout").classList.remove("hidden");
-      
-      document.getElementById("currentUserName").innerText = currentUser.name;
-      document.getElementById("currentUserRole").innerText = currentUser.role;
-      document.getElementById("currentUserAvatar").innerText = currentUser.avatar;
+      document.getElementById('currentUserName').innerText = user.name;
+      document.getElementById('currentUserRole').innerText = user.role;
+      document.getElementById('currentUserAvatar').innerText = user.avatar;
+
+      document.getElementById('loginModal').classList.add('hidden');
+      document.getElementById('appLayout').classList.remove('hidden');
 
       renderTable();
     }
 
     function handleLogout() {
-      currentUser = null;
-      document.getElementById("appLayout").classList.add("hidden");
-      document.getElementById("loginModal").classList.remove("hidden");
+      document.getElementById('appLayout').classList.add('hidden');
+      document.getElementById('loginModal').classList.remove('hidden');
     }
 
-    function toggleDarkMode() {
-      document.documentElement.classList.toggle('dark');
-      const isDark = document.documentElement.classList.contains('dark');
-      document.getElementById('themeIcon').innerText = isDark ? '☀️' : '🌙';
-      document.getElementById('themeText').innerText = isDark ? 'Mode Terang' : 'Mode Gelap';
-    }
-
-    function selectNav(navId, filterStatus) {
+    // NAVIGATION
+    function selectNav(navId, statusFilterValue) {
       document.querySelectorAll('.nav-item').forEach(btn => {
         btn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition";
       });
-
       const activeBtn = document.getElementById(navId);
-      if(activeBtn) {
+      if (activeBtn) {
         activeBtn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold bg-aetra-orange text-white shadow-md transition";
       }
 
-      selectedWorkflowFilter = filterStatus;
-      document.getElementById("statusFilter").value = filterStatus;
+      document.getElementById('statusFilter').value = statusFilterValue;
       renderTable();
     }
 
-    function onStatusFilterSelectChange() {
-      selectedWorkflowFilter = document.getElementById("statusFilter").value;
-      renderTable();
+    function setQuickCycle(cycleNum) {
+      document.getElementById('cycleFilter').value = cycleNum;
+      onCycleChange();
     }
 
     function onCycleChange() {
       renderTable();
-      updateMetrics();
-      renderCycleChart();
     }
 
-    function filterData() {
-      const search = document.getElementById("searchInput").value.toLowerCase();
-      const cycle = document.getElementById("cycleFilter").value;
-      const kelas = document.getElementById("kelasFilter").value;
-      const bulan = document.getElementById("bulanFilter").value;
-
-      return dataStore.filter(item => {
-        const matchesSearch = item.customer_name.toLowerCase().includes(search) || item.customer_id.toLowerCase().includes(search);
-        const matchesCycle = cycle === 'ALL' || item.cycle == cycle;
-        const matchesKelas = kelas === 'ALL' || item.kelas === kelas;
-        const matchesBulan = bulan === 'ALL' || item.month === bulan;
-        const matchesStatus = selectedWorkflowFilter === 'ALL' || item.status === selectedWorkflowFilter;
-
-        return matchesSearch && matchesCycle && matchesKelas && matchesBulan && matchesStatus;
-      });
+    function onStatusFilterSelectChange() {
+      renderTable();
     }
 
+    // RENDER TABLE & CALCULATIONS
     function renderTable() {
-      const filtered = filterData();
-      const tbody = document.getElementById("tableBody");
-      tbody.innerHTML = "";
+      const searchVal = document.getElementById('searchInput').value.toLowerCase();
+      const cycleVal = document.getElementById('cycleFilter').value;
+      const kelasVal = document.getElementById('kelasFilter').value;
+      const monthVal = document.getElementById('bulanFilter').value;
+      const statusVal = document.getElementById('statusFilter').value;
+
+      let filtered = localData.filter(item => {
+        const matchesSearch = item.customer_name.toLowerCase().includes(searchVal) || item.customer_id.toLowerCase().includes(searchVal);
+        const matchesCycle = (cycleVal === 'ALL') || (item.cycle == cycleVal);
+        const matchesKelas = (kelasVal === 'ALL') || (item.kelas === kelasVal);
+        const matchesMonth = (monthVal === 'ALL') || (item.month === monthVal);
+        const matchesStatus = (statusVal === 'ALL') || (item.status === statusVal);
+        return matchesSearch && matchesCycle && matchesKelas && matchesMonth && matchesStatus;
+      });
+
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400 font-semibold">Tidak ada data pembacaan meter yang cocok dengan filter.</td></tr>`;
-        return;
+        tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 font-medium">Tidak ada data pelanggan industri yang sesuai filter.</td></tr>`;
+      } else {
+        filtered.forEach(item => {
+          let statusBadgeClass = "";
+          if (item.status === 'Pending Verification') {
+            statusBadgeClass = "bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300 border-amber-300";
+          } else if (item.status === 'Verified') {
+            statusBadgeClass = "bg-blue-100 text-aetra-blue dark:bg-blue-950/80 dark:text-blue-300 border-blue-300";
+          } else {
+            statusBadgeClass = "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border-emerald-300";
+          }
+
+          let actionBtnHtml = "";
+          if (currentRole === 'solihin' || currentRole === 'kabul') {
+            if (item.status === 'Pending Verification') {
+              actionBtnHtml = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-aetra-orange hover:bg-orange-600 text-white font-bold rounded-lg transition shadow-sm text-[11px]">🔍 Verifikasi Reading</button>`;
+            } else {
+              actionBtnHtml = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-lg transition text-[11px]">👁️ Lihat Detail</button>`;
+            }
+          } else if (currentRole === 'yaya') {
+            if (item.status === 'Verified') {
+              actionBtnHtml = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-aetra-blue hover:bg-aetra-darkblue text-white font-bold rounded-lg transition shadow-sm text-[11px]">🧾 Process Billing</button>`;
+            } else if (item.status === 'Invoiced') {
+              actionBtnHtml = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-emerald-600 text-white font-bold rounded-lg transition text-[11px]">✅ Sent / Invoiced</button>`;
+            } else {
+              actionBtnHtml = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-600 dark:text-slate-300 font-bold rounded-lg transition text-[11px]">👁️ Lihat Detail</button>`;
+            }
+          }
+
+          let row = `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+            <td class="p-3.5">
+              <div class="font-bold text-slate-800 dark:text-slate-100">${item.customer_name}</div>
+              <div class="text-[10px] text-slate-400 font-mono">${item.customer_id} • <span class="text-amber-600 dark:text-amber-400 font-semibold">${item.kelas}</span></div>
+            </td>
+            <td class="p-3.5">
+              <span class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md font-bold text-[10px]">Cycle ${item.cycle}</span>
+            </td>
+            <td class="p-3.5">
+              <span class="text-slate-400">${item.stand_lalu.toLocaleString('id-ID')}</span> ➔ <span class="font-bold text-aetra-blue dark:text-blue-300">${item.stand_skrg.toLocaleString('id-ID')}</span>
+            </td>
+            <td class="p-3.5 font-bold text-slate-700 dark:text-slate-200">${item.volume.toLocaleString('id-ID')} m³</td>
+            <td class="p-3.5 font-extrabold text-aetra-blue dark:text-blue-400">Rp ${item.total_bill.toLocaleString('id-ID')}</td>
+            <td class="p-3.5">
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold border ${statusBadgeClass}">${item.status}</span>
+            </td>
+            <td class="p-3.5 text-center">${actionBtnHtml}</td>
+          </tr>`;
+          tbody.innerHTML += row;
+        });
       }
 
-      filtered.forEach(item => {
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-slate-50 dark:hover:bg-slate-700/30 transition border-b border-slate-100 dark:border-slate-700/50";
-
-        let statusBadge = "";
-        if(item.status === 'Pending Verification') {
-          statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border border-amber-200">⏳ Pending Reading</span>`;
-        } else if(item.status === 'Verified') {
-          statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-aetra-blue dark:bg-blue-950 dark:text-blue-300 border border-blue-200">✔️ Ready Billing</span>`;
-        } else {
-          statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200">✅ Invoiced</span>`;
-        }
-
-        let actionBtn = "";
-        if (currentUser) {
-          if (currentUser.permission === 'VERIFIER' && item.status === 'Pending Verification') {
-            actionBtn = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-aetra-orange hover:bg-orange-600 text-white font-bold text-[11px] rounded-xl transition shadow">🔎 Verifikasi Meter</button>`;
-          } else if (currentUser.permission === 'BILLING' && item.status === 'Verified') {
-            actionBtn = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-aetra-blue hover:bg-aetra-darkblue text-white font-bold text-[11px] rounded-xl transition shadow">🧾 Terbitkan Invoice</button>`;
-          } else {
-            actionBtn = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 font-bold text-[11px] rounded-xl transition">📄 Lihat Detail</button>`;
-          }
-        } else {
-          actionBtn = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 font-bold text-[11px] rounded-xl transition">Detail</button>`;
-        }
-
-        tr.innerHTML = `
-          <td class="p-3.5">
-            <p class="font-bold text-slate-800 dark:text-white">${item.customer_name}</p>
-            <p class="text-[10px] text-slate-400 font-mono">${item.customer_id} • <span class="text-amber-600 font-semibold">${item.kelas}</span></p>
-          </td>
-          <td class="p-3.5">
-            <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-50 text-aetra-blue dark:bg-slate-700 dark:text-blue-300 border border-blue-100 dark:border-slate-600">Cycle ${item.cycle}</span>
-          </td>
-          <td class="p-3.5 font-mono">
-            <span class="text-slate-400">${item.stand_lalu.toLocaleString()}</span> ➔ <span class="font-bold text-aetra-blue dark:text-blue-400">${item.stand_skrg.toLocaleString()}</span>
-          </td>
-          <td class="p-3.5 font-bold text-slate-700 dark:text-slate-200">
-            ${item.volume.toLocaleString()} m³
-          </td>
-          <td class="p-3.5 font-extrabold text-slate-800 dark:text-white">
-            Rp ${item.total_bill.toLocaleString('id-ID')}
-          </td>
-          <td class="p-3.5">
-            ${statusBadge}
-          </td>
-          <td class="p-3.5 text-center">
-            ${actionBtn}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
+      updateMetricsAndChart(cycleVal);
     }
 
-    function updateMetrics() {
-      const cycleSel = document.getElementById("cycleFilter").value;
-      const filteredByCycle = cycleSel === 'ALL' ? dataStore : dataStore.filter(d => d.cycle == cycleSel);
+    function updateMetricsAndChart(selectedCycle) {
+      // Metric Count OVERALL
+      const countPending = localData.filter(d => d.status === 'Pending Verification').length;
+      const countVerified = localData.filter(d => d.status === 'Verified').length;
+      const countInvoiced = localData.filter(d => d.status === 'Invoiced').length;
 
-      const pending = filteredByCycle.filter(d => d.status === 'Pending Verification').length;
-      const verified = filteredByCycle.filter(d => d.status === 'Verified').length;
-      const invoiced = filteredByCycle.filter(d => d.status === 'Invoiced').length;
-      const total = filteredByCycle.length;
-      const completed = verified + invoiced;
+      document.getElementById('countPending').innerText = countPending;
+      document.getElementById('countPending2').innerText = countPending;
+      document.getElementById('countVerified').innerText = countVerified;
+      document.getElementById('countVerified2').innerText = countVerified;
+      document.getElementById('countInvoiced').innerText = countInvoiced;
+      document.getElementById('countInvoiced2').innerText = countInvoiced;
 
-      // Card Metrics Set 1 & Set 2 (Infinite Scroll Pairs)
-      document.getElementById("countPending").innerText = dataStore.filter(d => d.status === 'Pending Verification').length;
-      document.getElementById("countVerified").innerText = dataStore.filter(d => d.status === 'Verified').length;
-      document.getElementById("countInvoiced").innerText = dataStore.filter(d => d.status === 'Invoiced').length;
+      // Cycle Specific Calculations
+      let cycleItems = localData;
+      if (selectedCycle !== 'ALL') {
+        cycleItems = localData.filter(d => d.cycle == selectedCycle);
+        document.getElementById('cycleTitle').innerText = `Monitoring Cycle ${selectedCycle}`;
+      } else {
+        document.getElementById('cycleTitle').innerText = `Monitoring Semua Cycle (1-15)`;
+      }
 
-      document.getElementById("countPending2").innerText = dataStore.filter(d => d.status === 'Pending Verification').length;
-      document.getElementById("countVerified2").innerText = dataStore.filter(d => d.status === 'Verified').length;
-      document.getElementById("countInvoiced2").innerText = dataStore.filter(d => d.status === 'Invoiced').length;
+      const totalTarget = cycleItems.length;
+      const pendingCount = cycleItems.filter(d => d.status === 'Pending Verification').length;
+      const completedCount = totalTarget - pendingCount;
+      const percentage = totalTarget > 0 ? Math.round((completedCount / totalTarget) * 100) : 0;
 
-      // Cycle Summary Block
-      document.getElementById("cycleTitle").innerText = cycleSel === 'ALL' ? "Monitoring Semua Cycle (1-15)" : `Monitoring Pembacaan Cycle ${cycleSel}`;
-      document.getElementById("cycleTotalCount").innerText = total;
-      document.getElementById("cycleCompletedCount").innerText = completed;
-      document.getElementById("cyclePendingCount").innerText = pending;
+      document.getElementById('cycleTotalCount').innerText = totalTarget;
+      document.getElementById('cycleCompletedCount').innerText = completedCount;
+      document.getElementById('cyclePendingCount').innerText = pendingCount;
+      document.getElementById('cyclePercentage').innerText = `${percentage}%`;
 
-      const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-      document.getElementById("cyclePercentage").innerText = `${pct}%`;
-
-      const badge = document.getElementById("cycleStatusBadge");
-      if (pct === 100) {
+      const badge = document.getElementById('cycleStatusBadge');
+      if (percentage === 100 && totalTarget > 0) {
         badge.innerText = "COMPLETED";
         badge.className = "px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-300";
       } else {
         badge.innerText = "IN PROGRESS";
         badge.className = "px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border border-amber-300";
       }
+
+      // Render Chart.js
+      renderCycleChart(completedCount, pendingCount);
     }
 
-    function renderCycleChart() {
-      const cycleSel = document.getElementById("cycleFilter").value;
-      const filtered = cycleSel === 'ALL' ? dataStore : dataStore.filter(d => d.cycle == cycleSel);
-
-      const pending = filtered.filter(d => d.status === 'Pending Verification').length;
-      const verified = filtered.filter(d => d.status === 'Verified').length;
-      const invoiced = filtered.filter(d => d.status === 'Invoiced').length;
-
+    function renderCycleChart(completed, pending) {
       const ctx = document.getElementById('cycleChart').getContext('2d');
-      if (cycleChartInstance) {
-        cycleChartInstance.destroy();
+      if (myChart) {
+        myChart.destroy();
       }
 
-      cycleChartInstance = new Chart(ctx, {
+      myChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: ['Pending', 'Ready Billing', 'Invoiced'],
+          labels: ['Selesai / Ready', 'Pending Verification'],
           datasets: [{
-            data: [pending, verified, invoiced],
-            backgroundColor: ['#E86216', '#0055A5', '#10B981'],
+            data: [completed, pending],
+            backgroundColor: ['#0055A5', '#E86216'],
             borderWidth: 2,
-            borderColor: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff'
+            borderColor: document.body.classList.contains('dark') ? '#1e293b' : '#ffffff'
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                boxWidth: 10,
-                font: { size: 10, family: 'Poppins' },
-                color: document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#475569'
-              }
-            }
+            legend: { display: false }
           },
           cutout: '70%'
         }
       });
     }
 
+    // MODAL ACTIONS & OCR
     function openDetailModal(id) {
-      activeModalItem = dataStore.find(item => item.id === id);
-      if (!activeModalItem) return;
+      selectedItem = localData.find(d => d.id === id);
+      if (!selectedItem) return;
 
-      document.getElementById("modalNama").innerText = activeModalItem.customer_name;
-      document.getElementById("modalId").innerText = activeModalItem.customer_id;
-      document.getElementById("modalKelas").innerText = `Kelas ${activeModalItem.kelas}`;
-      document.getElementById("modalCycleBadge").innerText = `Cycle ${activeModalItem.cycle}`;
+      document.getElementById('modalNama').innerText = selectedItem.customer_name;
+      document.getElementById('modalId').innerText = selectedItem.customer_id;
+      document.getElementById('modalKelas').innerText = `Kelas ${selectedItem.kelas}`;
+      document.getElementById('modalCycleBadge').innerText = `Cycle ${selectedItem.cycle}`;
+      document.getElementById('modalFotoMeter').src = selectedItem.foto_meter;
+      document.getElementById('modalFotoBPM').src = selectedItem.foto_bpm;
+      document.getElementById('modalLalu').innerText = `${selectedItem.stand_lalu.toLocaleString('id-ID')} m³`;
       
-      document.getElementById("modalFotoMeter").src = activeModalItem.foto_meter;
-      document.getElementById("modalFotoBPM").src = activeModalItem.foto_bpm;
-
-      document.getElementById("modalLalu").innerText = `${activeModalItem.stand_lalu.toLocaleString()} m³`;
-      
-      const inputSkrg = document.getElementById("modalInputSkrg");
-      inputSkrg.value = activeModalItem.stand_skrg;
+      const inputSkrg = document.getElementById('modalInputSkrg');
+      inputSkrg.value = selectedItem.stand_skrg;
 
       calculateModalUsage();
 
-      const actionBtn = document.getElementById("modalActionBtn");
-      const rejectBtn = document.getElementById("modalRejectBtn");
-      const aiOCRBtn = document.getElementById("modalAIOCRBtn") || document.getElementById("aiOCRBtn");
+      const actionBtn = document.getElementById('modalActionBtn');
+      const rejectBtn = document.getElementById('modalRejectBtn');
+      const aiBtn = document.getElementById('aiOCRBtn');
 
-      if (currentUser && currentUser.permission === 'VERIFIER' && activeModalItem.status === 'Pending Verification') {
+      if (currentRole === 'solihin' || currentRole === 'kabul') {
         inputSkrg.disabled = false;
-        rejectBtn.classList.remove("hidden");
-        if(aiOCRBtn) aiOCRBtn.classList.remove("hidden");
-
-        actionBtn.innerText = "✔️ Verifikasi & Setujui Reading";
-        actionBtn.className = "px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow";
-      } else if (currentUser && currentUser.permission === 'BILLING' && activeModalItem.status === 'Verified') {
+        aiBtn.classList.remove('hidden');
+        rejectBtn.classList.remove('hidden');
+        
+        if (selectedItem.status === 'Pending Verification') {
+          actionBtn.innerText = "✔️ Verifikasi & Setujui Reading";
+          actionBtn.className = "px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow";
+        } else {
+          actionBtn.innerText = "💾 Simpan Perubahan Stand";
+          actionBtn.className = "px-4 py-2 bg-aetra-blue hover:bg-aetra-darkblue text-white text-xs font-bold rounded-xl transition shadow";
+        }
+      } else if (currentRole === 'yaya') {
         inputSkrg.disabled = true;
-        rejectBtn.classList.add("hidden");
-        if(aiOCRBtn) aiOCRBtn.classList.add("hidden");
+        aiBtn.classList.add('hidden');
+        rejectBtn.classList.add('hidden');
 
-        actionBtn.innerText = "🧾 Terbitkan & Kirim Tagihan (Email)";
-        actionBtn.className = "px-4 py-2 bg-aetra-blue hover:bg-aetra-darkblue text-white text-xs font-bold rounded-xl transition shadow";
-      } else {
-        inputSkrg.disabled = true;
-        rejectBtn.classList.add("hidden");
-        if(aiOCRBtn) aiOCRBtn.classList.add("hidden");
-
-        actionBtn.innerText = "Tutup Modal";
-        actionBtn.className = "px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white text-xs font-bold rounded-xl transition shadow";
+        if (selectedItem.status === 'Verified') {
+          actionBtn.innerText = "🧾 Buat Tagihan & Kirim Email Invoice";
+          actionBtn.className = "px-4 py-2 bg-aetra-blue hover:bg-aetra-darkblue text-white text-xs font-bold rounded-xl transition shadow";
+        } else if (selectedItem.status === 'Invoiced') {
+          actionBtn.innerText = "📧 Kirim Ulang Salinan Invoice Email";
+          actionBtn.className = "px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition shadow";
+        } else {
+          actionBtn.innerText = "⚠️ Belum Diverifikasi Reading";
+          actionBtn.className = "px-4 py-2 bg-slate-300 text-slate-500 text-xs font-bold rounded-xl cursor-not-allowed";
+        }
       }
 
-      document.getElementById("detailModal").classList.remove("hidden");
-    }
-
-    function calculateModalUsage() {
-      if (!activeModalItem) return;
-      const inputSkrg = parseFloat(document.getElementById("modalInputSkrg").value) || 0;
-      const volume = Math.max(0, inputSkrg - activeModalItem.stand_lalu);
-      const totalBill = volume * 12500;
-
-      document.getElementById("modalUsage").innerText = `${volume.toLocaleString()} m³`;
-      document.getElementById("modalEstTagihan").innerText = `Rp ${totalBill.toLocaleString('id-ID')}`;
+      document.getElementById('detailModal').classList.remove('hidden');
     }
 
     function closeModal() {
-      document.getElementById("detailModal").classList.add("hidden");
-      activeModalItem = null;
+      document.getElementById('detailModal').classList.add('hidden');
+    }
+
+    function calculateModalUsage() {
+      if (!selectedItem) return;
+      const skrg = parseInt(document.getElementById('modalInputSkrg').value) || selectedItem.stand_lalu;
+      const usage = Math.max(0, skrg - selectedItem.stand_lalu);
+      const estBill = usage * 12500;
+
+      document.getElementById('modalUsage').innerText = `${usage.toLocaleString('id-ID')} m³`;
+      document.getElementById('modalEstTagihan').innerText = `Rp ${estBill.toLocaleString('id-ID')}`;
+    }
+
+    function runAICorrection() {
+      if (!selectedItem) return;
+      alert("🤖 SIMBA-AI OCR: Memindai Dokumen BPM & Foto Meteran...\n\nStand Meter Terdeteksi: " + (selectedItem.stand_lalu + selectedItem.volume) + " m³.\nData Stand Berhasil Diperbarui Otomatis!");
+      document.getElementById('modalInputSkrg').value = selectedItem.stand_lalu + selectedItem.volume;
+      calculateModalUsage();
     }
 
     async function processModalAction() {
-      if (!activeModalItem) {
-        closeModal();
-        return;
+      if (!selectedItem) return;
+
+      const newSkrg = parseInt(document.getElementById('modalInputSkrg').value);
+      const newVol = Math.max(0, newSkrg - selectedItem.stand_lalu);
+      const newBill = newVol * 12500;
+
+      selectedItem.stand_skrg = newSkrg;
+      selectedItem.volume = newVol;
+      selectedItem.total_bill = newBill;
+
+      if (currentRole === 'solihin' || currentRole === 'kabul') {
+        selectedItem.status = 'Verified';
+        alert(`✅ Stand meter ${selectedItem.customer_name} berhasil diverifikasi oleh ${USERS[currentRole].name}! Status diperbarui menjadi Ready for Billing.`);
+      } else if (currentRole === 'yaya') {
+        if (selectedItem.status === 'Verified') {
+          selectedItem.status = 'Invoiced';
+          alert(`🧾 Invoice Penagihan untuk ${selectedItem.customer_name} Sebesar Rp ${newBill.toLocaleString('id-ID')} Berhasil Diterbitkan & Dikirimkan ke Email Industri!`);
+        } else if (selectedItem.status === 'Invoiced') {
+          alert(`📧 Salinan Invoice Penagihan telah dikirim ulang ke e-mail resmi ${selectedItem.customer_name}.`);
+        }
       }
 
-      if (currentUser && currentUser.permission === 'VERIFIER' && activeModalItem.status === 'Pending Verification') {
-        const newSkrg = parseFloat(document.getElementById("modalInputSkrg").value);
-        if (isNaN(newSkrg) || newSkrg < activeModalItem.stand_lalu) {
-          alert("Stand baru bulan ini tidak valid!");
-          return;
-        }
-
-        activeModalItem.stand_skrg = newSkrg;
-        activeModalItem.volume = newSkrg - activeModalItem.stand_lalu;
-        activeModalItem.total_bill = activeModalItem.volume * 12500;
-        activeModalItem.status = 'Verified';
-
-        await db.from('meter_readings').update({
-          stand_skrg: activeModalItem.stand_skrg,
-          volume: activeModalItem.volume,
-          total_bill: activeModalItem.total_bill,
-          status: 'Verified'
-        }).eq('id', activeModalItem.id);
-
-        alert(`Berhasil memverifikasi data meter ${activeModalItem.customer_name}!`);
-      } else if (currentUser && currentUser.permission === 'BILLING' && activeModalItem.status === 'Verified') {
-        activeModalItem.status = 'Invoiced';
-
-        await db.from('meter_readings').update({
-          status: 'Invoiced'
-        }).eq('id', activeModalItem.id);
-
-        alert(`Invoice berhasil diterbitkan dan dikirim ke email ${activeModalItem.customer_name}!`);
+      // Sync to Supabase if applicable
+      try {
+        await db.from('simba_reading').upsert([selectedItem]);
+      } catch (e) {
+        console.log("Supabase Sync Fallback to Local Memory State");
       }
 
       closeModal();
       renderTable();
-      updateMetrics();
-      renderCycleChart();
     }
 
     function rejectItem() {
-      if (!activeModalItem) return;
-      alert(`Status pembacaan ${activeModalItem.customer_name} ditolak dan dikembalikan ke petugas meter lapangan untuk pembacaan ulang.`);
+      if (!selectedItem) return;
+      selectedItem.status = 'Pending Verification';
+      alert(`⚠️ Pembacaan meter untuk ${selectedItem.customer_name} dikembalikan ke status Pending Verification untuk koreksi ulang petugas lapangan.`);
       closeModal();
+      renderTable();
     }
 
-    function runAICorrection() {
-      if (!activeModalItem) return;
-      alert("🤖 SIMBA-IN AI OCR System: Memindai ulang gambar BPM...\nHasil pindaian cocok 100%!");
-    }
-
-    function exportToCSV() {
-      const data = filterData();
-      if (data.length === 0) {
-        alert("Tidak ada data untuk diekspor!");
-        return;
-      }
-
-      let csvContent = "data:text/csv;charset=utf-8,ID Pelanggan,Nama Industri,Kelas,Cycle,Bulan,Stand Lalu,Stand Skrg,Volume (m3),Total Tagihan (Rp),Status\n";
-      data.forEach(row => {
-        csvContent += `"${row.customer_id}","${row.customer_name}","${row.kelas}",${row.cycle},"${row.month}",${row.stand_lalu},${row.stand_skrg},${row.volume},${row.total_bill},"${row.status}"\n`;
-      });
-
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `SIMBA-IN_Report_${new Date().toISOString().slice(0,10)}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
+    // EXPORT PDF & CSV
     function downloadPDFReport() {
       const element = document.getElementById('dashboardReportContent');
       const opt = {
         margin:       0.3,
-        filename:     `Laporan_SIMBA-IN_Aetra_${new Date().toISOString().slice(0,10)}.pdf`,
+        filename:     `Laporan_SIMBA-IN_AetraTangerang_${new Date().toISOString().slice(0,10)}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2 },
         jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
       };
       html2pdf().set(opt).from(element).save();
+    }
+
+    function exportToCSV() {
+      let csv = 'ID Pelanggan,Nama Industri,Kelas,Cycle,Bulan,Stand Lalu,Stand Skrg,Volume (m3),Total Bill (Rp),Status\n';
+      localData.forEach(row => {
+        csv += `"${row.customer_id}","${row.customer_name}","${row.kelas}",${row.cycle},"${row.month}",${row.stand_lalu},${row.stand_skrg},${row.volume},${row.total_bill},"${row.status}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Data_Pembacaan_SIMBA-IN_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // DARK MODE TOGGLE
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark');
+      const isDark = document.body.classList.contains('dark');
+      document.getElementById('themeIcon').innerText = isDark ? '☀️' : '🌙';
+      document.getElementById('themeText').innerText = isDark ? 'Mode Terang' : 'Mode Gelap';
+      localStorage.setItem('simba_theme', isDark ? 'dark' : 'light');
+      
+      const cycleVal = document.getElementById('cycleFilter').value;
+      updateMetricsAndChart(cycleVal);
+    }
+
+    function checkSavedTheme() {
+      const savedTheme = localStorage.getItem('simba_theme');
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark');
+        document.getElementById('themeIcon').innerText = '☀️';
+        document.getElementById('themeText').innerText = 'Mode Terang';
+      }
     }
   </script>
 </body>
