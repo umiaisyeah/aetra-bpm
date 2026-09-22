@@ -156,6 +156,12 @@
 
           <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 hidden md:block"></div>
 
+          <!-- WIDGET REAL-TIME TANGGAL & WAKTU -->
+          <div class="hidden xl:flex flex-col text-right pr-2">
+            <span id="realtimeClock" class="text-xs font-extrabold text-aetra-blue dark:text-blue-400 font-mono">00:00:00</span>
+            <span id="realtimeDate" class="text-[10px] text-slate-400 font-medium">Rabu, 23 September 2026</span>
+          </div>
+
           <div class="flex items-center gap-3">
             <div class="flex items-center gap-2">
               <div id="currentUserAvatar" class="w-8 h-8 rounded-full bg-aetra-orange text-white flex items-center justify-center font-bold text-xs shadow-md">AD</div>
@@ -429,7 +435,6 @@
       { id: 2, customer_id: "IND-1002", customer_name: "PT Mayora Indah Tbk", email: "finance@mayora.co.id", kelas: "Gold", cycle: 1, month: "September 2026", stand_lalu: 8900, stand_skrg: 10450, volume: 1550, total_bill: 19375000, status: "Verified", pending_reason: "-", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
       { id: 3, customer_id: "IND-1003", customer_name: "PT Gajah Tunggal Tbk", email: "accounts@gajahtunggal.co.id", kelas: "Gold", cycle: 2, month: "September 2026", stand_lalu: 34200, stand_skrg: 39000, volume: 4800, total_bill: 60000000, status: "Pending Verification", pending_reason: "Pergeseran hari baca +2 hari menunggu izin eskalasi safety keamanan pabrik.", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
       { id: 4, customer_id: "IND-1004", customer_name: "PT Torabika Eka Semesta", email: "billing@torabika.co.id", kelas: "Silver", cycle: 2, month: "September 2026", stand_lalu: 5400, stand_skrg: 6250, volume: 850, total_bill: 10625000, status: "Invoiced", pending_reason: "-", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      // Contoh tambahan data untuk Cycle 13 agar langsung sinkron saat diuji
       { id: 5, customer_id: "IND-1301", customer_name: "PT Krakatau Steel (Persero) Tbk", email: "billing@krakatausteel.com", kelas: "Gold", cycle: 13, month: "September 2026", stand_lalu: 50000, stand_skrg: 55000, volume: 5000, total_bill: 62510000, status: "Verified", pending_reason: "-", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
       { id: 6, customer_id: "IND-1302", customer_name: "PT Chandra Asri Petrochemical", email: "finance@capcx.com", kelas: "Gold", cycle: 13, month: "September 2026", stand_lalu: 71000, stand_skrg: 73500, volume: 2500, total_bill: 31260000, status: "Pending Verification", pending_reason: "Menunggu kalibrasi ulang meter induk pabrik.", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" }
     ];
@@ -445,6 +450,22 @@
       kabul: { name: "Pak Kabul", role: "Tim Meter Reading", avatar: "PK" },
       yaya: { name: "Pak Yaya", role: "Tim Billing & Invoicing", avatar: "PY" }
     };
+
+    // Fungsi Update Real-Time Clock
+    function updateRealtimeClock() {
+      const now = new Date();
+      const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      const dateString = now.toLocaleDateString('id-ID', optionsDate);
+      const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
+
+      const clockEl = document.getElementById('realtimeClock');
+      const dateEl = document.getElementById('realtimeDate');
+      if (clockEl && dateEl) {
+        clockEl.innerText = timeString;
+        dateEl.innerText = dateString;
+      }
+    }
+    setInterval(updateRealtimeClock, 1000);
 
     function handleLogin() {
       const select = document.getElementById('userRoleSelect').value;
@@ -469,6 +490,7 @@
     function initApp() {
       populateCycleDropdowns();
       initChart();
+      updateRealtimeClock();
       refreshDashboard();
     }
 
@@ -498,7 +520,6 @@
       refreshDashboard();
     }
 
-    // Fungsi Utama Sinkronisasi Dashboard & Filter
     function refreshDashboard() {
       renderTable();
       updateDashboardMetrics();
@@ -567,7 +588,6 @@
     }
 
     function updateDashboardMetrics() {
-      // Ambil data yang tersaring berdasarkan cycle, kelas, bulan (mengabaikan status agar kartu atas & chart menampilkan total keseluruhan proporsi cycle tersebut)
       const dataForMetrics = getFilteredData(true);
 
       const pending = dataForMetrics.filter(i => i.status === 'Pending Verification').length;
@@ -695,7 +715,6 @@
       refreshDashboard();
     }
 
-    // FUNGSI UTAMA: GENERATE PDF & BUKA OUTLOOK EMAIL OTOMATIS
     function processBillingAndEmail() {
       if(!activeModalItem) return;
 
