@@ -28,16 +28,6 @@
               lightorange: '#FFF2EA',
               lightblue: '#E6F0FA'
             }
-          },
-          animation: {
-            marquee: 'marquee 25s linear infinite',
-            'marquee-slow': 'marquee 40s linear infinite',
-          },
-          keyframes: {
-            marquee: {
-              '0%': { transform: 'translateX(0%)' },
-              '100%': { transform: 'translateX(-50%)' },
-            }
           }
         }
       }
@@ -54,10 +44,6 @@
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-    }
-    /* Utility pendukung paused hover pada Infinite Scroll */
-    .pause-on-hover:hover {
-      animation-play-state: paused;
     }
   </style>
 </head>
@@ -130,21 +116,14 @@
         </nav>
       </div>
 
-      <div class="pt-4 border-t border-blue-800/60 dark:border-slate-800 flex items-center justify-between px-1">
-        <div class="flex items-center gap-2">
-          <div id="currentUserAvatar" class="w-8 h-8 rounded-full bg-aetra-orange text-white flex items-center justify-center font-bold text-xs shadow-md">AD</div>
-          <div>
-            <p id="currentUserName" class="text-xs font-bold text-white">-</p>
-            <p id="currentUserRole" class="text-[10px] text-blue-200 dark:text-slate-400">-</p>
-          </div>
-        </div>
-        <button onclick="handleLogout()" class="text-blue-200 hover:text-rose-300 text-xs font-bold transition">Keluar</button>
+      <div class="pt-4 border-t border-blue-800/60 dark:border-slate-800 px-1">
+        <p class="text-[10px] text-blue-200/70">Aetra Tangerang © 2026</p>
       </div>
     </aside>
 
     <!-- MAIN CONTENT -->
     <div class="flex-1 flex flex-col min-w-0 overflow-x-hidden">
-      <!-- HEADER -->
+      <!-- HEADER (Data User & Tombol Keluar Dipindah ke Pojok Kanan Atas) -->
       <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4 flex flex-col md:flex-row items-center justify-between gap-4 sticky top-0 z-10 shadow-sm transition-colors duration-200">
         <div class="relative w-full md:w-80">
           <input
@@ -156,7 +135,8 @@
           />
         </div>
 
-        <div class="flex items-center gap-2 w-full md:w-auto justify-between flex-wrap">
+        <!-- Bagian Kanan Atas: Filter, Dark Mode, Data User & Tombol Keluar -->
+        <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end flex-wrap">
           <!-- Filter Cycle Pembacaan Meter 1-15 -->
           <select id="cycleFilter" onchange="onCycleChange()" class="px-3 py-2 text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-700 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-aetra-blue">
             <option value="ALL">Semua Cycle (1-15)</option>
@@ -181,34 +161,38 @@
           <button onclick="toggleDarkMode()" id="darkModeToggleBtn" class="px-3 py-2 text-xs font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-600 transition flex items-center gap-1">
             <span id="themeIcon">🌙</span> <span id="themeText">Mode Gelap</span>
           </button>
+
+          <!-- Divider Vertikal -->
+          <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 hidden md:block"></div>
+
+          <!-- Data User & Tombol Keluar di Pojok Kanan Atas -->
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
+              <div id="currentUserAvatar" class="w-8 h-8 rounded-full bg-aetra-orange text-white flex items-center justify-center font-bold text-xs shadow-md">AD</div>
+              <div class="text-left">
+                <p id="currentUserName" class="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight">-</p>
+                <p id="currentUserRole" class="text-[10px] text-slate-400 dark:text-slate-400 leading-tight">-</p>
+              </div>
+            </div>
+            <button onclick="handleLogout()" class="px-3 py-1.5 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900 rounded-xl text-xs font-bold transition">
+              Keluar
+            </button>
+          </div>
         </div>
       </header>
 
       <!-- BODY DASHBOARD -->
       <main id="dashboardReportContent" class="p-6 space-y-6 overflow-y-auto">
         
-        <!-- ==================== OPSI 1: INFINITE SCROLL CYCLE QUICK SELECTOR ==================== -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl p-3 border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden relative">
-          <div class="flex items-center gap-2 mb-2 px-1">
-            <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wider">Akses Cepat Monitoring Per Cycle (Infinite Scroll):</span>
+        <!-- QUICK SELECTOR CYCLE (Tanpa Infinite Scroll) -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span class="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Akses Cepat Monitoring Per Cycle:</span>
           </div>
-          <!-- Wrapper Carousel Berjalan Otomatis -->
-          <div class="flex overflow-hidden w-full select-none group">
-            <div class="flex gap-3 animate-marquee pause-on-hover whitespace-nowrap">
-              <!-- Set Pertama -->
-              <template id="cycleCardTemplate">
-                <button onclick="setQuickCycle(CYCLE_NUM)" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 hover:bg-aetra-blue hover:text-white dark:hover:bg-aetra-blue text-xs font-bold transition flex items-center gap-2">
-                  <span>Cycle CYCLE_NUM</span>
-                  <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-blue-100 text-aetra-blue dark:bg-blue-900/60 dark:text-blue-300">Target</span>
-                </button>
-              </template>
-              <div id="cycleInfiniteList1" class="flex gap-3"></div>
-            </div>
-            <!-- Duplikasi Kedua Untuk Menciptakan Efek Seamless Without Jump -->
-            <div class="flex gap-3 animate-marquee pause-on-hover whitespace-nowrap" aria-hidden="true">
-              <div id="cycleInfiniteList2" class="flex gap-3"></div>
-            </div>
+          <!-- Grid Statis Menggantikan Infinite Scroll -->
+          <div id="cycleInfiniteList1" class="flex flex-wrap gap-2">
+            <!-- Diisi lewat JavaScript -->
           </div>
         </div>
 
@@ -259,84 +243,41 @@
             </div>
           </div>
 
-          <!-- ==================== OPSI 1: INFINITE SCROLL METRICS CARDS ==================== -->
-          <div class="overflow-hidden relative rounded-2xl bg-slate-50 dark:bg-slate-900/40 p-2 border border-slate-200/80 dark:border-slate-800">
-            <div class="flex overflow-hidden w-full select-none">
-              <!-- Animated Set 1 -->
-              <div class="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-full animate-marquee pause-on-hover pr-3">
-                <div onclick="selectNav('nav-pending', 'Pending Verification')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-orange transition flex items-center justify-between">
-                  <div>
-                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Perlu Verifikasi Reading</p>
-                    <p id="countPending" class="text-2xl font-black text-aetra-orange mt-0.5">0</p>
-                    <span class="text-[9px] text-aetra-orange font-bold">Otoritas Solihin / Kabul</span>
-                  </div>
-                  <span class="text-2xl">🔍</span>
-                </div>
-
-                <div onclick="selectNav('nav-verified', 'Verified')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-blue transition flex items-center justify-between">
-                  <div>
-                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Ready for Billing</p>
-                    <p id="countVerified" class="text-2xl font-black text-aetra-blue dark:text-blue-400 mt-0.5">0</p>
-                    <span class="text-[9px] text-aetra-blue dark:text-blue-400 font-bold">Otoritas Pak Yaya</span>
-                  </div>
-                  <span class="text-2xl">📋</span>
-                </div>
-
-                <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-emerald-500 transition flex items-center justify-between">
-                  <div>
-                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Invoiced & Sent Email</p>
-                    <p id="countInvoiced" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">0</p>
-                    <span class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold">Selesai Diproses</span>
-                  </div>
-                  <span class="text-2xl">✅</span>
-                </div>
+          <!-- METRICS CARDS (Tanpa Infinite Scroll) -->
+          <div class="rounded-2xl bg-slate-50 dark:bg-slate-900/40 p-4 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between gap-3">
+            <div onclick="selectNav('nav-pending', 'Pending Verification')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-orange transition flex items-center justify-between">
+              <div>
+                <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Perlu Verifikasi Reading</p>
+                <p id="countPending" class="text-xl font-black text-aetra-orange mt-0.5">0</p>
+                <span class="text-[9px] text-aetra-orange font-bold">Otoritas Staf Terkait</span>
               </div>
+              <span class="text-xl">🔍</span>
+            </div>
 
-              <!-- Animated Set 2 (Seamless Infinite Duplicate) -->
-              <div class="flex flex-col sm:flex-row lg:flex-col gap-3 min-w-full animate-marquee pause-on-hover pr-3" aria-hidden="true">
-                <div onclick="selectNav('nav-pending', 'Pending Verification')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-orange transition flex items-center justify-between">
-                  <div>
-                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Perlu Verifikasi Reading</p>
-                    <p id="countPending2" class="text-2xl font-black text-aetra-orange mt-0.5">0</p>
-                    <span class="text-[9px] text-aetra-orange font-bold">Otoritas Solihin / Kabul</span>
-                  </div>
-                  <span class="text-2xl">🔍</span>
-                </div>
-
-                <div onclick="selectNav('nav-verified', 'Verified')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-blue transition flex items-center justify-between">
-                  <div>
-                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Ready for Billing</p>
-                    <p id="countVerified2" class="text-2xl font-black text-aetra-blue dark:text-blue-400 mt-0.5">0</p>
-                    <span class="text-[9px] text-aetra-blue dark:text-blue-400 font-bold">Otoritas Pak Yaya</span>
-                  </div>
-                  <span class="text-2xl">📋</span>
-                </div>
-
-                <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-emerald-500 transition flex items-center justify-between">
-                  <div>
-                    <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Invoiced & Sent Email</p>
-                    <p id="countInvoiced2" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">0</p>
-                    <span class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold">Selesai Diproses</span>
-                  </div>
-                  <span class="text-2xl">✅</span>
-                </div>
+            <div onclick="selectNav('nav-verified', 'Verified')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-blue transition flex items-center justify-between">
+              <div>
+                <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Ready for Billing</p>
+                <p id="countVerified" class="text-xl font-black text-aetra-blue dark:text-blue-400 mt-0.5">0</p>
+                <span class="text-[9px] text-aetra-blue dark:text-blue-400 font-bold">Otoritas Pak Yaya</span>
               </div>
+              <span class="text-xl">📋</span>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-emerald-500 transition flex items-center justify-between">
+              <div>
+                <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Invoiced & Sent Email</p>
+                <p id="countInvoiced" class="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">0</p>
+                <span class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold">Selesai Diproses</span>
+              </div>
+              <span class="text-xl">✅</span>
             </div>
           </div>
         </div>
 
-        <!-- ==================== OPSI 1: INFINITE LOG / ANNOUNCEMENT MARQUEE ==================== -->
-        <div class="bg-aetra-darkblue text-white rounded-xl p-2.5 px-4 text-xs flex items-center gap-3 overflow-hidden shadow-md">
-          <span class="bg-aetra-orange text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-md shrink-0">Laporan Live</span>
-          <div class="overflow-hidden w-full whitespace-nowrap">
-            <div class="inline-block animate-marquee-slow pause-on-hover">
-              <span class="mx-4 font-semibold">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026 berjalan lancar.</span>
-              <span class="mx-4 text-amber-300 font-semibold">⚠️ Pengingat: 6 Pelanggan Kelas Gold memerlukan Verifikasi Bukti Foto BPM.</span>
-              <span class="mx-4 text-emerald-300 font-semibold">✅ Batas Akhir Penagihan Cycle 1-5 adalah tanggal 25 bulan ini.</span>
-              <span class="mx-4 font-semibold">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026 berjalan lancar.</span>
-              <span class="mx-4 text-amber-300 font-semibold">⚠️ Pengingat: 6 Pelanggan Kelas Gold memerlukan Verifikasi Bukti Foto BPM.</span>
-            </div>
-          </div>
+        <!-- ANNOUNCEMENT / LAPORAN STATIS -->
+        <div class="bg-aetra-darkblue text-white rounded-xl p-3 px-4 text-xs flex items-center gap-3 shadow-md">
+          <span class="bg-aetra-orange text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-md shrink-0">Info Sistem</span>
+          <p class="font-medium">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026 berjalan lancar. Batas akhir penagihan Cycle 1-5 adalah tanggal 25.</p>
         </div>
 
         <!-- TABEL DATA -->
@@ -379,7 +320,7 @@
                 </tr>
               </thead>
               <tbody id="tableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-medium">
-                <!-- Data dari Supabase / Fallback 20 Soal -->
+                <!-- Data dari Supabase / Fallback -->
               </tbody>
             </table>
           </div>
@@ -451,125 +392,295 @@
     </div>
   </div>
 
-  <!-- JAVASCRIPT LOGIC INTEGRATED -->
+  <!-- JAVASCRIPT LOGIC -->
   <script>
     const SUPABASE_URL = "https://gjfkulhavzpffnpvfmel.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmt1bGhhdnpwZmZucHZmbWVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3ODc5NjQsImV4cCI6MjEwNTM2Mzk2NH0.jfVgsZSy6Kk2NPkBvIOttLee-cIKd8yem9PxqpxyT_o";
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // DATA DUMMY 20 PELANGGAN INDUSTRI AETRA TANGERANG
-    const DUMMY_SOAL_DATA = [
+    let globalData = [
       { id: 1, customer_id: "IND-1001", customer_name: "PT Indofood CBP Sukses Makmur", kelas: "Gold", cycle: 1, month: "September 2026", stand_lalu: 12500, stand_skrg: 14800, volume: 2300, total_bill: 28750000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
       { id: 2, customer_id: "IND-1002", customer_name: "PT Mayora Indah Tbk", kelas: "Gold", cycle: 1, month: "September 2026", stand_lalu: 8900, stand_skrg: 10450, volume: 1550, total_bill: 19375000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
       { id: 3, customer_id: "IND-1003", customer_name: "PT Gajah Tunggal Tbk", kelas: "Gold", cycle: 2, month: "September 2026", stand_lalu: 34200, stand_skrg: 39000, volume: 4800, total_bill: 60000000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 4, customer_id: "IND-1004", customer_name: "PT Torabika Eka Semesta", kelas: "Silver", cycle: 2, month: "September 2026", stand_lalu: 5400, stand_skrg: 6250, volume: 850, total_bill: 10625000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 5, customer_id: "IND-1005", customer_name: "PT Unilever Indonesia Tbk", kelas: "Gold", cycle: 3, month: "September 2026", stand_lalu: 21000, stand_skrg: 24500, volume: 3500, total_bill: 43750000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 6, customer_id: "IND-1006", customer_name: "PT Paragon Technology and Innovation", kelas: "Silver", cycle: 3, month: "September 2026", stand_lalu: 4100, stand_skrg: 4800, volume: 700, total_bill: 8750000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 7, customer_id: "IND-1007", customer_name: "PT Asia Pulp & Paper (APP)", kelas: "Gold", cycle: 4, month: "September 2026", stand_lalu: 45000, stand_skrg: 51200, volume: 6200, total_bill: 77500000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 8, customer_id: "IND-1008", customer_name: "PT Pratama Abadi Industri", kelas: "Silver", cycle: 4, month: "September 2026", stand_lalu: 7800, stand_skrg: 8950, volume: 1150, total_bill: 14375000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 9, customer_id: "IND-1009", customer_name: "PT Ching Luh Indonesia", kelas: "Gold", cycle: 5, month: "September 2026", stand_lalu: 18500, stand_skrg: 21700, volume: 3200, total_bill: 40000000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 10, customer_id: "IND-1010", customer_name: "PT Dispo Asri Plastic", kelas: "Bronze", cycle: 5, month: "September 2026", stand_lalu: 1200, stand_skrg: 1550, volume: 350, total_bill: 4375000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 11, customer_id: "IND-1011", customer_name: "PT Surya Rengo Containers", kelas: "Silver", cycle: 6, month: "September 2026", stand_lalu: 6300, stand_skrg: 7200, volume: 900, total_bill: 11250000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 12, customer_id: "IND-1012", customer_name: "PT Astra Otoparts Tbk", kelas: "Gold", cycle: 7, month: "September 2026", stand_lalu: 15400, stand_skrg: 17900, volume: 2500, total_bill: 31250000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 13, customer_id: "IND-1013", customer_name: "PT Olympic Gypsum", kelas: "Bronze", cycle: 8, month: "September 2026", stand_lalu: 2300, stand_skrg: 2750, volume: 450, total_bill: 5625000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 14, customer_id: "IND-1014", customer_name: "PT Nippon Paint Indonesia", kelas: "Silver", cycle: 9, month: "September 2026", stand_lalu: 8100, stand_skrg: 9400, volume: 1300, total_bill: 16250000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 15, customer_id: "IND-1015", customer_name: "PT Polychem Indonesia Tbk", kelas: "Gold", cycle: 10, month: "September 2026", stand_lalu: 28900, stand_skrg: 33100, volume: 4200, total_bill: 52500000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 16, customer_id: "IND-1016", customer_name: "PT Sumber Alfaria Trijaya Tbk", kelas: "Silver", cycle: 11, month: "September 2026", stand_lalu: 3900, stand_skrg: 4500, volume: 600, total_bill: 7500000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 17, customer_id: "IND-1017", customer_name: "PT Mitsuba Indonesia", kelas: "Gold", cycle: 12, month: "September 2026", stand_lalu: 11200, stand_skrg: 13100, volume: 1900, total_bill: 23750000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 18, customer_id: "IND-1018", customer_name: "PT Victory Ching Luh", kelas: "Gold", cycle: 13, month: "September 2026", stand_lalu: 22000, stand_skrg: 25600, volume: 3600, total_bill: 45000000, status: "Pending Verification", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" },
-      { id: 19, customer_id: "IND-1019", customer_name: "PT Lestari Busana Anggun", kelas: "Bronze", cycle: 14, month: "September 2026", stand_lalu: 1800, stand_skrg: 2280, volume: 480, total_bill: 6000000, status: "Verified", foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80" },
-      { id: 20, customer_id: "IND-1020", customer_name: "PT Texmaco Perkasa Engineering", kelas: "Gold", cycle: 15, month: "September 2026", stand_lalu: 19800, stand_skrg: 23100, volume: 3300, total_bill: 41250000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" }
+      { id: 4, customer_id: "IND-1004", customer_name: "PT Torabika Eka Semesta", kelas: "Silver", cycle: 2, month: "September 2026", stand_lalu: 5400, stand_skrg: 6250, volume: 850, total_bill: 10625000, status: "Invoiced", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" }
     ];
 
-    // USERS DATA
-    const USERS = {
-      solihin: { name: "Pak Solihin", role: "Tim Meter Reading / Verifikasi", avatar: "SL", permission: "VERIFIER" },
-      kabul: { name: "Pak Kabul", role: "Tim Meter Reading / Verifikasi", avatar: "KB", permission: "VERIFIER" },
-      yaya: { name: "Pak Yaya", role: "Tim Billing & Invoicing", avatar: "YY", permission: "BILLING" }
-    };
-
     let currentUser = null;
-    let dataStore = [];
-    let cycleChartInstance = null;
-    let currentActiveNav = 'nav-overview';
-    let selectedWorkflowFilter = 'ALL';
+    let selectedActiveNav = 'nav-overview';
+    let currentActiveCycle = 'ALL';
     let activeModalItem = null;
+    let chartInstance = null;
 
-    // INITIALIZATION ON LOAD
-    window.onload = function() {
-      initCycleDropdowns();
-      initInfiniteCycleList();
-      fetchInitialData();
+    const usersDb = {
+      solihin: { name: "Pak Solihin", role: "Tim Meter Reading", avatar: "PS" },
+      kabul: { name: "Pak Kabul", role: "Tim Meter Reading", avatar: "PK" },
+      yaya: { name: "Pak Yaya", role: "Tim Billing & Invoicing", avatar: "PY" }
     };
-
-    function initCycleDropdowns() {
-      const select = document.getElementById("cycleFilter");
-      select.innerHTML = '<option value="ALL">Semua Cycle (1-15)</option>';
-      for (let i = 1; i <= 15; i++) {
-        const opt = document.createElement("option");
-        opt.value = i;
-        opt.textContent = `Cycle ${i}`;
-        select.appendChild(opt);
-      }
-    }
-
-    function initInfiniteCycleList() {
-      const list1 = document.getElementById("cycleInfiniteList1");
-      const list2 = document.getElementById("cycleInfiniteList2");
-      if(!list1 || !list2) return;
-
-      let htmlContent = "";
-      for (let i = 1; i <= 15; i++) {
-        htmlContent += `
-          <button onclick="setQuickCycle(${i})" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 hover:bg-aetra-blue hover:text-white dark:hover:bg-aetra-blue text-xs font-bold transition flex items-center gap-1.5 shrink-0">
-            <span>Cycle ${i}</span>
-            <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-blue-100 text-aetra-blue dark:bg-blue-900/60 dark:text-blue-300">Target</span>
-          </button>
-        `;
-      }
-      list1.innerHTML = htmlContent;
-      list2.innerHTML = htmlContent;
-    }
-
-    function setQuickCycle(cycleNum) {
-      document.getElementById("cycleFilter").value = cycleNum;
-      onCycleChange();
-    }
-
-    async function fetchInitialData() {
-      try {
-        const { data, error } = await db.from('meter_readings').select('*');
-        if (error || !data || data.length === 0) {
-          dataStore = [...DUMMY_SOAL_DATA];
-        } else {
-          dataStore = data;
-        }
-      } catch (err) {
-        dataStore = [...DUMMY_SOAL_DATA];
-      }
-      renderTable();
-      updateMetrics();
-      renderCycleChart();
-    }
 
     function handleLogin() {
-      const roleKey = document.getElementById("userRoleSelect").value;
-      currentUser = USERS[roleKey];
+      const select = document.getElementById('userRoleSelect').value;
+      currentUser = usersDb[select];
       
-      document.getElementById("loginModal").classList.add("hidden");
-      document.getElementById("appLayout").classList.remove("hidden");
-      
-      document.getElementById("currentUserName").innerText = currentUser.name;
-      document.getElementById("currentUserRole").innerText = currentUser.role;
-      document.getElementById("currentUserAvatar").innerText = currentUser.avatar;
+      document.getElementById('currentUserName').innerText = currentUser.name;
+      document.getElementById('currentUserRole').innerText = currentUser.role;
+      document.getElementById('currentUserAvatar').innerText = currentUser.avatar;
 
-      renderTable();
+      document.getElementById('loginModal').classList.add('hidden');
+      document.getElementById('appLayout').classList.remove('hidden');
+
+      initApp();
     }
 
     function handleLogout() {
       currentUser = null;
-      document.getElementById("appLayout").classList.add("hidden");
-      document.getElementById("loginModal").classList.remove("hidden");
+      document.getElementById('appLayout').classList.add('hidden');
+      document.getElementById('loginModal').classList.remove('hidden');
+    }
+
+    function initApp() {
+      populateCycleDropdowns();
+      renderCycleGrid();
+      renderTable();
+      updateDashboardMetrics();
+      initChart();
+    }
+
+    function populateCycleDropdowns() {
+      const cycleFilter = document.getElementById('cycleFilter');
+      let html = '<option value="ALL">Semua Cycle (1-15)</option>';
+      for(let i=1; i<=15; i++) {
+        html += `<option value="${i}">Cycle ${i}</option>`;
+      }
+      cycleFilter.innerHTML = html;
+    }
+
+    function renderCycleGrid() {
+      const container = document.getElementById('cycleInfiniteList1');
+      let html = '';
+      for(let i=1; i<=15; i++) {
+        html += `<button onclick="setQuickCycle(${i})" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 hover:bg-aetra-blue hover:text-white dark:hover:bg-aetra-blue text-xs font-bold transition flex items-center gap-1.5">
+          <span>Cycle ${i}</span>
+        </button>`;
+      }
+      container.innerHTML = html;
+    }
+
+    function setQuickCycle(num) {
+      currentActiveCycle = num;
+      document.getElementById('cycleFilter').value = num;
+      renderTable();
+      updateDashboardMetrics();
+    }
+
+    function onCycleChange() {
+      currentActiveCycle = document.getElementById('cycleFilter').value;
+      renderTable();
+      updateDashboardMetrics();
+    }
+
+    function selectNav(navId, statusVal) {
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.remove('bg-aetra-orange', 'text-white', 'shadow-md');
+        el.classList.add('text-blue-100');
+      });
+      document.getElementById(navId).classList.add('bg-aetra-orange', 'text-white', 'shadow-md');
+      document.getElementById(navId).classList.remove('text-blue-100');
+
+      document.getElementById('statusFilter').value = statusVal;
+      renderTable();
+    }
+
+    function onStatusFilterSelectChange() {
+      renderTable();
+    }
+
+    function renderTable() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const kelas = document.getElementById('kelasFilter').value;
+      const bulan = document.getElementById('bulanFilter').value;
+      const status = document.getElementById('statusFilter').value;
+
+      const filtered = globalData.filter(item => {
+        const matchSearch = item.customer_name.toLowerCase().includes(search) || item.customer_id.toLowerCase().includes(search);
+        const matchCycle = currentActiveCycle === 'ALL' || item.cycle == currentActiveCycle;
+        const matchKelas = kelas === 'ALL' || item.kelas === kelas;
+        const matchBulan = bulan === 'ALL' || item.month === bulan;
+        const matchStatus = status === 'ALL' || item.status === status;
+
+        return matchSearch && matchCycle && matchKelas && matchBulan && matchStatus;
+      });
+
+      const tbody = document.getElementById('tableBody');
+      if(filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400">Tidak ada data yang sesuai filter.</td></tr>`;
+        return;
+      }
+
+      let html = '';
+      filtered.forEach(item => {
+        let badgeClass = 'bg-amber-100 text-amber-700 border-amber-300';
+        if(item.status === 'Verified') badgeClass = 'bg-blue-100 text-blue-700 border-blue-300';
+        if(item.status === 'Invoiced') badgeClass = 'bg-emerald-100 text-emerald-700 border-emerald-300';
+
+        html += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+          <td class="p-3.5">
+            <p class="font-bold text-slate-800 dark:text-white">${item.customer_name}</p>
+            <p class="text-[10px] text-slate-400 font-mono">${item.customer_id} • <span class="text-amber-600 font-bold">${item.kelas}</span></p>
+          </td>
+          <td class="p-3.5 font-bold text-aetra-blue dark:text-blue-400">Cycle ${item.cycle}</td>
+          <td class="p-3.5 text-slate-600 dark:text-slate-300">${item.stand_lalu} vs ${item.stand_skrg}</td>
+          <td class="p-3.5 font-extrabold text-aetra-orange">${item.volume.toLocaleString()} m³</td>
+          <td class="p-3.5 font-bold text-slate-800 dark:text-white">Rp ${item.total_bill.toLocaleString()}</td>
+          <td class="p-3.5">
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border ${badgeClass}">${item.status}</span>
+          </td>
+          <td class="p-3.5 text-center">
+            <button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-aetra-lightblue hover:bg-blue-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-aetra-blue dark:text-blue-300 rounded-xl font-bold transition">
+              🔍 Detail & Aksi
+            </button>
+          </td>
+        </tr>`;
+      });
+      tbody.innerHTML = html;
+    }
+
+    function updateDashboardMetrics() {
+      const pending = globalData.filter(i => i.status === 'Pending Verification').length;
+      const verified = globalData.filter(i => i.status === 'Verified').length;
+      const invoiced = globalData.filter(i => i.status === 'Invoiced').length;
+
+      document.getElementById('countPending').innerText = pending;
+      document.getElementById('countVerified').innerText = verified;
+      document.getElementById('countInvoiced').innerText = invoiced;
+
+      const totalTarget = globalData.length;
+      const completed = verified + invoiced;
+      const pct = totalTarget > 0 ? Math.round((completed / totalTarget) * 100) : 0;
+
+      document.getElementById('cycleTotalCount').innerText = totalTarget;
+      document.getElementById('cycleCompletedCount').innerText = completed;
+      document.getElementById('cyclePendingCount').innerText = pending;
+      document.getElementById('cyclePercentage').innerText = pct + '%';
+      document.getElementById('cycleTitle').innerText = currentActiveCycle === 'ALL' ? 'Monitoring Semua Cycle' : `Monitoring Pembacaan Cycle ${currentActiveCycle}`;
+
+      if(chartInstance) {
+        chartInstance.data.datasets[0].data = [completed, pending];
+        chartInstance.update();
+      }
+    }
+
+    function initChart() {
+      const ctx = document.getElementById('cycleChart').getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Selesai', 'Pending'],
+          datasets: [{
+            data: [2, 2],
+            backgroundColor: ['#0055A5', '#E86216'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, family: 'Poppins' } } }
+          }
+        }
+      });
+      updateDashboardMetrics();
+    }
+
+    function openDetailModal(id) {
+      activeModalItem = globalData.find(i => i.id === id);
+      if(!activeModalItem) return;
+
+      document.getElementById('modalNama').innerText = activeModalItem.customer_name;
+      document.getElementById('modalId').innerText = activeModalItem.customer_id;
+      document.getElementById('modalKelas').innerText = `Kelas ${activeModalItem.kelas}`;
+      document.getElementById('modalCycleBadge').innerText = `Cycle ${activeModalItem.cycle}`;
+      document.getElementById('modalFotoMeter').src = activeModalItem.foto_meter;
+      document.getElementById('modalFotoBPM').src = activeModalItem.foto_bpm;
+      document.getElementById('modalLalu').innerText = activeModalItem.stand_lalu.toLocaleString() + ' m³';
+      
+      const inputSkrg = document.getElementById('modalInputSkrg');
+      inputSkrg.value = activeModalItem.stand_skrg;
+
+      // Otoritas hak akses tombol
+      const isMeterReader = currentUser.role.includes('Meter Reading');
+      const isBilling = currentUser.role.includes('Billing');
+
+      inputSkrg.disabled = !isMeterReader && activeModalItem.status !== 'Pending Verification';
+      document.getElementById('aiOCRBtn').classList.toggle('hidden', !isMeterReader);
+
+      calculateModalUsage();
+
+      const actionBtn = document.getElementById('modalActionBtn');
+      const rejectBtn = document.getElementById('modalRejectBtn');
+
+      if(activeModalItem.status === 'Pending Verification') {
+        actionBtn.innerText = '✅ Verifikasi & Setujui';
+        actionBtn.onclick = verifyItem;
+        rejectBtn.classList.remove('hidden');
+      } else if(activeModalItem.status === 'Verified') {
+        actionBtn.innerText = '🧾 Proses Billing & Kirim Invoice';
+        actionBtn.onclick = processBillingItem;
+        rejectBtn.classList.add('hidden');
+      } else {
+        actionBtn.innerText = 'Tutup (Sudah Invoiced)';
+        actionBtn.onclick = closeModal;
+        rejectBtn.classList.add('hidden');
+      }
+
+      document.getElementById('detailModal').classList.remove('hidden');
+    }
+
+    function calculateModalUsage() {
+      const skrg = parseFloat(document.getElementById('modalInputSkrg').value) || 0;
+      constalu = activeModalItem ? activeModalItem.stand_lalu : 0;
+      const vol = Math.max(0, skrg - lalu);
+      const estBill = vol * 12500;
+
+      document.getElementById('modalUsage').innerText = vol.toLocaleString() + ' m³';
+      document.getElementById('modalEstTagihan').innerText = 'Rp ' + estBill.toLocaleString();
+    }
+
+    function closeModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+      activeModalItem = null;
+    }
+
+    function verifyItem() {
+      const newSkrg = parseFloat(document.getElementById('modalInputSkrg').value);
+      activeModalItem.stand_skrg = newSkrg;
+      activeModalItem.volume = Math.max(0, newSkrg - activeModalItem.stand_lalu);
+      activeModalItem.total_bill = activeModalItem.volume * 12500;
+      activeModalItem.status = 'Verified';
+
+      closeModal();
+      renderTable();
+      updateDashboardMetrics();
+    }
+
+    function processBillingItem() {
+      activeModalItem.status = 'Invoiced';
+      closeModal();
+      renderTable();
+      updateDashboardMetrics();
+    }
+
+    function rejectItem() {
+      activeModalItem.status = 'Pending Verification';
+      closeModal();
+      renderTable();
+      updateDashboardMetrics();
+    }
+
+    function runAICorrection() {
+      alert("AI OCR berhasil membaca foto fisik meteran. Stand disesuaikan otomatis.");
+      document.getElementById('modalInputSkrg').value = activeModalItem.stand_skrg + 50;
+      calculateModalUsage();
     }
 
     function toggleDarkMode() {
@@ -579,341 +690,22 @@
       document.getElementById('themeText').innerText = isDark ? 'Mode Terang' : 'Mode Gelap';
     }
 
-    function selectNav(navId, filterStatus) {
-      document.querySelectorAll('.nav-item').forEach(btn => {
-        btn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition";
-      });
-
-      const activeBtn = document.getElementById(navId);
-      if(activeBtn) {
-        activeBtn.className = "nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold bg-aetra-orange text-white shadow-md transition";
-      }
-
-      selectedWorkflowFilter = filterStatus;
-      document.getElementById("statusFilter").value = filterStatus;
-      renderTable();
-    }
-
-    function onStatusFilterSelectChange() {
-      selectedWorkflowFilter = document.getElementById("statusFilter").value;
-      renderTable();
-    }
-
-    function onCycleChange() {
-      renderTable();
-      updateMetrics();
-      renderCycleChart();
-    }
-
-    function filterData() {
-      const search = document.getElementById("searchInput").value.toLowerCase();
-      const cycle = document.getElementById("cycleFilter").value;
-      const kelas = document.getElementById("kelasFilter").value;
-      const bulan = document.getElementById("bulanFilter").value;
-
-      return dataStore.filter(item => {
-        const matchesSearch = item.customer_name.toLowerCase().includes(search) || item.customer_id.toLowerCase().includes(search);
-        const matchesCycle = cycle === 'ALL' || item.cycle == cycle;
-        const matchesKelas = kelas === 'ALL' || item.kelas === kelas;
-        const matchesBulan = bulan === 'ALL' || item.month === bulan;
-        const matchesStatus = selectedWorkflowFilter === 'ALL' || item.status === selectedWorkflowFilter;
-
-        return matchesSearch && matchesCycle && matchesKelas && matchesBulan && matchesStatus;
-      });
-    }
-
-    function renderTable() {
-      const filtered = filterData();
-      const tbody = document.getElementById("tableBody");
-      tbody.innerHTML = "";
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-400 font-semibold">Tidak ada data pembacaan meter yang cocok dengan filter.</td></tr>`;
-        return;
-      }
-
-      filtered.forEach(item => {
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-slate-50 dark:hover:bg-slate-700/30 transition border-b border-slate-100 dark:border-slate-700/50";
-
-        let statusBadge = "";
-        if(item.status === 'Pending Verification') {
-          statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border border-amber-200">⏳ Pending Reading</span>`;
-        } else if(item.status === 'Verified') {
-          statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-aetra-blue dark:bg-blue-950 dark:text-blue-300 border border-blue-200">✔️ Ready Billing</span>`;
-        } else {
-          statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200">✅ Invoiced</span>`;
-        }
-
-        let actionBtn = "";
-        if (currentUser) {
-          if (currentUser.permission === 'VERIFIER' && item.status === 'Pending Verification') {
-            actionBtn = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-aetra-orange hover:bg-orange-600 text-white font-bold text-[11px] rounded-xl transition shadow">🔎 Verifikasi Meter</button>`;
-          } else if (currentUser.permission === 'BILLING' && item.status === 'Verified') {
-            actionBtn = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-aetra-blue hover:bg-aetra-darkblue text-white font-bold text-[11px] rounded-xl transition shadow">🧾 Terbitkan Invoice</button>`;
-          } else {
-            actionBtn = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 font-bold text-[11px] rounded-xl transition">📄 Lihat Detail</button>`;
-          }
-        } else {
-          actionBtn = `<button onclick="openDetailModal(${item.id})" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 font-bold text-[11px] rounded-xl transition">Detail</button>`;
-        }
-
-        tr.innerHTML = `
-          <td class="p-3.5">
-            <p class="font-bold text-slate-800 dark:text-white">${item.customer_name}</p>
-            <p class="text-[10px] text-slate-400 font-mono">${item.customer_id} • <span class="text-amber-600 font-semibold">${item.kelas}</span></p>
-          </td>
-          <td class="p-3.5">
-            <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-50 text-aetra-blue dark:bg-slate-700 dark:text-blue-300 border border-blue-100 dark:border-slate-600">Cycle ${item.cycle}</span>
-          </td>
-          <td class="p-3.5 font-mono">
-            <span class="text-slate-400">${item.stand_lalu.toLocaleString()}</span> ➔ <span class="font-bold text-aetra-blue dark:text-blue-400">${item.stand_skrg.toLocaleString()}</span>
-          </td>
-          <td class="p-3.5 font-bold text-slate-700 dark:text-slate-200">
-            ${item.volume.toLocaleString()} m³
-          </td>
-          <td class="p-3.5 font-extrabold text-slate-800 dark:text-white">
-            Rp ${item.total_bill.toLocaleString('id-ID')}
-          </td>
-          <td class="p-3.5">
-            ${statusBadge}
-          </td>
-          <td class="p-3.5 text-center">
-            ${actionBtn}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function updateMetrics() {
-      const cycleSel = document.getElementById("cycleFilter").value;
-      const filteredByCycle = cycleSel === 'ALL' ? dataStore : dataStore.filter(d => d.cycle == cycleSel);
-
-      const pending = filteredByCycle.filter(d => d.status === 'Pending Verification').length;
-      const verified = filteredByCycle.filter(d => d.status === 'Verified').length;
-      const invoiced = filteredByCycle.filter(d => d.status === 'Invoiced').length;
-      const total = filteredByCycle.length;
-      const completed = verified + invoiced;
-
-      // Card Metrics Set 1 & Set 2 (Infinite Scroll Pairs)
-      document.getElementById("countPending").innerText = dataStore.filter(d => d.status === 'Pending Verification').length;
-      document.getElementById("countVerified").innerText = dataStore.filter(d => d.status === 'Verified').length;
-      document.getElementById("countInvoiced").innerText = dataStore.filter(d => d.status === 'Invoiced').length;
-
-      document.getElementById("countPending2").innerText = dataStore.filter(d => d.status === 'Pending Verification').length;
-      document.getElementById("countVerified2").innerText = dataStore.filter(d => d.status === 'Verified').length;
-      document.getElementById("countInvoiced2").innerText = dataStore.filter(d => d.status === 'Invoiced').length;
-
-      // Cycle Summary Block
-      document.getElementById("cycleTitle").innerText = cycleSel === 'ALL' ? "Monitoring Semua Cycle (1-15)" : `Monitoring Pembacaan Cycle ${cycleSel}`;
-      document.getElementById("cycleTotalCount").innerText = total;
-      document.getElementById("cycleCompletedCount").innerText = completed;
-      document.getElementById("cyclePendingCount").innerText = pending;
-
-      const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-      document.getElementById("cyclePercentage").innerText = `${pct}%`;
-
-      const badge = document.getElementById("cycleStatusBadge");
-      if (pct === 100) {
-        badge.innerText = "COMPLETED";
-        badge.className = "px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-300";
-      } else {
-        badge.innerText = "IN PROGRESS";
-        badge.className = "px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400 border border-amber-300";
-      }
-    }
-
-    function renderCycleChart() {
-      const cycleSel = document.getElementById("cycleFilter").value;
-      const filtered = cycleSel === 'ALL' ? dataStore : dataStore.filter(d => d.cycle == cycleSel);
-
-      const pending = filtered.filter(d => d.status === 'Pending Verification').length;
-      const verified = filtered.filter(d => d.status === 'Verified').length;
-      const invoiced = filtered.filter(d => d.status === 'Invoiced').length;
-
-      const ctx = document.getElementById('cycleChart').getContext('2d');
-      if (cycleChartInstance) {
-        cycleChartInstance.destroy();
-      }
-
-      cycleChartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Pending', 'Ready Billing', 'Invoiced'],
-          datasets: [{
-            data: [pending, verified, invoiced],
-            backgroundColor: ['#E86216', '#0055A5', '#10B981'],
-            borderWidth: 2,
-            borderColor: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                boxWidth: 10,
-                font: { size: 10, family: 'Poppins' },
-                color: document.documentElement.classList.contains('dark') ? '#cbd5e1' : '#475569'
-              }
-            }
-          },
-          cutout: '70%'
-        }
-      });
-    }
-
-    function openDetailModal(id) {
-      activeModalItem = dataStore.find(item => item.id === id);
-      if (!activeModalItem) return;
-
-      document.getElementById("modalNama").innerText = activeModalItem.customer_name;
-      document.getElementById("modalId").innerText = activeModalItem.customer_id;
-      document.getElementById("modalKelas").innerText = `Kelas ${activeModalItem.kelas}`;
-      document.getElementById("modalCycleBadge").innerText = `Cycle ${activeModalItem.cycle}`;
-      
-      document.getElementById("modalFotoMeter").src = activeModalItem.foto_meter;
-      document.getElementById("modalFotoBPM").src = activeModalItem.foto_bpm;
-
-      document.getElementById("modalLalu").innerText = `${activeModalItem.stand_lalu.toLocaleString()} m³`;
-      
-      const inputSkrg = document.getElementById("modalInputSkrg");
-      inputSkrg.value = activeModalItem.stand_skrg;
-
-      calculateModalUsage();
-
-      const actionBtn = document.getElementById("modalActionBtn");
-      const rejectBtn = document.getElementById("modalRejectBtn");
-      const aiOCRBtn = document.getElementById("modalAIOCRBtn") || document.getElementById("aiOCRBtn");
-
-      if (currentUser && currentUser.permission === 'VERIFIER' && activeModalItem.status === 'Pending Verification') {
-        inputSkrg.disabled = false;
-        rejectBtn.classList.remove("hidden");
-        if(aiOCRBtn) aiOCRBtn.classList.remove("hidden");
-
-        actionBtn.innerText = "✔️ Verifikasi & Setujui Reading";
-        actionBtn.className = "px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow";
-      } else if (currentUser && currentUser.permission === 'BILLING' && activeModalItem.status === 'Verified') {
-        inputSkrg.disabled = true;
-        rejectBtn.classList.add("hidden");
-        if(aiOCRBtn) aiOCRBtn.classList.add("hidden");
-
-        actionBtn.innerText = "🧾 Terbitkan & Kirim Tagihan (Email)";
-        actionBtn.className = "px-4 py-2 bg-aetra-blue hover:bg-aetra-darkblue text-white text-xs font-bold rounded-xl transition shadow";
-      } else {
-        inputSkrg.disabled = true;
-        rejectBtn.classList.add("hidden");
-        if(aiOCRBtn) aiOCRBtn.classList.add("hidden");
-
-        actionBtn.innerText = "Tutup Modal";
-        actionBtn.className = "px-4 py-2 bg-slate-500 hover:bg-slate-600 text-white text-xs font-bold rounded-xl transition shadow";
-      }
-
-      document.getElementById("detailModal").classList.remove("hidden");
-    }
-
-    function calculateModalUsage() {
-      if (!activeModalItem) return;
-      const inputSkrg = parseFloat(document.getElementById("modalInputSkrg").value) || 0;
-      const volume = Math.max(0, inputSkrg - activeModalItem.stand_lalu);
-      const totalBill = volume * 12500;
-
-      document.getElementById("modalUsage").innerText = `${volume.toLocaleString()} m³`;
-      document.getElementById("modalEstTagihan").innerText = `Rp ${totalBill.toLocaleString('id-ID')}`;
-    }
-
-    function closeModal() {
-      document.getElementById("detailModal").classList.add("hidden");
-      activeModalItem = null;
-    }
-
-    async function processModalAction() {
-      if (!activeModalItem) {
-        closeModal();
-        return;
-      }
-
-      if (currentUser && currentUser.permission === 'VERIFIER' && activeModalItem.status === 'Pending Verification') {
-        const newSkrg = parseFloat(document.getElementById("modalInputSkrg").value);
-        if (isNaN(newSkrg) || newSkrg < activeModalItem.stand_lalu) {
-          alert("Stand baru bulan ini tidak valid!");
-          return;
-        }
-
-        activeModalItem.stand_skrg = newSkrg;
-        activeModalItem.volume = newSkrg - activeModalItem.stand_lalu;
-        activeModalItem.total_bill = activeModalItem.volume * 12500;
-        activeModalItem.status = 'Verified';
-
-        await db.from('meter_readings').update({
-          stand_skrg: activeModalItem.stand_skrg,
-          volume: activeModalItem.volume,
-          total_bill: activeModalItem.total_bill,
-          status: 'Verified'
-        }).eq('id', activeModalItem.id);
-
-        alert(`Berhasil memverifikasi data meter ${activeModalItem.customer_name}!`);
-      } else if (currentUser && currentUser.permission === 'BILLING' && activeModalItem.status === 'Verified') {
-        activeModalItem.status = 'Invoiced';
-
-        await db.from('meter_readings').update({
-          status: 'Invoiced'
-        }).eq('id', activeModalItem.id);
-
-        alert(`Invoice berhasil diterbitkan dan dikirim ke email ${activeModalItem.customer_name}!`);
-      }
-
-      closeModal();
-      renderTable();
-      updateMetrics();
-      renderCycleChart();
-    }
-
-    function rejectItem() {
-      if (!activeModalItem) return;
-      alert(`Status pembacaan ${activeModalItem.customer_name} ditolak dan dikembalikan ke petugas meter lapangan untuk pembacaan ulang.`);
-      closeModal();
-    }
-
-    function runAICorrection() {
-      if (!activeModalItem) return;
-      alert("🤖 SIMBA-IN AI OCR System: Memindai ulang gambar BPM...\nHasil pindaian cocok 100%!");
+    function downloadPDFReport() {
+      const element = document.getElementById('dashboardReportContent');
+      html2pdf().from(element).save('Laporan_SIMBA_IN.pdf');
     }
 
     function exportToCSV() {
-      const data = filterData();
-      if (data.length === 0) {
-        alert("Tidak ada data untuk diekspor!");
-        return;
-      }
-
-      let csvContent = "data:text/csv;charset=utf-8,ID Pelanggan,Nama Industri,Kelas,Cycle,Bulan,Stand Lalu,Stand Skrg,Volume (m3),Total Tagihan (Rp),Status\n";
-      data.forEach(row => {
-        csvContent += `"${row.customer_id}","${row.customer_name}","${row.kelas}",${row.cycle},"${row.month}",${row.stand_lalu},${row.stand_skrg},${row.volume},${row.total_bill},"${row.status}"\n`;
+      let csv = 'ID Pelanggan,Nama Industri,Kelas,Cycle,Volume,Tagihan,Status\n';
+      globalData.forEach(i => {
+        csv += `"${i.customer_id}","${i.customer_name}","${i.kelas}",${i.cycle},${i.volume},${i.total_bill},"${i.status}"\n`;
       });
-
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `SIMBA-IN_Report_${new Date().toISOString().slice(0,10)}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    function downloadPDFReport() {
-      const element = document.getElementById('dashboardReportContent');
-      const opt = {
-        margin:       0.3,
-        filename:     `Laporan_SIMBA-IN_Aetra_${new Date().toISOString().slice(0,10)}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
-      };
-      html2pdf().set(opt).from(element).save();
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.setAttribute('href', url);
+      a.setAttribute('download', 'data_simba_in.csv');
+      a.click();
     }
   </script>
 </body>
