@@ -72,9 +72,9 @@
         <div>
           <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Pilih Pengguna / Peran Staf</label>
           <select id="userRoleSelect" class="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-aetra-blue bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-white">
+            <option value="yaya">Pak Yaya (Tim Billing & Invoicing)</option>
             <option value="solihin">Pak Solihin (Tim Meter Reading)</option>
             <option value="kabul">Pak Kabul (Tim Meter Reading)</option>
-            <option value="yaya">Pak Yaya (Tim Billing & Invoicing)</option>
           </select>
         </div>
 
@@ -164,10 +164,10 @@
 
           <div class="flex items-center gap-3">
             <div class="flex items-center gap-2">
-              <div id="currentUserAvatar" class="w-8 h-8 rounded-full bg-aetra-orange text-white flex items-center justify-center font-bold text-xs shadow-md">AD</div>
+              <div id="currentUserAvatar" class="w-8 h-8 rounded-full bg-aetra-orange text-white flex items-center justify-center font-bold text-xs shadow-md">PY</div>
               <div class="text-left">
-                <p id="currentUserName" class="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight">-</p>
-                <p id="currentUserRole" class="text-[10px] text-slate-400 dark:text-slate-400 leading-tight">-</p>
+                <p id="currentUserName" class="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight">Pak Yaya</p>
+                <p id="currentUserRole" class="text-[10px] text-slate-400 dark:text-slate-400 leading-tight">Tim Billing & Invoicing</p>
               </div>
             </div>
             <button onclick="handleLogout()" class="px-3 py-1.5 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900 rounded-xl text-xs font-bold transition">
@@ -226,7 +226,7 @@
               <div>
                 <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Perlu Verifikasi Reading</p>
                 <p id="countPending" class="text-xl font-black text-aetra-orange mt-0.5">0</p>
-                <span class="text-[9px] text-aetra-orange font-bold">Otoritas Tim Meter Reading</span>
+                <span class="text-[9px] text-aetra-orange font-bold">Otoritas Tim Meter Reading (Pak Solihin / Pak Kabul)</span>
               </div>
               <span class="text-xl">🔍</span>
             </div>
@@ -254,7 +254,7 @@
         <!-- ANNOUNCEMENT -->
         <div class="bg-aetra-darkblue text-white rounded-xl p-3 px-4 text-xs flex items-center gap-3 shadow-md">
           <span class="bg-aetra-orange text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-md shrink-0">Info Sistem</span>
-          <p class="font-medium">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026. Hak akses terpisah: Tim Meter Reading (Pak Solihin & Pak Kabul) & Tim Billing (Pak Yaya).</p>
+          <p class="font-medium">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026. Hak akses ketat: Tim Meter Reading (Pak Solihin & Pak Kabul) & Tim Billing (Pak Yaya).</p>
         </div>
 
         <!-- TABEL DATA -->
@@ -329,7 +329,18 @@
         </div>
 
         <div id="modalPermissionWarning" class="hidden p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl text-blue-800 dark:text-blue-300 font-semibold">
-          ℹ️ Anda masuk sebagai Tim Billing (Pak Yaya). Stand meter dikunci dan hanya dapat diedit oleh Tim Meter Reading.
+          ℹ️ Anda masuk sebagai Tim Billing (Pak Yaya). Stand meter dikunci dan hanya dapat diedit oleh Tim Meter Reading (Pak Solihin / Pak Kabul).
+        </div>
+
+        <!-- CONTAINER CADANGAN UNTUK MEMBUKA OUTLOOK SECARA MANUAL JIKA DI-BLOCK BROWSER -->
+        <div id="outlookManualBox" class="hidden p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-xl flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold text-emerald-800 dark:text-emerald-300">✅ PDF Invoice Berhasil Diunduh!</p>
+            <p class="text-[11px] text-emerald-700 dark:text-emerald-400">Jika aplikasi Outlook tidak terbuka otomatis, silakan klik tombol di samping:</p>
+          </div>
+          <a id="outlookManualLink" href="#" target="_blank" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition shadow">
+            📧 Buka Outlook Manual
+          </a>
         </div>
 
         <div id="modalPendingBox" class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-xl">
@@ -445,17 +456,16 @@
       { id: 6, customer_id: "IND-1302", customer_name: "PT Chandra Asri Petrochemical", email: "finance@capcx.com", kelas: "Gold", cycle: 13, month: "September 2026", stand_lalu: 71000, stand_skrg: 73500, volume: 2500, total_bill: 31260000, status: "Pending Verification", pending_reason: "Menunggu kalibrasi ulang meter induk pabrik.", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" }
     ];
 
-    let currentUser = null;
+    let currentUser = usersDb = {
+      yaya: { name: "Pak Yaya", role: "Tim Billing & Invoicing", permission: "billing", avatar: "PY" },
+      solihin: { name: "Pak Solihin", role: "Tim Meter Reading", permission: "reading", avatar: "PS" },
+      kabul: { name: "Pak Kabul", role: "Tim Meter Reading", permission: "reading", avatar: "PK" }
+    }['yaya']; // Default login Pak Yaya agar langsung bisa akses Billing
+
     let selectedActiveNav = 'nav-overview';
     let currentActiveCycle = 'ALL';
     let activeModalItem = null;
     let chartInstance = null;
-
-    const usersDb = {
-      solihin: { name: "Pak Solihin", role: "Tim Meter Reading", permission: "reading", avatar: "PS" },
-      kabul: { name: "Pak Kabul", role: "Tim Meter Reading", permission: "reading", avatar: "PK" },
-      yaya: { name: "Pak Yaya", role: "Tim Billing & Invoicing", permission: "billing", avatar: "PY" }
-    };
 
     function updateRealtimeClock() {
       const now = new Date();
@@ -474,7 +484,12 @@
 
     function handleLogin() {
       const select = document.getElementById('userRoleSelect').value;
-      currentUser = usersDb[select];
+      const usersDbMap = {
+        solihin: { name: "Pak Solihin", role: "Tim Meter Reading", permission: "reading", avatar: "PS" },
+        kabul: { name: "Pak Kabul", role: "Tim Meter Reading", permission: "reading", avatar: "PK" },
+        yaya: { name: "Pak Yaya", role: "Tim Billing & Invoicing", permission: "billing", avatar: "PY" }
+      };
+      currentUser = usersDbMap[select];
       
       document.getElementById('currentUserName').innerText = currentUser.name;
       document.getElementById('currentUserRole').innerText = currentUser.role;
@@ -487,7 +502,6 @@
     }
 
     function handleLogout() {
-      currentUser = null;
       document.getElementById('appLayout').classList.add('hidden');
       document.getElementById('loginModal').classList.remove('hidden');
     }
@@ -658,6 +672,9 @@
       document.getElementById('modalFotoBPM').src = activeModalItem.foto_bpm;
       document.getElementById('modalLalu').innerText = activeModalItem.stand_lalu.toLocaleString() + ' m³';
       
+      // Sembunyikan kotak manual outlook saat modal pertama dibuka
+      document.getElementById('outlookManualBox').classList.add('hidden');
+
       const pendingBox = document.getElementById('modalPendingBox');
       if (activeModalItem.status === 'Pending Verification' && activeModalItem.pending_reason !== '-') {
         pendingBox.classList.remove('hidden');
@@ -672,7 +689,6 @@
       const isReadingTeam = currentUser.permission === 'reading';
       const isBillingTeam = currentUser.permission === 'billing';
 
-      // Hak akses ketat sesuai permintaan
       inputSkrg.disabled = !isReadingTeam || activeModalItem.status !== 'Pending Verification';
       document.getElementById('aiOCRBtn').classList.toggle('hidden', !isReadingTeam);
       document.getElementById('modalPermissionWarning').classList.toggle('hidden', isReadingTeam);
@@ -682,32 +698,21 @@
       const actionBtn = document.getElementById('modalActionBtn');
       const rejectBtn = document.getElementById('modalRejectBtn');
 
-      if(isReadingTeam) {
-        if(activeModalItem.status === 'Pending Verification') {
-          actionBtn.innerText = '✅ Verifikasi & Setujui Reading';
-          actionBtn.onclick = verifyItem;
-          actionBtn.classList.remove('hidden');
-          rejectBtn.classList.remove('hidden');
-        } else {
-          actionBtn.innerText = 'Selesai Diverifikasi (Tutup)';
-          actionBtn.onclick = closeModal;
-          rejectBtn.classList.add('hidden');
-        }
-      } else if(isBillingTeam) {
+      if(activeModalItem.status === 'Verified' || activeModalItem.status === 'Invoiced') {
         rejectBtn.classList.add('hidden');
-        if(activeModalItem.status === 'Verified') {
-          actionBtn.innerText = '🧾 Generate PDF & Kirim via Outlook';
-          actionBtn.onclick = processBillingAndEmail;
-          actionBtn.classList.remove('hidden');
-        } else if(activeModalItem.status === 'Invoiced') {
-          actionBtn.innerText = '📄 Kirim Ulang Invoice (Outlook)';
-          actionBtn.onclick = processBillingAndEmail;
-          actionBtn.classList.remove('hidden');
-        } else {
-          actionBtn.innerText = 'Menunggu Verifikasi Tim Reading';
-          actionBtn.onclick = closeModal;
-          actionBtn.classList.remove('hidden');
-        }
+        actionBtn.innerText = activeModalItem.status === 'Invoiced' ? '📄 Kirim Ulang Invoice (Outlook)' : '🧾 Generate PDF & Buka Outlook';
+        actionBtn.onclick = processBillingAndEmail;
+        actionBtn.classList.remove('hidden');
+      } else if(isReadingTeam && activeModalItem.status === 'Pending Verification') {
+        actionBtn.innerText = '✅ Verifikasi & Setujui Reading';
+        actionBtn.onclick = verifyItem;
+        actionBtn.classList.remove('hidden');
+        rejectBtn.classList.remove('hidden');
+      } else {
+        rejectBtn.classList.add('hidden');
+        actionBtn.innerText = 'Menunggu Verifikasi Tim Reading';
+        actionBtn.onclick = closeModal;
+        actionBtn.classList.remove('hidden');
       }
 
       document.getElementById('detailModal').classList.remove('hidden');
@@ -743,6 +748,7 @@
       refreshDashboard();
     }
 
+    // Fungsi pemrosesan Billing & Invoicing (Otoritas Pak Yaya) dengan Handler Ganda
     function processBillingAndEmail() {
       if(!activeModalItem) return;
 
@@ -779,32 +785,40 @@
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      // 1. Generate dan download PDF terlebih dahulu
+      const recipientEmail = activeModalItem.email;
+      const emailSubject = encodeURIComponent(`Invoice Tagihan Air Industri Periode September 2026 - ${activeModalItem.customer_name}`);
+      const emailBody = encodeURIComponent(
+        `Yth. Pimpinan / Bagian Keuangan\n${activeModalItem.customer_name}\n\n` +
+        `Bersama email ini, kami sampaikan rincian tagihan pemakaian air bersih PT Aetra Air Tangerang untuk Periode September 2026 (Cycle ${activeModalItem.cycle}):\n\n` +
+        `- ID Pelanggan: ${activeModalItem.customer_id}\n` +
+        `- Volume Pemakaian: ${activeModalItem.volume.toLocaleString()} m³\n` +
+        `- Total Tagihan${isOver5jt ? ' (Termasuk Bea Materai Rp 10.000)' : ''}: Rp ${activeModalItem.total_bill.toLocaleString()}\n\n` +
+        `Catatan: File PDF Invoice telah diunduh ke perangkat Anda. Silakan lampirkan file tersebut pada email ini sebelum dikirim ke pihak industri.\n\n` +
+        `Terima kasih atas kerja sama Anda.\n\n` +
+        `Hormat kami,\n` +
+        `Pak Yaya (Tim Billing & Invoicing)\n` +
+        `PT Aetra Air Tangerang`
+      );
+
+      const mailtoLink = `mailto:${recipientEmail}?subject=${emailSubject}&body=${emailBody}`;
+
+      // Set link pada tombol manual outlook di dalam modal
+      document.getElementById('outlookManualLink').href = mailtoLink;
+
+      // 1. Generate & Unduh File PDF secara otomatis ke perangkat
       html2pdf().from(printElement).save().then(() => {
         printElement.classList.add('hidden');
 
-        // 2. Otomatis membuka aplikasi Outlook via mailto setelah PDF terunduh
-        const recipientEmail = activeModalItem.email;
-        const emailSubject = encodeURIComponent(`Invoice Tagihan Air Industri Periode September 2026 - ${activeModalItem.customer_name}`);
-        const emailBody = encodeURIComponent(
-          `Yth. Pimpinan / Bagian Keuangan\n${activeModalItem.customer_name}\n\n` +
-          `Bersama email ini, kami sampaikan rincian tagihan pemakaian air bersih PT Aetra Air Tangerang untuk Periode September 2026 (Cycle ${activeModalItem.cycle}):\n\n` +
-          `- ID Pelanggan: ${activeModalItem.customer_id}\n` +
-          `- Volume Pemakaian: ${activeModalItem.volume.toLocaleString()} m³\n` +
-          `- Total Tagihan${isOver5jt ? ' (Termasuk Bea Materai Rp 10.000)' : ''}: Rp ${activeModalItem.total_bill.toLocaleString()}\n\n` +
-          `Catatan: File PDF Invoice telah diunduh ke perangkat Anda. Mohon lampirkan file tersebut pada email ini sebelum dikirim.\n\n` +
-          `Terima kasih atas kerja sama Anda.\n\n` +
-          `Hormat kami,\n` +
-          `Pak Yaya (Tim Billing & Invoicing)\n` +
-          `PT Aetra Air Tangerang`
-        );
+        // 2. Tampilkan kotak panduan manual Outlook agar pengguna tidak bingung jika browser memblokir redirect
+        document.getElementById('outlookManualBox').classList.remove('hidden');
 
-        window.location.href = `mailto:${recipientEmail}?subject=${emailSubject}&body=${emailBody}`;
+        // 3. Eksekusi pemanggilan Outlook otomatis dengan penundaan aman
+        setTimeout(() => {
+          window.location.href = mailtoLink;
+        }, 300);
       });
 
       activeModalItem.status = 'Invoiced';
-
-      closeModal();
       refreshDashboard();
     }
 
