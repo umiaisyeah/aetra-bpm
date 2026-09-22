@@ -72,8 +72,8 @@
         <div>
           <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Pilih Pengguna / Peran Staf</label>
           <select id="userRoleSelect" class="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-aetra-blue bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-white">
-            <option value="solihin">Pak Solihin (Tim Meter Reading / Verifikasi)</option>
-            <option value="kabul">Pak Kabul (Tim Meter Reading / Verifikasi)</option>
+            <option value="solihin">Pak Solihin (Tim Meter Reading)</option>
+            <option value="kabul">Pak Kabul (Tim Meter Reading)</option>
             <option value="yaya">Pak Yaya (Tim Billing & Invoicing)</option>
           </select>
         </div>
@@ -226,7 +226,7 @@
               <div>
                 <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Perlu Verifikasi Reading</p>
                 <p id="countPending" class="text-xl font-black text-aetra-orange mt-0.5">0</p>
-                <span class="text-[9px] text-aetra-orange font-bold">Otoritas Staf Terkait</span>
+                <span class="text-[9px] text-aetra-orange font-bold">Otoritas Tim Meter Reading</span>
               </div>
               <span class="text-xl">🔍</span>
             </div>
@@ -235,7 +235,7 @@
               <div>
                 <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Ready for Billing</p>
                 <p id="countVerified" class="text-xl font-black text-aetra-blue dark:text-blue-400 mt-0.5">0</p>
-                <span class="text-[9px] text-aetra-blue dark:text-blue-400 font-bold">Otoritas Pak Yaya</span>
+                <span class="text-[9px] text-aetra-blue dark:text-blue-400 font-bold">Otoritas Pak Yaya (Billing)</span>
               </div>
               <span class="text-xl">📋</span>
             </div>
@@ -254,7 +254,7 @@
         <!-- ANNOUNCEMENT -->
         <div class="bg-aetra-darkblue text-white rounded-xl p-3 px-4 text-xs flex items-center gap-3 shadow-md">
           <span class="bg-aetra-orange text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-md shrink-0">Info Sistem</span>
-          <p class="font-medium">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026 berjalan lancar. Tagihan > Rp 5 Juta otomatis dikenakan Bea Materai Rp 10.000.</p>
+          <p class="font-medium">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026. Hak akses terpisah: Tim Meter Reading (Pak Solihin & Pak Kabul) & Tim Billing (Pak Yaya).</p>
         </div>
 
         <!-- TABEL DATA -->
@@ -328,6 +328,10 @@
           </button>
         </div>
 
+        <div id="modalPermissionWarning" class="hidden p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl text-blue-800 dark:text-blue-300 font-semibold">
+          ℹ️ Anda masuk sebagai Tim Billing (Pak Yaya). Stand meter dikunci dan hanya dapat diedit oleh Tim Meter Reading.
+        </div>
+
         <div id="modalPendingBox" class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-xl">
           <p class="text-[10px] font-extrabold text-amber-800 dark:text-amber-400 uppercase">Catatan Status / Pergeseran Hari Baca:</p>
           <p id="modalPendingReason" class="text-xs font-semibold text-amber-900 dark:text-amber-200 mt-0.5">-</p>
@@ -351,7 +355,7 @@
           </div>
           <div>
             <label class="block text-aetra-blue dark:text-blue-300 font-bold mb-0.5 text-[11px]">Stand Bulan Ini (m³)</label>
-            <input id="modalInputSkrg" type="number" oninput="calculateModalUsage()" class="w-full p-2 border border-blue-300 dark:border-slate-500 rounded-xl text-sm font-bold text-aetra-blue dark:text-white focus:ring-2 focus:ring-aetra-blue bg-white dark:bg-slate-800" disabled />
+            <input id="modalInputSkrg" type="number" oninput="calculateModalUsage()" class="w-full p-2 border border-blue-300 dark:border-slate-500 rounded-xl text-sm font-bold text-aetra-blue dark:text-white focus:ring-2 focus:ring-aetra-blue bg-white dark:bg-slate-800" />
           </div>
           <div>
             <p class="text-slate-500 dark:text-slate-400 font-medium text-[11px]">Total Pemakaian Volume</p>
@@ -448,9 +452,9 @@
     let chartInstance = null;
 
     const usersDb = {
-      solihin: { name: "Pak Solihin", role: "Tim Meter Reading", avatar: "PS" },
-      kabul: { name: "Pak Kabul", role: "Tim Meter Reading", avatar: "PK" },
-      yaya: { name: "Pak Yaya", role: "Tim Billing & Invoicing", avatar: "PY" }
+      solihin: { name: "Pak Solihin", role: "Tim Meter Reading", permission: "reading", avatar: "PS" },
+      kabul: { name: "Pak Kabul", role: "Tim Meter Reading", permission: "reading", avatar: "PK" },
+      yaya: { name: "Pak Yaya", role: "Tim Billing & Invoicing", permission: "billing", avatar: "PY" }
     };
 
     function updateRealtimeClock() {
@@ -665,27 +669,45 @@
       const inputSkrg = document.getElementById('modalInputSkrg');
       inputSkrg.value = activeModalItem.stand_skrg;
 
-      const isMeterReader = currentUser.role.includes('Meter Reading');
-      inputSkrg.disabled = !isMeterReader && activeModalItem.status !== 'Pending Verification';
-      document.getElementById('aiOCRBtn').classList.toggle('hidden', !isMeterReader);
+      const isReadingTeam = currentUser.permission === 'reading';
+      const isBillingTeam = currentUser.permission === 'billing';
+
+      // Hak akses ketat sesuai permintaan
+      inputSkrg.disabled = !isReadingTeam || activeModalItem.status !== 'Pending Verification';
+      document.getElementById('aiOCRBtn').classList.toggle('hidden', !isReadingTeam);
+      document.getElementById('modalPermissionWarning').classList.toggle('hidden', isReadingTeam);
 
       calculateModalUsage();
 
       const actionBtn = document.getElementById('modalActionBtn');
       const rejectBtn = document.getElementById('modalRejectBtn');
 
-      if(activeModalItem.status === 'Pending Verification') {
-        actionBtn.innerText = '✅ Verifikasi & Setujui';
-        actionBtn.onclick = verifyItem;
-        rejectBtn.classList.remove('hidden');
-      } else if(activeModalItem.status === 'Verified') {
-        actionBtn.innerText = '🧾 Proses Billing & Kirim Invoice Otomatis';
-        actionBtn.onclick = processBillingAndEmail;
+      if(isReadingTeam) {
+        if(activeModalItem.status === 'Pending Verification') {
+          actionBtn.innerText = '✅ Verifikasi & Setujui Reading';
+          actionBtn.onclick = verifyItem;
+          actionBtn.classList.remove('hidden');
+          rejectBtn.classList.remove('hidden');
+        } else {
+          actionBtn.innerText = 'Selesai Diverifikasi (Tutup)';
+          actionBtn.onclick = closeModal;
+          rejectBtn.classList.add('hidden');
+        }
+      } else if(isBillingTeam) {
         rejectBtn.classList.add('hidden');
-      } else {
-        actionBtn.innerText = 'Tutup (Sudah Invoiced & Terkirim)';
-        actionBtn.onclick = closeModal;
-        rejectBtn.classList.add('hidden');
+        if(activeModalItem.status === 'Verified') {
+          actionBtn.innerText = '🧾 Generate PDF & Kirim via Outlook';
+          actionBtn.onclick = processBillingAndEmail;
+          actionBtn.classList.remove('hidden');
+        } else if(activeModalItem.status === 'Invoiced') {
+          actionBtn.innerText = '📄 Kirim Ulang Invoice (Outlook)';
+          actionBtn.onclick = processBillingAndEmail;
+          actionBtn.classList.remove('hidden');
+        } else {
+          actionBtn.innerText = 'Menunggu Verifikasi Tim Reading';
+          actionBtn.onclick = closeModal;
+          actionBtn.classList.remove('hidden');
+        }
       }
 
       document.getElementById('detailModal').classList.remove('hidden');
@@ -757,28 +779,30 @@
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
+      // 1. Generate dan download PDF terlebih dahulu
       html2pdf().from(printElement).save().then(() => {
         printElement.classList.add('hidden');
+
+        // 2. Otomatis membuka aplikasi Outlook via mailto setelah PDF terunduh
+        const recipientEmail = activeModalItem.email;
+        const emailSubject = encodeURIComponent(`Invoice Tagihan Air Industri Periode September 2026 - ${activeModalItem.customer_name}`);
+        const emailBody = encodeURIComponent(
+          `Yth. Pimpinan / Bagian Keuangan\n${activeModalItem.customer_name}\n\n` +
+          `Bersama email ini, kami sampaikan rincian tagihan pemakaian air bersih PT Aetra Air Tangerang untuk Periode September 2026 (Cycle ${activeModalItem.cycle}):\n\n` +
+          `- ID Pelanggan: ${activeModalItem.customer_id}\n` +
+          `- Volume Pemakaian: ${activeModalItem.volume.toLocaleString()} m³\n` +
+          `- Total Tagihan${isOver5jt ? ' (Termasuk Bea Materai Rp 10.000)' : ''}: Rp ${activeModalItem.total_bill.toLocaleString()}\n\n` +
+          `Catatan: File PDF Invoice telah diunduh ke perangkat Anda. Mohon lampirkan file tersebut pada email ini sebelum dikirim.\n\n` +
+          `Terima kasih atas kerja sama Anda.\n\n` +
+          `Hormat kami,\n` +
+          `Pak Yaya (Tim Billing & Invoicing)\n` +
+          `PT Aetra Air Tangerang`
+        );
+
+        window.location.href = `mailto:${recipientEmail}?subject=${emailSubject}&body=${emailBody}`;
       });
 
       activeModalItem.status = 'Invoiced';
-
-      const recipientEmail = activeModalItem.email;
-      const emailSubject = encodeURIComponent(`Invoice Tagihan Air Industri Periode September 2026 - ${activeModalItem.customer_name}`);
-      const emailBody = encodeURIComponent(
-        `Yth. Pimpinan / Bagian Keuangan\n${activeModalItem.customer_name}\n\n` +
-        `Bersama email ini, kami sampaikan rincian tagihan pemakaian air bersih PT Aetra Air Tangerang untuk Periode September 2026 (Cycle ${activeModalItem.cycle}):\n\n` +
-        `- ID Pelanggan: ${activeModalItem.customer_id}\n` +
-        `- Volume Pemakaian: ${activeModalItem.volume.toLocaleString()} m³\n` +
-        `- Total Tagihan${isOver5jt ? ' (Termasuk Bea Materai Rp 10.000)' : ''}: Rp ${activeModalItem.total_bill.toLocaleString()}\n\n` +
-        `File lampiran PDF Invoice resmi telah diunduh ke perangkat Anda. Mohon lakukan pembayaran sebelum tanggal 25 September 2026.\n\n` +
-        `Terima kasih atas kerja sama Anda.\n\n` +
-        `Hormat kami,\n` +
-        `Tim Billing & Invoicing\n` +
-        `PT Aetra Air Tangerang`
-      );
-
-      window.location.href = `mailto:${recipientEmail}?subject=${emailSubject}&body=${emailBody}`;
 
       closeModal();
       refreshDashboard();
