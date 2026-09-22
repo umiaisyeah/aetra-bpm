@@ -53,12 +53,13 @@
       <!-- HEADER -->
       <header class="bg-white border-b border-slate-200 p-4 flex flex-col md:flex-row items-center justify-between gap-4 sticky top-0 z-10 shadow-sm">
         <div class="relative w-full md:w-96">
+          <!-- PERBAIKAN: Menggunakan class biasa, bukan className -->
           <input
             id="searchInput"
             type="text"
             placeholder="Cari ID Pelanggan atau Nama Industri..."
             oninput="renderTable()"
-            className="w-full pl-4 pr-4 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50"
+            class="w-full pl-4 pr-4 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50"
           />
         </div>
 
@@ -82,7 +83,7 @@
         <!-- METRIC CARDS -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Industri >0.5"</p>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Industri &gt;0.5"</p>
             <p class="text-2xl font-black text-slate-800 mt-0.5">142</p>
             <span class="text-[10px] text-emerald-600 font-bold">100% Monitored</span>
           </div>
@@ -191,7 +192,7 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
-    // 1. MASUKKAN CONFIG SUPABASE DI SINI
+    // MASUKKAN URL DAN KEY SUPABASE KAMU DI SINI
     const SUPABASE_URL = "https://gjfkulhavzpffnpvfmel.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZmt1bGhhdnpwZmZucHZmbWVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3ODc5NjQsImV4cCI6MjEwNTM2Mzk2NH0.jfVgsZSy6Kk2NPkBvIOttLee-cIKd8yem9PxqpxyT_o";
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -200,7 +201,6 @@
     let currentOperatorFilter = 'ALL';
     let activeItem = null;
 
-    // Fetch Data
     async function fetchData() {
       const { data, error } = await db.from('admin_pembacaan_meter').select('*').order('id', { ascending: true });
       if (!error && data) {
@@ -210,20 +210,17 @@
       }
     }
 
-    // Metric Summary Cards
     function updateMetrics() {
       document.getElementById('countPending').innerText = allData.filter(d => d.status === 'Pending Verification').length;
       document.getElementById('countVerified').innerText = allData.filter(d => d.status === 'Verified').length;
       document.getElementById('countInvoiced').innerText = allData.filter(d => d.status === 'Invoiced').length;
     }
 
-    // Filter Operator Button Switch
     function filterOperator(op) {
       currentOperatorFilter = op;
       renderTable();
     }
 
-    // Render Table Body
     function renderTable() {
       const search = document.getElementById('searchInput').value.toLowerCase();
       const tbody = document.getElementById('tableBody');
@@ -263,8 +260,8 @@
             <p class="text-[10px] text-slate-400 font-mono">ID: ${item.id_pelanggan} | ${item.kelas}</p>
           </td>
           <td class="p-3.5">
-            <p class="text-slate-400">Lalu: ${item.stand_lalu.toLocaleString()}</p>
-            <p class="font-bold text-blue-700">Skrg: ${item.stand_sekarang.toLocaleString()}</p>
+            <p class="text-slate-400">Lalu: ${item.stand_lalu ? item.stand_lalu.toLocaleString() : 0}</p>
+            <p class="font-bold text-blue-700">Skrg: ${item.stand_sekarang ? item.stand_sekarang.toLocaleString() : 0}</p>
           </td>
           <td class="p-3.5 font-extrabold text-slate-700">${usage.toLocaleString()} m³</td>
           <td class="p-3.5">
@@ -284,13 +281,11 @@
       });
     }
 
-    // Approve Action
     async function approveItem(id) {
       const { error } = await db.from('admin_pembacaan_meter').update({ status: 'Verified' }).eq('id', id);
       if (!error) fetchData();
     }
 
-    // Blast Action
     async function blastItem(id, usage) {
       const total = usage * 12500;
       const { error } = await db.from('admin_pembacaan_meter').update({ status: 'Invoiced', total_tagihan: total }).eq('id', id);
@@ -300,7 +295,6 @@
       }
     }
 
-    // Modal Control
     function openModal(id) {
       activeItem = allData.find(d => d.id === id);
       if (!activeItem) return;
@@ -308,10 +302,10 @@
       const usage = (activeItem.stand_sekarang || 0) - (activeItem.stand_lalu || 0);
       document.getElementById('modalNama').innerText = activeItem.nama_industri;
       document.getElementById('modalId').innerText = activeItem.id_pelanggan;
-      document.getElementById('modalLalu').innerText = `${activeItem.stand_lalu.toLocaleString()} m³`;
-      document.getElementById('modalSkrg').innerText = `${activeItem.stand_sekarang.toLocaleString()} m³`;
+      document.getElementById('modalLalu').innerText = `${activeItem.stand_lalu ? activeItem.stand_lalu.toLocaleString() : 0} m³`;
+      document.getElementById('modalSkrg').innerText = `${activeItem.stand_sekarang ? activeItem.stand_sekarang.toLocaleString() : 0} m³`;
       document.getElementById('modalUsage').innerText = `${usage.toLocaleString()} m³`;
-      document.getElementById('modalAvg').innerText = `${activeItem.avg_usage.toLocaleString()} m³`;
+      document.getElementById('modalAvg').innerText = `${activeItem.avg_usage ? activeItem.avg_usage.toLocaleString() : 0} m³`;
       document.getElementById('modalFileName').innerText = activeItem.file_name || `${activeItem.id_pelanggan}_${activeItem.nama_industri.replace(/\s+/g, '-')}_20260922.jpg`;
 
       const btn = document.getElementById('modalActionBtn');
@@ -329,7 +323,6 @@
       document.getElementById('detailModal').classList.add('hidden');
     }
 
-    // Initial Load
     fetchData();
   </script>
 </body>
