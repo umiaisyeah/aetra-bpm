@@ -368,7 +368,7 @@
             </div>
           </div>
 
-          <!-- VISUALISASI & LIST CYCLE (TANPA CHECKBOX) -->
+          <!-- VISUALISASI & LIST CYCLE -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Summary Chart per Cycle -->
             <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
@@ -400,7 +400,7 @@
                     </tr>
                   </thead>
                   <tbody id="dbTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-medium">
-                    <!-- Populated by JS tanpa checkbox -->
+                    <!-- Populated by JS -->
                   </tbody>
                 </table>
               </div>
@@ -427,16 +427,12 @@
             <h4 id="modalNama" class="text-base font-extrabold text-aetra-blue dark:text-blue-400">-</h4>
             <p class="text-slate-500 dark:text-slate-400 mt-0.5">ID Pelanggan: <span id="modalId" class="font-mono text-aetra-orange font-bold">-</span> | Surel: <span id="modalEmail" class="font-semibold text-slate-700 dark:text-slate-300">-</span></p>
           </div>
-          <button id="aiOCRBtn" onclick="runAICorrection()" class="hidden px-3 py-1.5 bg-aetra-lightorange text-aetra-orange hover:bg-orange-100 rounded-xl font-bold text-[11px] border border-orange-300 transition">
-            🤖 Koreksi Otomatis dari BPM/Foto
-          </button>
         </div>
 
         <div id="modalPermissionWarning" class="hidden p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl text-blue-800 dark:text-blue-300 font-semibold">
           ℹ️ Anda masuk sebagai Tim Billing (Pak Yaya). Stand meter dikunci dan hanya dapat diedit oleh Tim Meter Reading (Pak Solihin / Pak Kabul).
         </div>
 
-        <!-- CONTAINER CADANGAN UNTUK MEMBUKA OUTLOOK SECARA MANUAL JIKA DI-BLOCK BROWSER -->
         <div id="outlookManualBox" class="hidden p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-xl flex items-center justify-between">
           <div>
             <p class="text-xs font-bold text-emerald-800 dark:text-emerald-300">✅ PDF Invoice Berhasil Diunduh!</p>
@@ -496,17 +492,13 @@
 
   <!-- SCRIPT UTAMA SISTEM -->
   <script>
-    // Fungsi Jam & Tanggal Real-Time
     function updateRealtimeClock() {
       const now = new Date();
-      
-      // Jam (HH:MM:SS)
       const hours = String(now.getHours()).padStart(2, '0');
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const seconds = String(now.getSeconds()).padStart(2, '0');
       const timeString = `${hours}:${minutes}:${seconds}`;
       
-      // Tanggal (Hari, Tanggal Bulan Tahun)
       const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
       const dateString = now.toLocaleDateString('id-ID', options);
 
@@ -517,7 +509,6 @@
       if (dateEl) dateEl.innerText = dateString;
     }
 
-    // Inisialisasi Pilihan Cycle (1 s.d 15) & Jam Real-Time
     document.addEventListener("DOMContentLoaded", () => {
       const cycleSelects = ['cycleFilter', 'inputNewCycle'];
       cycleSelects.forEach(id => {
@@ -531,14 +522,11 @@
         }
       });
       
-      // Jalankan fungsi jam langsung dan set interval setiap 1 detik
       updateRealtimeClock();
       setInterval(updateRealtimeClock, 1000);
-
       refreshDashboard();
     });
 
-    // Dummy Data Storage untuk Simulasi Dashboard
     let currentUser = { role: 'yaya', name: 'Pak Yaya', title: 'Tim Billing & Invoicing', avatar: 'PY' };
     let activeNavTab = 'overview';
     let cycleChartInstance = null;
@@ -624,7 +612,6 @@
       refreshDashboard();
     }
 
-    // Refresh Dashboard Utama & Render Grafik Keterbacaan Cycle
     function refreshDashboard() {
       const searchTxt = document.getElementById('searchInput').value.toLowerCase();
       const cycleF = document.getElementById('cycleFilter').value;
@@ -657,7 +644,6 @@
       document.getElementById('countVerified').innerText = totalVerifiedCount;
       document.getElementById('countInvoiced').innerText = totalInvoicedCount;
 
-      // --- RENDER / UPDATE CHART KETERBACAAN CYCLE ---
       const ctx = document.getElementById('cycleChart');
       if (ctx) {
         if (cycleChartInstance) {
@@ -743,16 +729,17 @@
       tbody.innerHTML = '';
       document.getElementById('dbTotalCount').innerText = dataIndustri.length;
 
-      // Render chart distribusi database per cycle
       const ctxDb = document.getElementById('dbCycleChart');
       if(ctxDb) {
         if(dbCycleChartInstance) dbCycleChartInstance.destroy();
         let cycleCounts = {};
-        for(let i=1; i<=5; i++) cycleCounts[`Cycle ${i}`] = 0;
+        for(let i=1; i<=15; i++) cycleCounts[`Cycle ${i}`] = 0;
         dataIndustri.forEach(item => {
-          cycleCounts[item.cycle] = (cycleCounts[item.cycle] || 0) + 1;
+          if(!cycleCounts[item.cycle]) cycleCounts[item.cycle] = 0;
+          cycleCounts[item.cycle]++;
         });
 
+        // Filter keys yang ada isinya atau tampilkan semua cycle 1-15
         const isDarkMode = document.documentElement.classList.contains('dark');
         dbCycleChartInstance = new Chart(ctxDb, {
           type: 'bar',
@@ -820,6 +807,17 @@
       refreshDashboard();
     }
 
+    // HELPER PENCARIAN KOLOM EXCEL SECARA FLEKSIBEL (TIDAK SENSITIF SPASI/HURUF BESAR)
+    function getExcelValue(item, possibleKeys) {
+      const keys = Object.keys(item);
+      for (let pk of possibleKeys) {
+        if (item[pk] !== undefined) return item[pk];
+        const foundKey = keys.find(k => k.toLowerCase().replace(/[\s_]+/g, '') === pk.toLowerCase().replace(/[\s_]+/g, ''));
+        if (foundKey && item[foundKey] !== undefined) return item[foundKey];
+      }
+      return null;
+    }
+
     function importExcel(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -835,11 +833,18 @@
 
           let countAdded = 0;
           jsonData.forEach(item => {
-            const idPel = item.idPelanggan || item.id_pelanggan || item.ID || `IND-${Math.floor(1000 + Math.random() * 9000)}`;
-            const nmPerusahaan = item.namaPerusahaan || item.nama_perusahaan || item.Perusahaan || 'PT Industri Import';
-            const mail = item.emailIndustri || item.email || 'finance@import.co.id';
-            const cyc = item.pilihCycle || item.cycle || 'Cycle 1';
-            const kls = item.kelasPelanggan || item.kelas || 'Kelas Gold';
+            const idPel = getExcelValue(item, ['idPelanggan', 'id_pelanggan', 'id', 'id pelanggan', 'nomor pelanggan', 'nopol']) || `IND-${Math.floor(1000 + Math.random() * 9000)}`;
+            const nmPerusahaan = getExcelValue(item, ['namaPerusahaan', 'nama_perusahaan', 'perusahaan', 'nama perusahaan', 'nama', 'pelanggan']) || 'PT Industri Import';
+            const mail = getExcelValue(item, ['emailIndustri', 'email', 'surel', 'email perusahaan']) || 'finance@import.co.id';
+            
+            let cycVal = getExcelValue(item, ['pilihCycle', 'cycle', 'siklus', 'c', 'jadwal']);
+            let cyc = cycVal ? (String(cycVal).toLowerCase().includes('cycle') ? cycVal : `Cycle ${cycVal}`) : 'Cycle 1';
+
+            let klsVal = getExcelValue(item, ['kelasPelanggan', 'kelas', 'class', 'kategori']);
+            let kls = klsVal ? (String(klsVal).toLowerCase().includes('kelas') ? klsVal : `Kelas ${klsVal}`) : 'Kelas Gold';
+
+            let laluVal = Number(getExcelValue(item, ['standLalu', 'stand_lalu', 'lalu', 'meter lalu', 'stand bulan lalu'])) || 10000;
+            let skrgVal = Number(getExcelValue(item, ['standSkrg', 'stand_skrg', 'skrg', 'sekarang', 'stand sekarang', 'meter sekarang'])) || (laluVal + 500);
 
             dataIndustri.push({
               id: String(idPel),
@@ -847,8 +852,8 @@
               email: String(mail),
               cycle: String(cyc),
               kelas: String(kls),
-              lalu: 10000,
-              skrg: 10600,
+              lalu: laluVal,
+              skrg: skrgVal,
               status: 'Pending Verification',
               bulan: 'September 2026',
               catatan: 'Diimport dari file Excel.',
@@ -888,7 +893,6 @@
       }
     }
 
-    // Modal Detail Handling
     let activeModalItem = null;
 
     function openDetailModal(id) {
