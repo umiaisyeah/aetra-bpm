@@ -368,7 +368,7 @@
             </div>
           </div>
 
-          <!-- VISUALISASI & CHECKLIST CYCLE -->
+          <!-- VISUALISASI & LIST CYCLE (TANPA CHECKBOX) -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Summary Chart per Cycle -->
             <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
@@ -378,11 +378,11 @@
               </div>
             </div>
 
-            <!-- Checklist & Status List per Cycle -->
+            <!-- Status List per Cycle -->
             <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
               <div>
                 <div class="flex justify-between items-center mb-3">
-                  <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm">Checklist Kesiapan Pencatatan Meter per Cycle</h3>
+                  <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm">Daftar Kesiapan Pencatatan Meter per Cycle</h3>
                   <span class="text-xs text-slate-400 font-semibold">Total Industri Terdaftar: <span id="dbTotalCount" class="text-aetra-blue font-bold">0</span></span>
                 </div>
                 <p class="text-xs text-slate-400 mb-4">Daftar industri yang tergabung dalam jadwal pembacaan meter operasional.</p>
@@ -392,7 +392,6 @@
                 <table class="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr class="bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-200 uppercase font-extrabold text-[10px]">
-                      <th class="p-3">Checklist</th>
                       <th class="p-3">ID & Perusahaan</th>
                       <th class="p-3">Cycle</th>
                       <th class="p-3">Kelas</th>
@@ -401,7 +400,7 @@
                     </tr>
                   </thead>
                   <tbody id="dbTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-medium">
-                    <!-- Populated by JS -->
+                    <!-- Populated by JS tanpa checkbox -->
                   </tbody>
                 </table>
               </div>
@@ -755,8 +754,8 @@
       dataIndustri.forEach(item => {
         let tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-700/30 transition';
+        // Kolom checkbox dihilangkan sepenuhnya
         tr.innerHTML = `
-          <td class="p-3"><input type="checkbox" checked class="rounded text-aetra-orange focus:ring-aetra-orange"></td>
           <td class="p-3">
             <p class="font-bold text-slate-800 dark:text-slate-100">${item.nama}</p>
             <p class="text-[10px] text-slate-400 font-mono">${item.id}</p>
