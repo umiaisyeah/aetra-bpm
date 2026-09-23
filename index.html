@@ -104,6 +104,9 @@
           <button id="nav-overview" onclick="selectNav('nav-overview', 'ALL')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold bg-aetra-orange text-white shadow-md transition">
             📊 Overview SIMBA-IN
           </button>
+          <button id="nav-database" onclick="selectNavTab('database')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition">
+            <span>🗂️ Database & Input Cycle</span>
+          </button>
           <button id="nav-pending" onclick="selectNav('nav-pending', 'Pending Verification')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition">
             <span>✔️ Verifikasi Reading</span>
           </button>
@@ -180,130 +183,229 @@
       <!-- BODY DASHBOARD -->
       <main id="dashboardReportContent" class="p-6 space-y-6">
         
-        <!-- SECTION STATUS CYCLE & DIAGRAM -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex justify-between items-center mb-3">
-                <h3 id="cycleTitle" class="font-bold text-slate-800 dark:text-slate-100 text-sm">Monitoring Pembacaan Cycle</h3>
-                <span id="cycleStatusBadge" class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-300">
-                  COMPLETED
-                </span>
-              </div>
-              <p class="text-xs text-slate-400 mb-4">Progres kelengkapan pembacaan meter pelanggan untuk cycle terfilter.</p>
+        <!-- SECTION VIEW 1: OVERVIEW UTAMA -->
+        <div id="viewOverview" class="space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-center mb-3">
+                  <h3 id="cycleTitle" class="font-bold text-slate-800 dark:text-slate-100 text-sm">Monitoring Pembacaan Cycle</h3>
+                  <span id="cycleStatusBadge" class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-300">
+                    COMPLETED
+                  </span>
+                </div>
+                <p class="text-xs text-slate-400 mb-4">Progres kelengkapan pembacaan meter pelanggan untuk cycle terfilter.</p>
 
-              <div class="space-y-3 text-xs">
-                <div class="flex justify-between items-center border-b dark:border-slate-700 pb-2">
-                  <span class="text-slate-500 dark:text-slate-400">Total Pelanggan Target:</span>
-                  <span id="cycleTotalCount" class="font-bold text-slate-800 dark:text-white">0</span>
+                <div class="space-y-3 text-xs">
+                  <div class="flex justify-between items-center border-b dark:border-slate-700 pb-2">
+                    <span class="text-slate-500 dark:text-slate-400">Total Pelanggan Target:</span>
+                    <span id="cycleTotalCount" class="font-bold text-slate-800 dark:text-white">0</span>
+                  </div>
+                  <div class="flex justify-between items-center border-b dark:border-slate-700 pb-2">
+                    <span class="text-slate-500 dark:text-slate-400">Sudah Selesai Dibaca:</span>
+                    <span id="cycleCompletedCount" class="font-bold text-emerald-600 dark:text-emerald-400">0</span>
+                  </div>
+                  <div class="flex justify-between items-center border-b dark:border-slate-700 pb-2">
+                    <span class="text-slate-500 dark:text-slate-400">Belum Dibaca / Pending:</span>
+                    <span id="cyclePendingCount" class="font-bold text-aetra-orange">0</span>
+                  </div>
+                  <div class="flex justify-between items-center pt-1">
+                    <span class="text-slate-500 dark:text-slate-400 font-bold">Rasio Keterbacaan:</span>
+                    <span id="cyclePercentage" class="font-extrabold text-aetra-blue dark:text-blue-400 text-sm">0%</span>
+                  </div>
                 </div>
-                <div class="flex justify-between items-center border-b dark:border-slate-700 pb-2">
-                  <span class="text-slate-500 dark:text-slate-400">Sudah Selesai Dibaca:</span>
-                  <span id="cycleCompletedCount" class="font-bold text-emerald-600 dark:text-emerald-400">0</span>
+              </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
+              <h3 class="font-bold text-slate-800 dark:text-slate-100 text-xs uppercase tracking-wider mb-2">Visualisasi Keterbacaan Cycle</h3>
+              <div class="w-full max-w-[220px] h-[200px] relative flex items-center justify-center">
+                <canvas id="cycleChart"></canvas>
+              </div>
+            </div>
+
+            <div class="rounded-2xl bg-slate-50 dark:bg-slate-900/40 p-4 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between gap-3">
+              <div onclick="selectNav('nav-pending', 'Pending Verification')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-orange transition flex items-center justify-between">
+                <div>
+                  <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Perlu Verifikasi Reading</p>
+                  <p id="countPending" class="text-xl font-black text-aetra-orange mt-0.5">0</p>
+                  <span class="text-[9px] text-aetra-orange font-bold">Otoritas Tim Meter Reading (Pak Solihin / Pak Kabul)</span>
                 </div>
-                <div class="flex justify-between items-center border-b dark:border-slate-700 pb-2">
-                  <span class="text-slate-500 dark:text-slate-400">Belum Dibaca / Pending:</span>
-                  <span id="cyclePendingCount" class="font-bold text-aetra-orange">0</span>
+                <span class="text-xl">🔍</span>
+              </div>
+
+              <div onclick="selectNav('nav-verified', 'Verified')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-blue transition flex items-center justify-between">
+                <div>
+                  <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Ready for Billing</p>
+                  <p id="countVerified" class="text-xl font-black text-aetra-blue dark:text-blue-400 mt-0.5">0</p>
+                  <span class="text-[9px] text-aetra-blue dark:text-blue-400 font-bold">Otoritas Pak Yaya (Billing)</span>
                 </div>
-                <div class="flex justify-between items-center pt-1">
-                  <span class="text-slate-500 dark:text-slate-400 font-bold">Rasio Keterbacaan:</span>
-                  <span id="cyclePercentage" class="font-extrabold text-aetra-blue dark:text-blue-400 text-sm">0%</span>
+                <span class="text-xl">📋</span>
+              </div>
+
+              <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-emerald-500 transition flex items-center justify-between">
+                <div>
+                  <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Invoiced & Sent Email</p>
+                  <p id="countInvoiced" class="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">0</p>
+                  <span class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold">Selesai Diproses</span>
                 </div>
+                <span class="text-xl">✅</span>
               </div>
             </div>
           </div>
 
-          <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
-            <h3 class="font-bold text-slate-800 dark:text-slate-100 text-xs uppercase tracking-wider mb-2">Visualisasi Keterbacaan Cycle</h3>
-            <div class="w-full max-w-[220px] h-[200px] relative flex items-center justify-center">
-              <canvas id="cycleChart"></canvas>
-            </div>
+          <!-- ANNOUNCEMENT -->
+          <div class="bg-aetra-darkblue text-white rounded-xl p-3 px-4 text-xs flex items-center gap-3 shadow-md">
+            <span class="bg-aetra-orange text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-md shrink-0">Info Sistem</span>
+            <p class="font-medium">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026. Hak akses ketat: Tim Meter Reading (Pak Solihin & Pak Kabul) & Tim Billing (Pak Yaya).</p>
           </div>
 
-          <div class="rounded-2xl bg-slate-50 dark:bg-slate-900/40 p-4 border border-slate-200/80 dark:border-slate-800 flex flex-col justify-between gap-3">
-            <div onclick="selectNav('nav-pending', 'Pending Verification')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-orange transition flex items-center justify-between">
+          <!-- TABEL DATA UTAMA -->
+          <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden transition-colors duration-200">
+            <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-slate-50/80 dark:bg-slate-800/80">
               <div>
-                <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Perlu Verifikasi Reading</p>
-                <p id="countPending" class="text-xl font-black text-aetra-orange mt-0.5">0</p>
-                <span class="text-[9px] text-aetra-orange font-bold">Otoritas Tim Meter Reading (Pak Solihin / Pak Kabul)</span>
+                <h2 class="font-extrabold text-aetra-blue dark:text-blue-400 text-sm">Tabel Monitoring Pembacaan Meter Industri</h2>
+                <p class="text-[11px] text-slate-400 font-medium">Verifikasi visual foto, BPM, & pemrosesan billing per cycle</p>
               </div>
-              <span class="text-xl">🔍</span>
+
+              <div class="flex items-center gap-2 flex-wrap">
+                <select id="statusFilter" onchange="refreshDashboard()" class="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-600 dark:text-slate-200 focus:outline-none shadow-sm">
+                  <option value="ALL">Semua Status Workflow</option>
+                  <option value="Pending Verification">Pending Verification</option>
+                  <option value="Verified">Verified (Ready Billing)</option>
+                  <option value="Invoiced">Invoiced</option>
+                </select>
+
+                <button onclick="downloadPDFReport()" class="px-3 py-1.5 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-xl transition shadow-sm">
+                  📄 Cetak PDF
+                </button>
+                
+                <button onclick="exportToCSV()" class="px-3 py-1.5 text-xs font-bold bg-aetra-blue hover:bg-aetra-darkblue text-white rounded-xl transition shadow-sm">
+                  📥 Ekspor CSV
+                </button>
+              </div>
             </div>
 
-            <div onclick="selectNav('nav-verified', 'Verified')" class="cursor-pointer bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-aetra-blue transition flex items-center justify-between">
-              <div>
-                <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Ready for Billing</p>
-                <p id="countVerified" class="text-xl font-black text-aetra-blue dark:text-blue-400 mt-0.5">0</p>
-                <span class="text-[9px] text-aetra-blue dark:text-blue-400 font-bold">Otoritas Pak Yaya (Billing)</span>
-              </div>
-              <span class="text-xl">📋</span>
-            </div>
-
-            <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-emerald-500 transition flex items-center justify-between">
-              <div>
-                <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Invoiced & Sent Email</p>
-                <p id="countInvoiced" class="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">0</p>
-                <span class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold">Selesai Diproses</span>
-              </div>
-              <span class="text-xl">✅</span>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-100 dark:bg-slate-700/50 text-aetra-darkblue dark:text-slate-200 uppercase font-extrabold border-b border-slate-200 dark:border-slate-700 text-[10px] tracking-wider">
+                    <th class="p-3.5">Pelanggan Industri</th>
+                    <th class="p-3.5">Cycle</th>
+                    <th class="p-3.5">Stand Lalu (m³)</th>
+                    <th class="p-3.5">Stand Skrg (m³)</th>
+                    <th class="p-3.5">Volume (m³)</th>
+                    <th class="p-3.5">Bea Materai (Rp)</th>
+                    <th class="p-3.5">Total Tagihan (Rp)</th>
+                    <th class="p-3.5">Status Alur Kerja & Keterangan</th>
+                    <th class="p-3.5 text-center">Aksi Operasional</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-medium">
+                  <!-- Data dari Supabase / Fallback -->
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
 
-        <!-- ANNOUNCEMENT -->
-        <div class="bg-aetra-darkblue text-white rounded-xl p-3 px-4 text-xs flex items-center gap-3 shadow-md">
-          <span class="bg-aetra-orange text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-md shrink-0">Info Sistem</span>
-          <p class="font-medium">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026. Hak akses ketat: Tim Meter Reading (Pak Solihin & Pak Kabul) & Tim Billing (Pak Yaya).</p>
-        </div>
-
-        <!-- TABEL DATA -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden transition-colors duration-200">
-          <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-slate-50/80 dark:bg-slate-800/80">
-            <div>
-              <h2 class="font-extrabold text-aetra-blue dark:text-blue-400 text-sm">Tabel Monitoring Pembacaan Meter Industri</h2>
-              <p class="text-[11px] text-slate-400 font-medium">Verifikasi visual foto, BPM, & pemrosesan billing per cycle</p>
+        <!-- ==================== SECTION VIEW 2: DATABASE & INPUT CYCLE ==================== -->
+        <div id="viewDatabase" class="space-y-6 hidden">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b pb-4 dark:border-slate-700">
+              <div>
+                <h2 class="font-extrabold text-aetra-blue dark:text-blue-400 text-base">🗂️ Manajemen & Master Data List Industri per Cycle</h2>
+                <p class="text-xs text-slate-400">Tambahkan industri baru ke dalam database pencatatan meter atau kelola daftar target cycle.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="seedSampleIndustries()" class="px-3.5 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition">
+                  ⚡ Muat Data Contoh
+                </button>
+              </div>
             </div>
 
-            <div class="flex items-center gap-2 flex-wrap">
-              <select id="statusFilter" onchange="refreshDashboard()" class="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-600 dark:text-slate-200 focus:outline-none shadow-sm">
-                <option value="ALL">Semua Status Workflow</option>
-                <option value="Pending Verification">Pending Verification</option>
-                <option value="Verified">Verified (Ready Billing)</option>
-                <option value="Invoiced">Invoiced</option>
-              </select>
-
-              <button onclick="downloadPDFReport()" class="px-3 py-1.5 text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white rounded-xl transition shadow-sm">
-                📄 Cetak PDF
-              </button>
-              
-              <button onclick="exportToCSV()" class="px-3 py-1.5 text-xs font-bold bg-aetra-blue hover:bg-aetra-darkblue text-white rounded-xl transition shadow-sm">
-                📥 Ekspor CSV
-              </button>
+            <!-- FORM TAMBAH / IMPORT INDUSTRI -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">ID Pelanggan</label>
+                <input id="inputNewId" type="text" placeholder="Contoh: IND-1005" class="w-full p-2.5 border rounded-xl text-xs bg-white dark:bg-slate-800 dark:border-slate-600 font-medium" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Nama Perusahaan Industri</label>
+                <input id="inputNewName" type="text" placeholder="PT Contoh Industri Tbk" class="w-full p-2.5 border rounded-xl text-xs bg-white dark:bg-slate-800 dark:border-slate-600 font-medium" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Email Industri</label>
+                <input id="inputNewEmail" type="email" placeholder="finance@contoh.co.id" class="w-full p-2.5 border rounded-xl text-xs bg-white dark:bg-slate-800 dark:border-slate-600 font-medium" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Pilih Cycle (1-15)</label>
+                <select id="inputNewCycle" class="w-full p-2.5 border rounded-xl text-xs bg-white dark:bg-slate-800 dark:border-slate-600 font-semibold text-aetra-blue">
+                  <!-- Populated by JS -->
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Kelas Pelanggan</label>
+                <select id="inputNewKelas" class="w-full p-2.5 border rounded-xl text-xs bg-white dark:bg-slate-800 dark:border-slate-600 font-semibold">
+                  <option value="Gold">Kelas Gold</option>
+                  <option value="Silver">Kelas Silver</option>
+                  <option value="Bronze">Kelas Bronze</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Stand Bulan Lalu (m³)</label>
+                <input id="inputNewLalu" type="number" placeholder="10000" class="w-full p-2.5 border rounded-xl text-xs bg-white dark:bg-slate-800 dark:border-slate-600 font-medium" />
+              </div>
+              <div class="md:col-span-2 flex items-end">
+                <button onclick="addNewIndustry()" class="w-full py-2.5 bg-aetra-orange hover:bg-orange-700 text-white font-bold text-xs rounded-xl shadow transition">
+                  ➕ Simpan & Masukkan ke Database Cycle
+                </button>
+              </div>
             </div>
           </div>
 
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr class="bg-slate-100 dark:bg-slate-700/50 text-aetra-darkblue dark:text-slate-200 uppercase font-extrabold border-b border-slate-200 dark:border-slate-700 text-[10px] tracking-wider">
-                  <th class="p-3.5">Pelanggan Industri</th>
-                  <th class="p-3.5">Cycle</th>
-                  <th class="p-3.5">Stand Lalu (m³)</th>
-                  <th class="p-3.5">Stand Skrg (m³)</th>
-                  <th class="p-3.5">Volume (m³)</th>
-                  <th class="p-3.5">Bea Materai (Rp)</th>
-                  <th class="p-3.5">Total Tagihan (Rp)</th>
-                  <th class="p-3.5">Status Alur Kerja & Keterangan</th>
-                  <th class="p-3.5 text-center">Aksi Operasional</th>
-                </tr>
-              </thead>
-              <tbody id="tableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-medium">
-                <!-- Data dari Supabase / Fallback -->
-              </tbody>
-            </table>
+          <!-- VISUALISASI & CHECKLIST CYCLE -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Summary Chart per Cycle -->
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
+              <h3 class="font-bold text-slate-800 dark:text-slate-100 text-xs uppercase tracking-wider mb-3">Distribusi Target Industri per Cycle</h3>
+              <div class="w-full max-w-[240px] h-[210px] relative flex items-center justify-center">
+                <canvas id="dbCycleChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Checklist & Status List per Cycle -->
+            <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-center mb-3">
+                  <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm">Checklist Kesiapan Pencatatan Meter per Cycle</h3>
+                  <span class="text-xs text-slate-400 font-semibold">Total Industri Terdaftar: <span id="dbTotalCount" class="text-aetra-blue font-bold">0</span></span>
+                </div>
+                <p class="text-xs text-slate-400 mb-4">Daftar industri yang tergabung dalam jadwal pembacaan meter operasional.</p>
+              </div>
+
+              <div class="overflow-x-auto max-h-[300px] overflow-y-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-200 uppercase font-extrabold text-[10px]">
+                      <th class="p-3">Checklist</th>
+                      <th class="p-3">ID & Perusahaan</th>
+                      <th class="p-3">Cycle</th>
+                      <th class="p-3">Kelas</th>
+                      <th class="p-3">Status Workflow</th>
+                      <th class="p-3 text-center">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dbTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-medium">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
+
       </main>
     </div>
   </div>
@@ -456,16 +558,10 @@
       { id: 6, customer_id: "IND-1302", customer_name: "PT Chandra Asri Petrochemical", email: "finance@capcx.com", kelas: "Gold", cycle: 13, month: "September 2026", stand_lalu: 71000, stand_skrg: 73500, volume: 2500, total_bill: 31260000, status: "Pending Verification", pending_reason: "Menunggu kalibrasi ulang meter induk pabrik.", foto_meter: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=400&q=80", foto_bpm: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=400&q=80" }
     ];
 
-    let currentUser = usersDb = {
-      yaya: { name: "Pak Yaya", role: "Tim Billing & Invoicing", permission: "billing", avatar: "PY" },
-      solihin: { name: "Pak Solihin", role: "Tim Meter Reading", permission: "reading", avatar: "PS" },
-      kabul: { name: "Pak Kabul", role: "Tim Meter Reading", permission: "reading", avatar: "PK" }
-    }['yaya']; // Default login Pak Yaya agar langsung bisa akses Billing
-
-    let selectedActiveNav = 'nav-overview';
-    let currentActiveCycle = 'ALL';
-    let activeModalItem = null;
+    let currentUser = { name: "Pak Yaya", role: "Tim Billing & Invoicing", permission: "billing", avatar: "PY" };
     let chartInstance = null;
+    let dbChartInstance = null;
+    let currentActiveCycle = 'ALL';
 
     function updateRealtimeClock() {
       const now = new Date();
@@ -508,18 +604,23 @@
 
     function initApp() {
       populateCycleDropdowns();
-      initChart();
+      initCharts();
       updateRealtimeClock();
       refreshDashboard();
     }
 
     function populateCycleDropdowns() {
       const cycleFilter = document.getElementById('cycleFilter');
+      const inputNewCycle = document.getElementById('inputNewCycle');
+      
       let html = '<option value="ALL">Semua Cycle (1-15)</option>';
+      let htmlInput = '';
       for(let i=1; i<=15; i++) {
         html += `<option value="${i}">Cycle ${i}</option>`;
+        htmlInput += `<option value="${i}">Cycle ${i}</option>`;
       }
       cycleFilter.innerHTML = html;
+      inputNewCycle.innerHTML = htmlInput;
     }
 
     function onCycleChange() {
@@ -535,8 +636,25 @@
       document.getElementById(navId).classList.add('bg-aetra-orange', 'text-white', 'shadow-md');
       document.getElementById(navId).classList.remove('text-blue-100');
 
+      document.getElementById('viewOverview').classList.remove('hidden');
+      document.getElementById('viewDatabase').classList.add('hidden');
+
       document.getElementById('statusFilter').value = statusVal;
       refreshDashboard();
+    }
+
+    function selectNavTab(tab) {
+      document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.remove('bg-aetra-orange', 'text-white', 'shadow-md');
+        el.classList.add('text-blue-100');
+      });
+      document.getElementById('nav-database').classList.add('bg-aetra-orange', 'text-white', 'shadow-md');
+      document.getElementById('nav-database').classList.remove('text-blue-100');
+
+      document.getElementById('viewOverview').classList.add('hidden');
+      document.getElementById('viewDatabase').classList.remove('hidden');
+
+      renderDatabaseManager();
     }
 
     function refreshDashboard() {
@@ -639,7 +757,7 @@
       }
     }
 
-    function initChart() {
+    function initCharts() {
       const ctx = document.getElementById('cycleChart').getContext('2d');
       chartInstance = new Chart(ctx, {
         type: 'doughnut',
@@ -659,6 +777,133 @@
           }
         }
       });
+
+      const dbCtx = document.getElementById('dbCycleChart').getContext('2d');
+      dbChartInstance = new Chart(dbCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Cycle 1', 'Cycle 2', 'Cycle 13'],
+          datasets: [{
+            label: 'Jumlah Industri',
+            data: [2, 2, 2],
+            backgroundColor: '#0055A5',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+      });
+    }
+
+    function renderDatabaseManager() {
+      const tbody = document.getElementById('dbTableBody');
+      document.getElementById('dbTotalCount').innerText = globalData.length;
+
+      let html = '';
+      globalData.forEach(item => {
+        let isChecked = item.status === 'Verified' || item.status === 'Invoiced';
+        html += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/35 transition">
+          <td class="p-3 text-center">
+            <input type="checkbox" ${isChecked ? 'checked' : ''} disabled class="w-4 h-4 rounded text-aetra-blue accent-aetra-blue" />
+          </td>
+          <td class="p-3">
+            <p class="font-bold text-slate-800 dark:text-white">${item.customer_name}</p>
+            <p class="text-[10px] text-slate-400 font-mono">${item.customer_id}</p>
+          </td>
+          <td class="p-3 font-bold text-aetra-blue">Cycle ${item.cycle}</td>
+          <td class="p-3 font-semibold text-amber-600">${item.kelas}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">${item.status}</span></td>
+          <td class="p-3 text-center">
+            <button onclick="deleteIndustry(${item.id})" class="px-2.5 py-1 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-[11px] font-bold transition">Hapus</button>
+          </td>
+        </tr>`;
+      });
+      tbody.innerHTML = html;
+
+      // Update summary chart count
+      let cycleCounts = {};
+      for(let i=1; i<=15; i++) cycleCounts[i] = 0;
+      globalData.forEach(i => { cycleCounts[i.cycle] = (cycleCounts[i.cycle] || 0) + 1; });
+
+      let activeCycles = [1, 2, 13];
+      dbChartInstance.data.labels = activeCycles.map(c => `Cycle ${c}`);
+      dbChartInstance.data.datasets[0].data = activeCycles.map(c => cycleCounts[c]);
+      dbChartInstance.update();
+    }
+
+    function addNewIndustry() {
+      const id = document.getElementById('inputNewId').value.trim();
+      const name = document.getElementById('inputNewName').value.trim();
+      const email = document.getElementById('inputNewEmail').value.trim();
+      const cycle = parseInt(document.getElementById('inputNewCycle').value);
+      const kelas = document.getElementById('inputNewKelas').value;
+      const standLalu = parseFloat(document.getElementById('inputNewLalu').value) || 0;
+
+      if(!id || !name || !email) {
+        alert("Harap isi ID Pelanggan, Nama Perusahaan, dan Email dengan lengkap!");
+        return;
+      }
+
+      const newItem = {
+        id: globalData.length > 0 ? Math.max(...globalData.map(i => i.id)) + 1 : 1,
+        customer_id: id,
+        customer_name: name,
+        email: email,
+        kelas: kelas,
+        cycle: cycle,
+        month: "September 2026",
+        stand_lalu: standLalu,
+        stand_skrg: standLalu + 100,
+        volume: 100,
+        total_bill: 1260000,
+        status: "Pending Verification",
+        pending_reason: "Industri baru terdaftar ke dalam database cycle.",
+        foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80",
+        foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80"
+      };
+
+      globalData.push(newItem);
+      alert(`Berhasil mendaftarkan ${name} ke Cycle ${cycle}!`);
+      
+      document.getElementById('inputNewId').value = '';
+      document.getElementById('inputNewName').value = '';
+      document.getElementById('inputNewEmail').value = '';
+      document.getElementById('inputNewLalu').value = '';
+
+      renderDatabaseManager();
+    }
+
+    function deleteIndustry(id) {
+      if(confirm("Yakin ingin menghapus industri ini dari daftar cycle?")) {
+        globalData = globalData.filter(i => i.id !== id);
+        renderDatabaseManager();
+      }
+    }
+
+    function seedSampleIndustries() {
+      globalData.push({
+        id: Date.now(),
+        customer_id: "IND-1008",
+        customer_name: "PT Nikomas Gemilang",
+        email: "finance@nikomas.co.id",
+        kelas: "Gold",
+        cycle: 3,
+        month: "September 2026",
+        stand_lalu: 42000,
+        stand_skrg: 45000,
+        volume: 3000,
+        total_bill: 37510000,
+        status: "Pending Verification",
+        pending_reason: "Jadwal pencatatan meter rutin cycle 3.",
+        foto_meter: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80",
+        foto_bpm: "https://images.unsplash.com/photo-1568667256549-094345857637?auto=format&fit=crop&w=400&q=80"
+      });
+      renderDatabaseManager();
+      alert("Data contoh berhasil ditambahkan ke Cycle 3!");
     }
 
     function openDetailModal(id) {
@@ -672,7 +917,6 @@
       document.getElementById('modalFotoBPM').src = activeModalItem.foto_bpm;
       document.getElementById('modalLalu').innerText = activeModalItem.stand_lalu.toLocaleString() + ' m³';
       
-      // Sembunyikan kotak manual outlook saat modal pertama dibuka
       document.getElementById('outlookManualBox').classList.add('hidden');
 
       const pendingBox = document.getElementById('modalPendingBox');
@@ -748,7 +992,6 @@
       refreshDashboard();
     }
 
-    // Fungsi pemrosesan Billing & Invoicing (Otoritas Pak Yaya) dengan Handler Ganda
     function processBillingAndEmail() {
       if(!activeModalItem) return;
 
@@ -777,14 +1020,6 @@
       const printElement = document.getElementById('invoicePrintArea');
       printElement.classList.remove('hidden');
 
-      const opt = {
-        margin:       10,
-        filename:     `Invoice_${activeModalItem.customer_id}_September_2026.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
       const recipientEmail = activeModalItem.email;
       const emailSubject = encodeURIComponent(`Invoice Tagihan Air Industri Periode September 2026 - ${activeModalItem.customer_name}`);
       const emailBody = encodeURIComponent(
@@ -801,18 +1036,11 @@
       );
 
       const mailtoLink = `mailto:${recipientEmail}?subject=${emailSubject}&body=${emailBody}`;
-
-      // Set link pada tombol manual outlook di dalam modal
       document.getElementById('outlookManualLink').href = mailtoLink;
 
-      // 1. Generate & Unduh File PDF secara otomatis ke perangkat
       html2pdf().from(printElement).save().then(() => {
         printElement.classList.add('hidden');
-
-        // 2. Tampilkan kotak panduan manual Outlook agar pengguna tidak bingung jika browser memblokir redirect
         document.getElementById('outlookManualBox').classList.remove('hidden');
-
-        // 3. Eksekusi pemanggilan Outlook otomatis dengan penundaan aman
         setTimeout(() => {
           window.location.href = mailtoLink;
         }, 300);
