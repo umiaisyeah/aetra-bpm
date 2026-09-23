@@ -516,6 +516,8 @@
     // Dummy Data Storage untuk Simulasi Dashboard
     let currentUser = { role: 'yaya', name: 'Pak Yaya', title: 'Tim Billing & Invoicing', avatar: 'PY' };
     let activeNavTab = 'overview';
+    let cycleChartInstance = null;
+    let dbCycleChartInstance = null;
 
     let dataIndustri = [
       { id: 'IND-1001', nama: 'PT Krakatau Steel Industry', email: 'billing@krakatau.co.id', cycle: 'Cycle 1', kelas: 'Gold', lalu: 12500, skrg: 13200, status: 'Verified', bulan: 'September 2026', catatan: 'Pembacaan normal sesuai jadwal.', fotoMeter: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=300', fotoBPM: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=300' },
@@ -594,9 +596,10 @@
       const isDark = html.classList.contains('dark');
       document.getElementById('themeIcon').innerText = isDark ? '☀️' : '🌙';
       document.getElementById('themeText').innerText = isDark ? 'Mode Terang' : 'Mode Gelap';
+      refreshDashboard();
     }
 
-    // Refresh Dashboard Utama
+    // Refresh Dashboard Utama & Render Grafik Keterbacaan Cycle
     function refreshDashboard() {
       const searchTxt = document.getElementById('searchInput').value.toLowerCase();
       const cycleF = document.getElementById('cycleFilter').value;
@@ -628,6 +631,41 @@
       document.getElementById('countPending').innerText = totalPendingCount;
       document.getElementById('countVerified').innerText = totalVerifiedCount;
       document.getElementById('countInvoiced').innerText = totalInvoicedCount;
+
+      // --- RENDER / UPDATE CHART KETERBACAAN CYCLE ---
+      const ctx = document.getElementById('cycleChart');
+      if (ctx) {
+        if (cycleChartInstance) {
+          cycleChartInstance.destroy();
+        }
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        cycleChartInstance = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['Sudah Selesai Dibaca', 'Belum Dibaca (Pending)'],
+            datasets: [{
+              data: [totalCompleted, totalPendingCount],
+              backgroundColor: ['#10B981', '#E86216'],
+              borderWidth: 2,
+              borderColor: isDarkMode ? '#1e293b' : '#ffffff'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  boxWidth: 12,
+                  font: { size: 10, family: 'Poppins' },
+                  color: isDarkMode ? '#cbd5e1' : '#334155'
+                }
+              }
+            }
+          }
+        });
+      }
 
       let tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
@@ -679,6 +717,40 @@
       let tbody = document.getElementById('dbTableBody');
       tbody.innerHTML = '';
       document.getElementById('dbTotalCount').innerText = dataIndustri.length;
+
+      // Render chart distribusi database per cycle
+      const ctxDb = document.getElementById('dbCycleChart');
+      if(ctxDb) {
+        if(dbCycleChartInstance) dbCycleChartInstance.destroy();
+        let cycleCounts = {};
+        for(let i=1; i<=5; i++) cycleCounts[`Cycle ${i}`] = 0;
+        dataIndustri.forEach(item => {
+          cycleCounts[item.cycle] = (cycleCounts[item.cycle] || 0) + 1;
+        });
+
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        dbCycleChartInstance = new Chart(ctxDb, {
+          type: 'bar',
+          data: {
+            labels: Object.keys(cycleCounts),
+            datasets: [{
+              label: 'Jumlah Industri',
+              data: Object.values(cycleCounts),
+              backgroundColor: '#0055A5',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { ticks: { font: { size: 10 }, color: isDarkMode ? '#cbd5e1' : '#334155' }, grid: { color: isDarkMode ? '#334155' : '#e2e8f0' } },
+              x: { ticks: { font: { size: 10 }, color: isDarkMode ? '#cbd5e1' : '#334155' }, grid: { display: false } }
+            }
+          }
+        });
+      }
 
       dataIndustri.forEach(item => {
         let tr = document.createElement('tr');
@@ -850,7 +922,6 @@
       document.getElementById('modalMateraiInfo').innerText = materai > 0 ? 'Termasuk Materai Rp 10.000' : 'Tanpa Materai';
     }
 
-    // Fungsi Diperbaiki: Otomatis Generate PDF & Buka Outlook saat Tombol Ditekan oleh Pak Yaya
     function saveModalData() {
       if(!activeModalItem) return;
 
@@ -858,7 +929,6 @@
         activeModalItem.status = 'Invoiced';
         activeModalItem.catatan = `Diinvoicing oleh ${currentUser.name} (${new Date().toLocaleDateString()})`;
         
-        // 1. Auto Generate & Download PDF Invoice menggunakan html2pdf
         const element = document.getElementById('detailModal');
         const opt = {
           margin:       0.5,
@@ -872,7 +942,6 @@
           console.log("PDF Invoice berhasil di-generate.");
         });
 
-        // 2. Siapkan Link Mailto Outlook
         let vol = activeModalItem.skrg - activeModalItem.lalu;
         let estTag = (vol > 0 ? vol : 0) * 12500;
         let materai = vol > 1000 ? 10000 : 0;
@@ -880,14 +949,11 @@
 
         let mailtoLink = `mailto:${activeModalItem.email}?subject=Tagihan%20Air%20Industri%20PT%20Aetra%20Air%20Tangerang%20-%20${activeModalItem.id}&body=Yth.%20Management%20${encodeURIComponent(activeModalItem.nama)}%2C%0D%0A%0D%0ABerikut%20terlampir%20tagihan%20pemakaian%20air%20untuk%20cycle%20${activeModalItem.cycle}.%0D%0ATotal%20Pemakaian%3A%20${vol}%20m3%0D%0ATotal%20Tagihan%3A%20Rp%20${total.toLocaleString()}%0D%0A%0D%0ATerima%20kasih.%0D%0APT%20Aetra%20Air%20Tangerang`;
 
-        // Perbaikan: Set properti href pada elemen dengan ID yang benar
         const outlookLinkEl = document.getElementById('outlookManualLink');
         if(outlookLinkEl) {
           outlookLinkEl.href = mailtoLink;
         }
         document.getElementById('outlookManualBox').classList.remove('hidden');
-        
-        // Trigger pembukaan Outlook otomatis
         window.location.href = mailtoLink;
         
         alert(`Invoice PDF berhasil diunduh dan aplikasi Outlook dibuka untuk mengirim email ke ${activeModalItem.email}`);
