@@ -739,7 +739,6 @@
           cycleCounts[item.cycle]++;
         });
 
-        // Filter keys yang ada isinya atau tampilkan semua cycle 1-15
         const isDarkMode = document.documentElement.classList.contains('dark');
         dbCycleChartInstance = new Chart(ctxDb, {
           type: 'bar',
@@ -807,13 +806,13 @@
       refreshDashboard();
     }
 
-    // HELPER PENCARIAN KOLOM EXCEL SECARA FLEKSIBEL (TIDAK SENSITIF SPASI/HURUF BESAR)
+    // HELPER PENCARIAN KOLOM EXCEL SECARA FLEKSIBEL
     function getExcelValue(item, possibleKeys) {
       const keys = Object.keys(item);
       for (let pk of possibleKeys) {
-        if (item[pk] !== undefined) return item[pk];
+        if (item[pk] !== undefined && item[pk] !== null && String(item[pk]).trim() !== '') return item[pk];
         const foundKey = keys.find(k => k.toLowerCase().replace(/[\s_]+/g, '') === pk.toLowerCase().replace(/[\s_]+/g, ''));
-        if (foundKey && item[foundKey] !== undefined) return item[foundKey];
+        if (foundKey && item[foundKey] !== undefined && item[foundKey] !== null && String(item[foundKey]).trim() !== '') return item[foundKey];
       }
       return null;
     }
@@ -834,7 +833,10 @@
           let countAdded = 0;
           jsonData.forEach(item => {
             const idPel = getExcelValue(item, ['idPelanggan', 'id_pelanggan', 'id', 'id pelanggan', 'nomor pelanggan', 'nopol']) || `IND-${Math.floor(1000 + Math.random() * 9000)}`;
-            const nmPerusahaan = getExcelValue(item, ['namaPerusahaan', 'nama_perusahaan', 'perusahaan', 'nama perusahaan', 'nama', 'pelanggan']) || 'PT Industri Import';
+            
+            // Perbaikan pencarian nama industri agar mencakup berbagai variasi header Excel
+            const nmPerusahaan = getExcelValue(item, ['nama_industri', 'nama industri', 'industri', 'nama_perusahaan', 'nama perusahaan', 'perusahaan', 'nama_pelanggan', 'nama pelanggan', 'pelanggan', 'company', 'nama']) || 'PT Industri Terdaftar';
+            
             const mail = getExcelValue(item, ['emailIndustri', 'email', 'surel', 'email perusahaan']) || 'finance@import.co.id';
             
             let cycVal = getExcelValue(item, ['pilihCycle', 'cycle', 'siklus', 'c', 'jadwal']);
