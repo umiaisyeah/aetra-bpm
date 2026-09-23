@@ -332,7 +332,7 @@
               </div>
             </div>
 
-            <!-- FORM TAMBAH / IMPORT INDUSTRI (Tanpa Stand Bulan Lalu pada Input Massal/Sesuai Permintaan) -->
+            <!-- FORM TAMBAH / IMPORT INDUSTRI -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
               <div>
                 <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">ID Pelanggan</label>
@@ -503,7 +503,6 @@
       cycleSelects.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-          // Jika untuk filter overview, biarkan opsi ALL jika ada
           let html = id === 'cycleFilter' ? '<option value="ALL">Semua Cycle (1-15)</option>' : '';
           for (let i = 1; i <= 15; i++) {
             html += `<option value="Cycle ${i}">Cycle ${i}</option>`;
@@ -614,7 +613,6 @@
         return matchSearch && matchCycle && matchKelas && matchStatus && matchBulan;
       });
 
-      // Hitung ringkasan overview
       let totalTarget = dataIndustri.filter(i => cycleF === 'ALL' || i.cycle === cycleF).length;
       let totalCompleted = dataIndustri.filter(i => (cycleF === 'ALL' || i.cycle === cycleF) && i.status !== 'Pending Verification').length;
       let totalPendingCount = dataIndustri.filter(i => (cycleF === 'ALL' || i.cycle === cycleF) && i.status === 'Pending Verification').length;
@@ -631,7 +629,6 @@
       document.getElementById('countVerified').innerText = totalVerifiedCount;
       document.getElementById('countInvoiced').innerText = totalInvoicedCount;
 
-      // Render Tabel Utama
       let tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
 
@@ -643,7 +640,7 @@
       filtered.forEach(item => {
         let vol = item.skrg - item.lalu;
         if(vol < 0) vol = 0;
-        let estTagihan = vol * 12500; // Tarif dasar simulasi industri
+        let estTagihan = vol * 12500;
         let materai = vol > 1000 ? 10000 : 0;
         let totalTagihan = estTagihan + materai;
 
@@ -703,7 +700,6 @@
       });
     }
 
-    // Fungsi Tambah Industri Manual dari Database View
     function addNewIndustry() {
       const id = document.getElementById('inputNewId').value.trim();
       const nama = document.getElementById('inputNewName').value.trim();
@@ -728,7 +724,6 @@
       refreshDashboard();
     }
 
-    // Fungsi Import Excel
     function importExcel(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -744,7 +739,6 @@
 
           let countAdded = 0;
           jsonData.forEach(item => {
-            // Mapping fleksibel properti Excel
             const idPel = item.idPelanggan || item.id_pelanggan || item.ID || `IND-${Math.floor(1000 + Math.random() * 9000)}`;
             const nmPerusahaan = item.namaPerusahaan || item.nama_perusahaan || item.Perusahaan || 'PT Industri Import';
             const mail = item.emailIndustri || item.email || 'finance@import.co.id';
@@ -773,7 +767,7 @@
           refreshDashboard();
         } catch (error) {
           console.error("Gagal membaca file Excel:", error);
-          alert("Terjadi kesalahan saat membaca file Excel. Pastikan format file sudah benar.");
+          alert("Terjadi kesalahan saat membaca file Excel.");
         }
         event.target.value = '';
       };
@@ -813,8 +807,8 @@
       document.getElementById('modalPendingReason').innerText = activeModalItem.catatan || 'Belum ada catatan khusus.';
       document.getElementById('modalFotoMeter').src = activeModalItem.fotoMeter;
       document.getElementById('modalFotoBPM').src = activeModalItem.fotoBPM;
+      document.getElementById('outlookManualBox').classList.add('hidden');
 
-      // Hak Akses Pembatasan Edit Input Stand: Tim Billing (Yaya) dikunci, Meter Reading bisa edit
       const inputSkrgEl = document.getElementById('modalInputSkrg');
       const warningEl = document.getElementById('modalPermissionWarning');
       const saveBtnEl = document.getElementById('modalSaveBtn');
@@ -856,26 +850,48 @@
       document.getElementById('modalMateraiInfo').innerText = materai > 0 ? 'Termasuk Materai Rp 10.000' : 'Tanpa Materai';
     }
 
+    // Fungsi Diperbaiki: Otomatis Generate PDF & Buka Outlook saat Tombol Ditekan oleh Pak Yaya
     function saveModalData() {
       if(!activeModalItem) return;
 
       if(currentUser.role === 'yaya') {
-        // Tim Billing mengubah status menjadi Invoiced & mengirim simulasi email Outlook
         activeModalItem.status = 'Invoiced';
         activeModalItem.catatan = `Diinvoicing oleh ${currentUser.name} (${new Date().toLocaleDateString()})`;
         
-        // Buat link mailto Outlook
+        // 1. Auto Generate & Download PDF Invoice menggunakan html2pdf
+        const element = document.getElementById('detailModal');
+        const opt = {
+          margin:       0.5,
+          filename:     `Invoice_${activeModalItem.id}_${activeModalItem.nama.replace(/\s+/g, '_')}.pdf`,
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2, useCORS: true },
+          jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().from(element).set(opt).save().then(() => {
+          console.log("PDF Invoice berhasil di-generate.");
+        });
+
+        // 2. Siapkan Link Mailto Outlook
         let vol = activeModalItem.skrg - activeModalItem.lalu;
-        let total = (vol > 0 ? vol : 0) * 12500;
+        let estTag = (vol > 0 ? vol : 0) * 12500;
+        let materai = vol > 1000 ? 10000 : 0;
+        let total = estTag + materai;
+
         let mailtoLink = `mailto:${activeModalItem.email}?subject=Tagihan%20Air%20Industri%20PT%20Aetra%20Air%20Tangerang%20-%20${activeModalItem.id}&body=Yth.%20Management%20${encodeURIComponent(activeModalItem.nama)}%2C%0D%0A%0D%0ABerikut%20terlampir%20tagihan%20pemakaian%20air%20untuk%20cycle%20${activeModalItem.cycle}.%0D%0ATotal%20Pemakaian%3A%20${vol}%20m3%0D%0ATotal%20Tagihan%3A%20Rp%20${total.toLocaleString()}%0D%0A%0D%0ATerima%20kasih.%0D%0APT%20Aetra%20Air%20Tangerang`;
 
-        document.getElementById('outlookManualLink.href') = mailtoLink;
+        // Perbaikan: Set properti href pada elemen dengan ID yang benar
+        const outlookLinkEl = document.getElementById('outlookManualLink');
+        if(outlookLinkEl) {
+          outlookLinkEl.href = mailtoLink;
+        }
         document.getElementById('outlookManualBox').classList.remove('hidden');
         
+        // Trigger pembukaan Outlook otomatis
         window.location.href = mailtoLink;
-        alert(`Invoice berhasil diproses dan dikirimkan ke email ${activeModalItem.email}`);
+        
+        alert(`Invoice PDF berhasil diunduh dan aplikasi Outlook dibuka untuk mengirim email ke ${activeModalItem.email}`);
       } else {
-        // Tim Meter Reading memperbarui Stand Meter & mengubah status jadi Verified
         let skrgVal = Number(document.getElementById('modalInputSkrg').value);
         if(skrgVal < activeModalItem.lalu) {
           alert("Stand Meter saat ini tidak boleh lebih kecil dari Stand Bulan Lalu!");
@@ -885,9 +901,9 @@
         activeModalItem.status = 'Verified';
         activeModalItem.catatan = `Diverifikasi oleh ${currentUser.name}`;
         alert("Stand meter berhasil diperbarui dan berstatus Verified!");
+        closeModal();
       }
 
-      closeModal();
       refreshDashboard();
     }
 
