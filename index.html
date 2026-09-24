@@ -368,22 +368,45 @@
 
             <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
               <div>
-                <div class="flex justify-between items-center mb-3">
-                  <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm">Daftar Kesiapan Pencatatan Meter per Cycle</h3>
-                  <span class="text-xs text-slate-400 font-semibold">Total Industri Terdaftar: <span id="dbTotalCount" class="text-aetra-blue font-bold">0</span></span>
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-3">
+                  <div>
+                    <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm">Daftar Kesiapan Pencatatan Meter per Cycle</h3>
+                    <p class="text-xs text-slate-400">Daftar industri yang tergabung dalam jadwal pembacaan meter operasional[cite: 13].</p>
+                  </div>
+                  <div class="text-xs text-slate-400 font-semibold">Total Industri Terdaftar: <span id="dbTotalCount" class="text-aetra-blue font-bold">0</span>[cite: 13]</div>
                 </div>
-                <p class="text-xs text-slate-400 mb-4">Daftar industri yang tergabung dalam jadwal pembacaan meter operasional.</p>
+
+                <!-- FILTER TAMBAHAN BERDASARKAN CYCLE DAN KELAS -->
+                <div class="flex flex-wrap items-center gap-2 mb-3 bg-slate-50 dark:bg-slate-900/40 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <span class="text-xs font-bold text-slate-600 dark:text-slate-300">Filter Tampilan:</span>
+                  <select id="dbCycleFilter" onchange="refreshDatabaseView()" class="px-2.5 py-1 text-xs font-semibold bg-white dark:bg-slate-700 border rounded-lg text-slate-700 dark:text-slate-100">
+                    <option value="ALL">Semua Cycle</option>
+                  </select>
+                  <select id="dbKelasFilter" onchange="refreshDatabaseView()" class="px-2.5 py-1 text-xs font-semibold bg-white dark:bg-slate-700 border rounded-lg text-slate-700 dark:text-slate-100">
+                    <option value="ALL">Semua Kelas</option>
+                    <option value="Gold">Kelas Gold</option>
+                    <option value="Silver">Kelas Silver</option>
+                    <option value="Bronze">Kelas Bronze</option>
+                    <option value="Platinum">Kelas Platinum</option>
+                  </select>
+                  <div class="ml-auto">
+                    <button onclick="deleteSelectedIndustries()" class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold shadow transition flex items-center gap-1.5">
+                      <span>🗑️ Hapus Terpilih</span>
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <div class="overflow-x-auto max-h-[300px] overflow-y-auto">
+              <div class="overflow-x-auto max-h-[300px] overflow-y-auto border border-slate-100 dark:border-slate-700 rounded-xl">
                 <table class="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr class="bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-200 uppercase font-extrabold text-[10px]">
-                      <th class="p-3">ID & Perusahaan</th>
-                      <th class="p-3">Cycle</th>
-                      <th class="p-3">Kelas</th>
-                      <th class="p-3">Status Workflow</th>
-                      <th class="p-3 text-center">Aksi</th>
+                      <th class="p-3 w-10 text-center"><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" /></th>
+                      <th class="p-3">ID & Perusahaan[cite: 13]</th>
+                      <th class="p-3">Cycle[cite: 13]</th>
+                      <th class="p-3">Kelas[cite: 13]</th>
+                      <th class="p-3">Status Workflow[cite: 13]</th>
+                      <th class="p-3 text-center">Aksi[cite: 13]</th>
                     </tr>
                   </thead>
                   <tbody id="dbTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-medium">
@@ -527,7 +550,6 @@
 
   <!-- SCRIPT UTAMA SISTEM -->
   <script>
-    // Konfigurasi Supabase (Opsional: Masukkan URL & Anon Key jika ingin koneksi backend nyata)
     const SUPABASE_URL = '';
     const SUPABASE_ANON_KEY = '';
     let supabaseClient = null;
@@ -553,11 +575,11 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      const cycleSelects = ['cycleFilter', 'inputNewCycle'];
+      const cycleSelects = ['cycleFilter', 'inputNewCycle', 'dbCycleFilter'];
       cycleSelects.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
-          let html = id === 'cycleFilter' ? '<option value="ALL">Semua Cycle (1-15)</option>' : '';
+          let html = (id === 'cycleFilter' || id === 'dbCycleFilter') ? '<option value="ALL">Semua Cycle</option>' : '';
           for (let i = 1; i <= 15; i++) {
             html += `<option value="Cycle ${i}">Cycle ${i}</option>`;
           }
@@ -805,7 +827,17 @@
     function refreshDatabaseView() {
       let tbody = document.getElementById('dbTableBody');
       tbody.innerHTML = '';
-      document.getElementById('dbTotalCount').innerText = dataIndustri.length;
+      
+      const dbCycleF = document.getElementById('dbCycleFilter').value;
+      const dbKelasF = document.getElementById('dbKelasFilter').value;
+
+      let filteredDb = dataIndustri.filter(item => {
+        let matchCyc = dbCycleF === 'ALL' || item.cycle === dbCycleF;
+        let matchKls = dbKelasF === 'ALL' || item.kelas.toLowerCase().includes(dbKelasF.toLowerCase());
+        return matchCyc && matchKls;
+      });
+
+      document.getElementById('dbTotalCount').innerText = filteredDb.length;
 
       const ctxDb = document.getElementById('dbCycleChart');
       if(ctxDb) {
@@ -841,10 +873,16 @@
         });
       }
 
-      dataIndustri.forEach(item => {
+      if(filteredDb.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Tidak ada data industri yang sesuai filter.</td></tr>`;
+        return;
+      }
+
+      filteredDb.forEach(item => {
         let tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-700/30 transition';
         tr.innerHTML = `
+          <td class="p-3 text-center"><input type="checkbox" class="row-checkbox" value="${item.id}" /></td>
           <td class="p-3">
             <p class="font-bold text-slate-800 dark:text-slate-100">${item.nama}</p>
             <p class="text-[10px] text-slate-400 font-mono">${item.id}</p>
@@ -858,6 +896,28 @@
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    function toggleSelectAll(masterCheckbox) {
+      const checkboxes = document.querySelectorAll('.row-checkbox');
+      checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+    }
+
+    function deleteSelectedIndustries() {
+      const selectedCheckboxes = document.querySelectorAll('.row-checkbox:checked');
+      if(selectedCheckboxes.length === 0) {
+        alert("Pilih setidaknya satu industri yang ingin dihapus menggunakan checklist.");
+        return;
+      }
+
+      if(confirm(`Yakin ingin menghapus ${selectedCheckboxes.length} data industri terpilih?`)) {
+        const idsToDelete = Array.from(selectedCheckboxes).map(cb => cb.value);
+        dataIndustri = dataIndustri.filter(item => !idsToDelete.includes(item.id));
+        logActivity(`Menghapus ${idsToDelete.length} data industri via checklist.`);
+        saveDataToStorage();
+        refreshDatabaseView();
+        refreshDashboard();
+      }
     }
 
     function refreshAuditView() {
@@ -1073,7 +1133,6 @@
       let vol = skrg - lalu;
       if(vol < 0) vol = 0;
 
-      // Validasi Anomali Otomatis (>50% kenaikan dari bulan lalu atau rata-rata)
       let prevUsage = activeModalItem.history && activeModalItem.history.length >= 2 ? 
         (activeModalItem.history[activeModalItem.history.length - 1] - activeModalItem.history[activeModalItem.history.length - 2]) : (lalu * 0.1);
       
