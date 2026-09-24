@@ -56,14 +56,8 @@
     <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700">
       <div class="text-center mb-6">
         <div class="flex justify-center mb-3">
-          <div class="bg-white p-2 rounded-xl shadow-md border border-slate-100 flex items-center justify-center">
-            <svg class="h-12" viewBox="0 0 240 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M180 15 C175 30 185 40 180 55 C175 40 165 30 180 15 Z" fill="#0055A5"/>
-              <path d="M150 40 C170 20 200 25 210 40 C190 35 170 45 150 40 Z" fill="#0055A5"/>
-              <path d="M140 50 C165 30 205 35 215 55 C190 50 165 60 140 50 Z" fill="#E86216"/>
-              <text x="10" y="65" fill="#0055A5" font-family="'Poppins', sans-serif" font-weight="800" font-size="52">aetra</text>
-              <text x="35" y="88" fill="#0055A5" font-family="'Poppins', sans-serif" font-weight="600" font-size="20" letter-spacing="1">tangerang</text>
-            </svg>
+          <div class="bg-white p-2.5 rounded-xl shadow-md border border-slate-100 flex items-center justify-center w-48">
+            <img src="https://i.ibb.co.com/6c9W7b0/images-1.png" alt="Logo Aetra Tangerang" class="h-10 object-contain" />
           </div>
         </div>
         <h2 class="text-xl font-bold text-aetra-blue dark:text-blue-400">Masuk SIMBA-IN</h2>
@@ -93,13 +87,7 @@
     <aside class="w-64 bg-aetra-darkblue dark:bg-slate-950 text-slate-200 flex flex-col justify-between p-4 hidden md:flex border-r border-blue-900 dark:border-slate-800 shadow-xl shrink-0 h-full">
       <div>
         <div class="bg-white rounded-xl p-3 mb-6 shadow-md border border-blue-100 flex items-center justify-center">
-          <svg class="h-10 w-full" viewBox="0 0 240 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M180 15 C175 30 185 40 180 55 C175 40 165 30 180 15 Z" fill="#0055A5"/>
-            <path d="M150 40 C170 20 200 25 210 40 C190 35 170 45 150 40 Z" fill="#0055A5"/>
-            <path d="M140 50 C165 30 205 35 215 55 C190 50 165 60 140 50 Z" fill="#E86216"/>
-            <text x="10" y="65" fill="#0055A5" font-family="'Poppins', sans-serif" font-weight="800" font-size="52">aetra</text>
-            <text x="35" y="88" fill="#0055A5" font-family="'Poppins', sans-serif" font-weight="600" font-size="20" letter-spacing="1">tangerang</text>
-          </svg>
+          <img src="https://i.ibb.co.com/6c9W7b0/images-1.png" alt="Logo Aetra Tangerang" class="h-8 object-contain" />
         </div>
 
         <nav class="space-y-1.5" id="sidebarNav">
@@ -168,7 +156,7 @@
           <!-- WIDGET REAL-TIME TANGGAL & WAKTU -->
           <div class="hidden xl:flex flex-col text-right pr-2">
             <span id="realtimeClock" class="text-xs font-extrabold text-aetra-blue dark:text-blue-400 font-mono">00:00:00</span>
-            <span id="realtimeDate" class="text-[10px] text-slate-400 font-medium">Rabu, 23 September 2026</span>
+            <span id="realtimeDate" class="text-[10px] text-slate-400 font-medium">Kamis, 24 September 2026</span>
           </div>
 
           <div class="flex items-center gap-3">
@@ -593,7 +581,7 @@
     let historyChartInstance = null;
 
     let auditLogs = JSON.parse(localStorage.getItem('aetra_audit_logs')) || [
-      { time: '23 Sep 2026 08:30', user: 'Pak Yaya', role: 'Billing', desc: 'Sistem SIMBA-IN diinisialisasi.' }
+      { time: '24 Sep 2026 08:30', user: 'Pak Yaya', role: 'Billing', desc: 'Sistem SIMBA-IN diinisialisasi.' }
     ];
 
     let dataIndustri = JSON.parse(localStorage.getItem('aetra_industri_data')) || [
