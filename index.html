@@ -733,7 +733,7 @@
       });
 
       let totalTarget = dataIndustri.filter(i => cycleF === 'ALL' || i.cycle === cycleF).length;
-      let totalCompleted = dataIndustri.filter(i => (cycleF === 'ALL' || i.cycle === cycleF) && i.status !== 'Pending Verification').length;
+      let totalCompleted = dataIndustri.filter(i => (cycleF === 'ALL' || i.cycle === cycleF) && i.status && i.status !== 'Pending Verification').length;
       let totalPendingCount = dataIndustri.filter(i => (cycleF === 'ALL' || i.cycle === cycleF) && i.status === 'Pending Verification').length;
       let totalVerifiedCount = dataIndustri.filter(i => i.status === 'Verified').length;
       let totalInvoicedCount = dataIndustri.filter(i => i.status === 'Invoiced').length;
@@ -801,6 +801,8 @@
         if(item.status === 'Verified') badgeClass = 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300';
         if(item.status === 'Invoiced') badgeClass = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300';
 
+        let statusHtml = item.status ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${badgeClass}">${item.status}</span>` : `<span class="text-slate-400 italic text-[10px] font-semibold">- (Belum Ada Pembacaan Meter)</span>`;
+
         let tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-700/30 transition';
         tr.innerHTML = `
@@ -815,7 +817,7 @@
           <td class="p-3.5 font-mono">Rp ${materai.toLocaleString()}</td>
           <td class="p-3.5 font-mono font-bold text-slate-800 dark:text-slate-100">Rp ${totalTagihan.toLocaleString()}</td>
           <td class="p-3.5">
-            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${badgeClass}">${item.status}</span>
+            ${statusHtml}
             <p class="text-[10px] text-slate-400 mt-1">${item.catatan || '-'}</p>
           </td>
           <td class="p-3.5 text-center">
@@ -883,6 +885,8 @@
       }
 
       filteredDb.forEach(item => {
+        let statusBadge = item.status ? `<span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-700">${item.status}</span>` : `<span class="text-slate-400 italic text-[9px]">Belum Dibaca (Tanpa Status)</span>`;
+
         let tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-700/30 transition';
         tr.innerHTML = `
@@ -891,7 +895,7 @@
           <td class="p-3 font-bold text-slate-800 dark:text-slate-100">${item.nama}</td>
           <td class="p-3 font-semibold text-aetra-blue">${item.cycle}</td>
           <td class="p-3">${item.kelas}</td>
-          <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-700">${item.status}</span></td>
+          <td class="p-3">${statusBadge}</td>
           <td class="p-3 text-center">
             <button onclick="hapusIndustri('${item.id}')" class="text-rose-500 hover:text-rose-700 font-bold text-xs">🗑️ Hapus</button>
           </td>
@@ -963,7 +967,7 @@
       }
 
       dataIndustri.push({
-        id, nama, email: email || 'finance@industri.co.id', cycle, kelas, lalu: 10000, skrg: 10500, status: 'Pending Verification', bulan: 'September 2026', catatan: 'Baru ditambahkan ke database.', history: [9200, 9500, 9800, 10000, 10500], fotoMeter: 'https://via.placeholder.com/300x200?text=Meteran', fotoBPM: 'https://via.placeholder.com/300x200?text=BPM'
+        id, nama, email: email || 'finance@industri.co.id', cycle, kelas, lalu: 10000, skrg: 10500, status: '', bulan: 'September 2026', catatan: 'Baru ditambahkan ke database (Belum dibaca).', history: [9200, 9500, 9800, 10000, 10500], fotoMeter: 'https://via.placeholder.com/300x200?text=Meteran', fotoBPM: 'https://via.placeholder.com/300x200?text=BPM'
       });
 
       logActivity(`Menambahkan industri baru: ${nama} (${id})`);
@@ -1036,9 +1040,9 @@
               kelas: String(kls),
               lalu: laluVal,
               skrg: skrgVal,
-              status: 'Pending Verification',
+              status: '', // Status dikosongkan untuk data yang baru diimport
               bulan: 'September 2026',
-              catatan: 'Diimport dari file Excel.',
+              catatan: 'Diimport dari file Excel (Belum dibaca).',
               history: [laluVal-1000, laluVal-500, laluVal, skrgVal],
               fotoMeter: 'https://via.placeholder.com/300x200?text=Meteran',
               fotoBPM: 'https://via.placeholder.com/300x200?text=BPM'
@@ -1048,7 +1052,7 @@
 
           logActivity(`Mengimpor ${countAdded} data industri via Excel.`);
           saveDataToStorage();
-          alert(`Berhasil mengimpor ${countAdded} data industri dari file Excel!`);
+          alert(`Berhasil mengimpor ${countAdded} data industri dari file Excel tanpa status awal!`);
           refreshDatabaseView();
           refreshDashboard();
         } catch (error) {
@@ -1216,13 +1220,13 @@
           return;
         }
         activeModalItem.skrg = skrgVal;
-        activeModalItem.status = 'Verified';
+        activeModalItem.status = 'Pending Verification'; // Status baru muncul setelah dilakukan pembacaan meter
         activeModalItem.catatan = `Diverifikasi oleh ${currentUser.name}`;
         if(!activeModalItem.history) activeModalItem.history = [];
         activeModalItem.history.push(skrgVal);
 
-        logActivity(`Memperbarui & Verifikasi Stand Meter ${activeModalItem.nama} (${activeModalItem.id}) ke angka ${skrgVal}`);
-        alert("Stand meter berhasil diperbarui dan berstatus Verified!");
+        logActivity(`Memperbarui & Membaca Stand Meter ${activeModalItem.nama} (${activeModalItem.id}) ke angka ${skrgVal}`);
+        alert("Stand meter berhasil dibaca dan status workflow diatur ke Pending Verification!");
         closeModal();
       }
 
@@ -1239,14 +1243,14 @@
         html2canvas:  { scale: 2, useCORS: true },
         jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
       };
-      html2_pdf().from(element).set(opt).save();
+      html2pdf().from(element).set(opt).save();
     }
 
     function exportToCSV() {
       let csvContent = "data:text/csv;charset=utf-8,ID Pelanggan,Nama Perusahaan,Cycle,Kelas,Stand Lalu,Stand Sekarang,Volume,Status\n";
       dataIndustri.forEach(row => {
         let vol = row.skrg - row.lalu;
-        let rowData = [row.id, `"${row.nama}"`, row.cycle, row.kelas, row.lalu, row.skrg, vol, row.status];
+        let rowData = [row.id, `"${row.nama}"`, row.cycle, row.kelas, row.lalu, row.skrg, vol, row.status || 'Belum Dibaca'];
         csvContent += rowData.join(",") + "\n";
       });
       const encodedUri = encodeURI(csvContent);
