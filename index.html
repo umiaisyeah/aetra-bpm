@@ -1002,7 +1002,10 @@
           let countAdded = 0;
           jsonData.forEach(item => {
             const idPel = getExcelValue(item, ['idPelanggan', 'id_pelanggan', 'id', 'id pelanggan', 'nomor pelanggan', 'nopol']) || `IND-${Math.floor(1000 + Math.random() * 9000)}`;
-            const nmPerusahaan = getExcelValue(item, ['nama_industri', 'nama industri', 'industri', 'nama_perusahaan', 'nama perusahaan', 'perusahaan', 'company', 'nama']) || 'PT Industri Terdaftar';
+            
+            // Perbaikan di sini: Mengambil nama asli dari Excel, jika kosong menggunakan idPel sebagai fallback
+            const nmPerusahaan = getExcelValue(item, ['nama_industri', 'nama industri', 'industri', 'nama_perusahaan', 'nama perusahaan', 'perusahaan', 'company', 'nama']) || idPel;
+            
             const mail = getExcelValue(item, ['emailIndustri', 'email', 'surel', 'email perusahaan']) || 'finance@import.co.id';
             
             let cycVal = getExcelValue(item, ['pilihCycle', 'cycle', 'siklus', 'c', 'jadwal']);
