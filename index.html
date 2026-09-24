@@ -801,7 +801,7 @@
         if(item.status === 'Verified') badgeClass = 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300';
         if(item.status === 'Invoiced') badgeClass = 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300';
 
-        let statusHtml = item.status ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${badgeClass}">${item.status}</span>` : `<span class="text-slate-400 italic text-[10px] font-semibold">- (Belum Ada Pembacaan Meter)</span>`;
+        let statusHtml = item.status ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${badgeClass}">${item.status}</span>` : `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300">Belum Dibaca</span>`;
 
         let tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-700/30 transition';
@@ -885,7 +885,7 @@
       }
 
       filteredDb.forEach(item => {
-        let statusBadge = item.status ? `<span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-700">${item.status}</span>` : `<span class="text-slate-400 italic text-[9px]">Belum Dibaca (Tanpa Status)</span>`;
+        let statusBadge = item.status ? `<span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-700">${item.status}</span>` : `<span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300">Belum Dibaca</span>`;
 
         let tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-700/30 transition';
@@ -967,14 +967,28 @@
       }
 
       dataIndustri.push({
-        id, nama, email: email || 'finance@industri.co.id', cycle, kelas, lalu: 10000, skrg: 10500, status: '', bulan: 'September 2026', catatan: 'Baru ditambahkan ke database (Belum dibaca).', history: [9200, 9500, 9800, 10000, 10500], fotoMeter: 'https://via.placeholder.com/300x200?text=Meteran', fotoBPM: 'https://via.placeholder.com/300x200?text=BPM'
+        id, 
+        nama, 
+        email: email || 'finance@industri.co.id', 
+        cycle, 
+        kelas, 
+        lalu: 10000, 
+        skrg: 10000, 
+        status: '', // Status dikosongkan agar tampil sebagai Belum Dibaca
+        bulan: 'September 2026', 
+        catatan: 'Belum dibaca oleh petugas meter reading.', 
+        history: [9200, 9500, 9800, 10000, 10000], 
+        fotoMeter: 'https://via.placeholder.com/300x200?text=Belum+Ada+Foto', 
+        fotoBPM: 'https://via.placeholder.com/300x200?text=Belum+Ada+BPM'
       });
 
       logActivity(`Menambahkan industri baru: ${nama} (${id})`);
-      alert("Data industri berhasil ditambahkan ke database cycle!");
+      alert("Data industri berhasil ditambahkan dengan status Belum Dibaca!");
+      
       document.getElementById('inputNewId').value = '';
       document.getElementById('inputNewName').value = '';
       document.getElementById('inputNewEmail').value = '';
+      
       saveDataToStorage();
       refreshDatabaseView();
       refreshDashboard();
@@ -1030,7 +1044,6 @@
             let kls = klsVal ? String(klsVal).replace(/kelas\s*/gi, '').trim() : 'Gold';
 
             let laluVal = Number(getExcelValue(item, ['standLalu', 'stand_lalu', 'lalu', 'meter lalu', 'stand bulan lalu'])) || 10000;
-            let skrgVal = Number(getExcelValue(item, ['standSkrg', 'stand_skrg', 'skrg', 'sekarang', 'stand sekarang', 'meter sekarang'])) || (laluVal + 500);
 
             dataIndustri.push({
               id: String(idPel),
@@ -1039,20 +1052,20 @@
               cycle: String(cyc),
               kelas: String(kls),
               lalu: laluVal,
-              skrg: skrgVal,
-              status: '', // Status dikosongkan untuk data yang baru diimport
+              skrg: laluVal, 
+              status: '', // Status dikosongkan agar tampil sebagai Belum Dibaca
               bulan: 'September 2026',
               catatan: 'Diimport dari file Excel (Belum dibaca).',
-              history: [laluVal-1000, laluVal-500, laluVal, skrgVal],
-              fotoMeter: 'https://via.placeholder.com/300x200?text=Meteran',
-              fotoBPM: 'https://via.placeholder.com/300x200?text=BPM'
+              history: [laluVal-500, laluVal-200, laluVal],
+              fotoMeter: 'https://via.placeholder.com/300x200?text=Belum+Ada+Foto',
+              fotoBPM: 'https://via.placeholder.com/300x200?text=Belum+Ada+BPM'
             });
             countAdded++;
           });
 
           logActivity(`Mengimpor ${countAdded} data industri via Excel.`);
           saveDataToStorage();
-          alert(`Berhasil mengimpor ${countAdded} data industri dari file Excel tanpa status awal!`);
+          alert(`Berhasil mengimpor ${countAdded} data industri dari file Excel dengan status Belum Dibaca!`);
           refreshDatabaseView();
           refreshDashboard();
         } catch (error) {
@@ -1220,7 +1233,7 @@
           return;
         }
         activeModalItem.skrg = skrgVal;
-        activeModalItem.status = 'Pending Verification'; // Status baru muncul setelah dilakukan pembacaan meter
+        activeModalItem.status = 'Pending Verification'; // Status baru berubah setelah dibaca petugas
         activeModalItem.catatan = `Diverifikasi oleh ${currentUser.name}`;
         if(!activeModalItem.history) activeModalItem.history = [];
         activeModalItem.history.push(skrgVal);
