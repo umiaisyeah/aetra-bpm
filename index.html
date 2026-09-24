@@ -135,10 +135,11 @@
 
           <select id="kelasFilter" onchange="refreshDashboard()" class="px-3 py-2 text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-700 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-aetra-blue">
             <option value="ALL">Semua Kelas</option>
+            <option value="Premium">Kelas Premium</option>
+            <option value="Platinum">Kelas Platinum</option>
             <option value="Gold">Kelas Gold</option>
             <option value="Silver">Kelas Silver</option>
             <option value="Bronze">Kelas Bronze</option>
-            <option value="Platinum">Kelas Platinum</option>
           </select>
 
           <select id="bulanFilter" onchange="refreshDashboard()" class="px-3 py-2 text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-700 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-aetra-blue">
@@ -343,10 +344,11 @@
               <div>
                 <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Kelas Pelanggan</label>
                 <select id="inputNewKelas" class="w-full p-2.5 border rounded-xl text-xs bg-white dark:bg-slate-800 dark:border-slate-600 font-semibold">
+                  <option value="Premium">Kelas Premium</option>
+                  <option value="Platinum">Kelas Platinum</option>
                   <option value="Gold">Kelas Gold</option>
                   <option value="Silver">Kelas Silver</option>
                   <option value="Bronze">Kelas Bronze</option>
-                  <option value="Platinum">Kelas Platinum</option>
                 </select>
               </div>
               <div class="flex items-end">
@@ -384,10 +386,11 @@
                   </select>
                   <select id="dbKelasFilter" onchange="refreshDatabaseView()" class="px-2.5 py-1 text-xs font-semibold bg-white dark:bg-slate-700 border rounded-lg text-slate-700 dark:text-slate-100">
                     <option value="ALL">Semua Kelas</option>
+                    <option value="Premium">Kelas Premium</option>
+                    <option value="Platinum">Kelas Platinum</option>
                     <option value="Gold">Kelas Gold</option>
                     <option value="Silver">Kelas Silver</option>
                     <option value="Bronze">Kelas Bronze</option>
-                    <option value="Platinum">Kelas Platinum</option>
                   </select>
                   <div class="ml-auto">
                     <button onclick="deleteSelectedIndustries()" class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold shadow transition flex items-center gap-1.5">
@@ -605,8 +608,8 @@
 
     let dataIndustri = JSON.parse(localStorage.getItem('aetra_industri_data')) || [
       { id: 'IND-1001', nama: 'PT Krakatau Steel Industry', email: 'billing@krakatau.co.id', cycle: 'Cycle 1', kelas: 'Kelas Gold', lalu: 12500, skrg: 13200, status: 'Verified', bulan: 'September 2026', catatan: 'Pembacaan normal sesuai jadwal.', history: [11800, 12100, 12300, 12500, 13200], fotoMeter: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=300', fotoBPM: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=300' },
-      { id: 'IND-1002', nama: 'PT Indah Kiat Pulp & Paper', email: 'finance@indahkiat.co.id', cycle: 'Cycle 1', kelas: 'Kelas Platinum', lalu: 45000, skrg: 47500, status: 'Invoiced', bulan: 'September 2026', catatan: 'Invoice telah dikirim ke email perusahaan.', history: [41000, 42500, 43800, 45000, 47500], fotoMeter: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300', fotoBPM: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=300' },
-      { id: 'IND-1003', nama: 'PT Gajah Tunggal Tbk', email: 'acc@gajahtunggal.co.id', cycle: 'Cycle 2', kelas: 'Kelas Gold', lalu: 21000, skrg: 21800, status: 'Pending Verification', bulan: 'September 2026', catatan: 'Menunggu konfirmasi lapangan.', history: [19500, 20000, 20500, 21000, 21800], fotoMeter: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=300', fotoBPM: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=300' }
+      { id: 'IND-1002', nama: 'PT Indah Kiat Pulp & Paper', email: 'finance@indahkiat.co.id', cycle: 'Cycle 1', kelas: 'Kelas Premium', lalu: 45000, skrg: 47500, status: 'Invoiced', bulan: 'September 2026', catatan: 'Invoice telah dikirim ke email perusahaan.', history: [41000, 42500, 43800, 45000, 47500], fotoMeter: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300', fotoBPM: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=300' },
+      { id: 'IND-1003', nama: 'PT Gajah Tunggal Tbk', email: 'acc@gajahtunggal.co.id', cycle: 'Cycle 2', kelas: 'Kelas Platinum', lalu: 21000, skrg: 21800, status: 'Pending Verification', bulan: 'September 2026', catatan: 'Menunggu konfirmasi lapangan.', history: [19500, 20000, 20500, 21000, 21800], fotoMeter: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=300', fotoBPM: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=300' }
     ];
 
     function saveDataToStorage() {
