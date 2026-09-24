@@ -317,9 +317,6 @@
                   <span>📊 Import Excel</span>
                   <input type="file" id="excelFile" accept=".xlsx, .xls" class="hidden" onchange="importExcel(event)">
                 </label>
-                <button onclick="seedSampleIndustries()" class="px-3.5 py-2.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition">
-                  ⚡ Muat Data Contoh
-                </button>
               </div>
             </div>
 
@@ -985,18 +982,6 @@
         event.target.value = '';
       };
       reader.readAsArrayBuffer(file);
-    }
-
-    function seedSampleIndustries() {
-      dataIndustri.push(
-        { id: 'IND-1004', nama: 'PT Unilever Indonesia Tbk', email: 'supply@unilever.co.id', cycle: 'Cycle 3', kelas: 'Kelas Gold', lalu: 30000, skrg: 31200, status: 'Pending Verification', bulan: 'September 2026', catatan: 'Jadwal baca minggu ini.', history: [28000, 28900, 29500, 30000, 31200], fotoMeter: 'https://via.placeholder.com/300x200?text=Meteran', fotoBPM: 'https://via.placeholder.com/300x200?text=BPM' },
-        { id: 'IND-1005', nama: 'PT Mayora Indah Tbk', email: 'acc@mayora.co.id', cycle: 'Cycle 4', kelas: 'Kelas Platinum', lalu: 55000, skrg: 57100, status: 'Pending Verification', bulan: 'September 2026', catatan: 'Target meter besar.', history: [51000, 52500, 53800, 55000, 57100], fotoMeter: 'https://via.placeholder.com/300x200?text=Meteran', fotoBPM: 'https://via.placeholder.com/300x200?text=BPM' }
-      );
-      logActivity("Memuat data contoh industri.");
-      saveDataToStorage();
-      refreshDatabaseView();
-      refreshDashboard();
-      alert("Data contoh berhasil dimuat!");
     }
 
     function hapusIndustri(id) {
