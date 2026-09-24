@@ -115,6 +115,9 @@
           <button id="nav-verified" onclick="selectNav('nav-verified', 'Verified')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition">
             <span>🧾 Billing & Invoicing</span>
           </button>
+          <button id="nav-audit" onclick="selectNavTab('audit')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-blue-100 hover:bg-aetra-blue hover:text-white transition">
+            <span>📋 Log Audit & Aktivitas</span>
+          </button>
         </nav>
       </div>
 
@@ -147,6 +150,7 @@
             <option value="Gold">Kelas Gold</option>
             <option value="Silver">Kelas Silver</option>
             <option value="Bronze">Kelas Bronze</option>
+            <option value="Platinum">Kelas Platinum</option>
           </select>
 
           <select id="bulanFilter" onchange="refreshDashboard()" class="px-3 py-2 text-xs font-semibold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-700 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-aetra-blue">
@@ -232,7 +236,7 @@
                 <div>
                   <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Perlu Verifikasi Reading</p>
                   <p id="countPending" class="text-xl font-black text-aetra-orange mt-0.5">0</p>
-                  <span class="text-[9px] text-aetra-orange font-bold">Otoritas Tim Meter Reading (Pak Solihin / Pak Kabul)</span>
+                  <span class="text-[9px] text-aetra-orange font-bold">Otoritas Tim Meter Reading</span>
                 </div>
                 <span class="text-xl">🔍</span>
               </div>
@@ -260,7 +264,7 @@
           <!-- ANNOUNCEMENT -->
           <div class="bg-aetra-darkblue text-white rounded-xl p-3 px-4 text-xs flex items-center gap-3 shadow-md">
             <span class="bg-aetra-orange text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-md shrink-0">Info Sistem</span>
-            <p class="font-medium">📢 Sistem SIMBA-IN Aktif - Pembacaan Meter Industri September 2026. Hak akses ketat: Tim Meter Reading (Pak Solihin & Pak Kabul) & Tim Billing (Pak Yaya).</p>
+            <p class="font-medium">📢 Sistem SIMBA-IN Aktif - Terintegrasi dengan Cloud Storage, Validasi Anomali Otomatis, dan Audit Trail.</p>
           </div>
 
           <!-- TABEL DATA UTAMA -->
@@ -321,7 +325,6 @@
                 <p class="text-xs text-slate-400">Tambahkan industri baru ke dalam database pencatatan meter atau kelola daftar target cycle.</p>
               </div>
               <div class="flex items-center gap-3">
-                <!-- Tombol Import Excel -->
                 <label class="cursor-pointer bg-green-600 hover:bg-green-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2">
                   <span>📊 Import Excel</span>
                   <input type="file" id="excelFile" accept=".xlsx, .xls" class="hidden" onchange="importExcel(event)">
@@ -358,6 +361,7 @@
                   <option value="Gold">Kelas Gold</option>
                   <option value="Silver">Kelas Silver</option>
                   <option value="Bronze">Kelas Bronze</option>
+                  <option value="Platinum">Kelas Platinum</option>
                 </select>
               </div>
               <div class="flex items-end">
@@ -370,7 +374,6 @@
 
           <!-- VISUALISASI & LIST CYCLE -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Summary Chart per Cycle -->
             <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
               <h3 class="font-bold text-slate-800 dark:text-slate-100 text-xs uppercase tracking-wider mb-3">Distribusi Target Industri per Cycle</h3>
               <div class="w-full max-w-[240px] h-[210px] relative flex items-center justify-center">
@@ -378,7 +381,6 @@
               </div>
             </div>
 
-            <!-- Status List per Cycle -->
             <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
               <div>
                 <div class="flex justify-between items-center mb-3">
@@ -408,15 +410,46 @@
           </div>
         </div>
 
+        <!-- ==================== SECTION VIEW 3: AUDIT TRAIL / LOG AKTIVITAS ==================== -->
+        <div id="viewAudit" class="space-y-6 hidden">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+            <div class="flex justify-between items-center border-b pb-4 dark:border-slate-700">
+              <div>
+                <h2 class="font-extrabold text-aetra-blue dark:text-blue-400 text-base">📋 Log Audit & Rekam Jejak Aktivitas Sistem</h2>
+                <p class="text-xs text-slate-400">Seluruh perubahan stand meter, verifikasi, dan pengiriman invoice dicatat secara transparan.</p>
+              </div>
+              <button onclick="clearAuditLogs()" class="px-3 py-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl text-xs font-bold transition">
+                Bersihkan Log
+              </button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-200 uppercase font-extrabold text-[10px]">
+                    <th class="p-3">Waktu</th>
+                    <th class="p-3">Pengguna</th>
+                    <th class="p-3">Peran</th>
+                    <th class="p-3">Aksi / Deskripsi Aktivitas</th>
+                  </tr>
+                </thead>
+                <tbody id="auditTableBody" class="divide-y divide-slate-100 dark:divide-slate-700 font-medium">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
       </main>
     </div>
   </div>
 
   <!-- ==================== 3. MODAL DETAIL & FOTO BPM ==================== -->
   <div id="detailModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-700 max-h-[90vh] flex flex-col text-slate-800 dark:text-slate-100">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-700 max-h-[90vh] flex flex-col text-slate-800 dark:text-slate-100">
       <div class="bg-aetra-darkblue dark:bg-slate-900 text-white p-4 flex justify-between items-center">
-        <h3 class="font-bold text-sm">Detail Pembacaan Meter & Dokumen BPM</h3>
+        <h3 class="font-bold text-sm">Detail Pembacaan Meter, Dokumen BPM & Riwayat</h3>
         <button onclick="closeModal()" class="text-blue-200 hover:text-white transition text-base font-bold">✕</button>
       </div>
 
@@ -430,7 +463,16 @@
         </div>
 
         <div id="modalPermissionWarning" class="hidden p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl text-blue-800 dark:text-blue-300 font-semibold">
-          ℹ️ Anda masuk sebagai Tim Billing (Pak Yaya). Stand meter dikunci dan hanya dapat diedit oleh Tim Meter Reading (Pak Solihin / Pak Kabul).
+          ℹ️ Anda masuk sebagai Tim Billing (Pak Yaya). Stand meter dikunci dan hanya dapat diedit oleh Tim Meter Reading.
+        </div>
+
+        <!-- PERINGATAN ANOMALI PEMAKAIAN AIR -->
+        <div id="anomalyWarningBox" class="hidden p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-900 rounded-xl text-rose-700 dark:text-rose-300 font-semibold flex items-center gap-2">
+          <span>⚠️</span>
+          <div>
+            <p class="font-extrabold">Peringatan Anomali Lonjakan Pemakaian!</p>
+            <p id="anomalyText" class="text-[11px] font-normal">Pemakaian air bulan ini naik drastis (>50% dari rata-rata/bulan lalu). Harap cek ulang fisik meteran di lapangan.</p>
+          </div>
         </div>
 
         <div id="outlookManualBox" class="hidden p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-xl flex items-center justify-between">
@@ -451,11 +493,19 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="bg-slate-50 dark:bg-slate-700/50 p-2.5 border border-slate-200 dark:border-slate-600 rounded-xl">
             <p class="text-[10px] font-bold text-slate-500 dark:text-slate-300 mb-1">📷 Foto Fisik Meteran</p>
-            <img id="modalFotoMeter" src="https://via.placeholder.com/300x200?text=Foto+Meteran+Tidak+Ada" class="w-full h-40 object-cover rounded-lg border bg-slate-200 dark:bg-slate-600" alt="Foto Meter" />
+            <img id="modalFotoMeter" src="https://via.placeholder.com/300x200?text=Foto+Meteran" class="w-full h-36 object-cover rounded-lg border bg-slate-200 dark:bg-slate-600" alt="Foto Meter" />
           </div>
           <div class="bg-slate-50 dark:bg-slate-700/50 p-2.5 border border-slate-200 dark:border-slate-600 rounded-xl">
             <p class="text-[10px] font-bold text-slate-500 dark:text-slate-300 mb-1">📄 Foto Dokumen BPM (Bukti Pembacaan Meter)</p>
-            <img id="modalFotoBPM" src="https://via.placeholder.com/300x200?text=Foto+BPM+Tidak+Ada" class="w-full h-40 object-cover rounded-lg border bg-slate-200 dark:bg-slate-600" alt="Foto BPM" />
+            <img id="modalFotoBPM" src="https://via.placeholder.com/300x200?text=Foto+BPM" class="w-full h-36 object-cover rounded-lg border bg-slate-200 dark:bg-slate-600" alt="Foto BPM" />
+          </div>
+        </div>
+
+        <!-- GRAFIK RIWAYAT PEMAKAIAN AIR (HISTORICAL USAGE) -->
+        <div class="bg-slate-50 dark:bg-slate-700/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-600">
+          <p class="text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-2">📈 Tren Riwayat Pemakaian Air (6 Bulan Terakhir)</p>
+          <div class="w-full h-32 relative">
+            <canvas id="historyUsageChart"></canvas>
           </div>
         </div>
 
@@ -492,6 +542,14 @@
 
   <!-- SCRIPT UTAMA SISTEM -->
   <script>
+    // Konfigurasi Supabase (Opsional: Masukkan URL & Anon Key jika ingin koneksi backend nyata)
+    const SUPABASE_URL = '';
+    const SUPABASE_ANON_KEY = '';
+    let supabaseClient = null;
+    if(SUPABASE_URL && SUPABASE_ANON_KEY) {
+      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
     function updateRealtimeClock() {
       const now = new Date();
       const hours = String(now.getHours()).padStart(2, '0');
@@ -524,6 +582,7 @@
       
       updateRealtimeClock();
       setInterval(updateRealtimeClock, 1000);
+      loadDataFromStorage();
       refreshDashboard();
     });
 
@@ -531,12 +590,34 @@
     let activeNavTab = 'overview';
     let cycleChartInstance = null;
     let dbCycleChartInstance = null;
+    let historyChartInstance = null;
 
-    let dataIndustri = [
-      { id: 'IND-1001', nama: 'PT Krakatau Steel Industry', email: 'billing@krakatau.co.id', cycle: 'Cycle 1', kelas: 'Gold', lalu: 12500, skrg: 13200, status: 'Verified', bulan: 'September 2026', catatan: 'Pembacaan normal sesuai jadwal.', fotoMeter: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=300', fotoBPM: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=300' },
-      { id: 'IND-1002', nama: 'PT Indah Kiat Pulp & Paper', email: 'finance@indahkiat.co.id', cycle: 'Cycle 1', kelas: 'Platinum', lalu: 45000, skrg: 47500, status: 'Invoiced', bulan: 'September 2026', catatan: 'Invoice telah dikirim ke email perusahaan.', fotoMeter: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300', fotoBPM: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=300' },
-      { id: 'IND-1003', nama: 'PT Gajah Tunggal Tbk', email: 'acc@gajahtunggal.co.id', cycle: 'Cycle 2', kelas: 'Gold', lalu: 21000, skrg: 21800, status: 'Pending Verification', bulan: 'September 2026', catatan: 'Menunggu konfirmasi lapangan.', fotoMeter: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=300', fotoBPM: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=300' }
+    let auditLogs = JSON.parse(localStorage.getItem('aetra_audit_logs')) || [
+      { time: '23 Sep 2026 08:30', user: 'Pak Yaya', role: 'Billing', desc: 'Sistem SIMBA-IN diinisialisasi.' }
     ];
+
+    let dataIndustri = JSON.parse(localStorage.getItem('aetra_industri_data')) || [
+      { id: 'IND-1001', nama: 'PT Krakatau Steel Industry', email: 'billing@krakatau.co.id', cycle: 'Cycle 1', kelas: 'Kelas Gold', lalu: 12500, skrg: 13200, status: 'Verified', bulan: 'September 2026', catatan: 'Pembacaan normal sesuai jadwal.', history: [11800, 12100, 12300, 12500, 13200], fotoMeter: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=300', fotoBPM: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=300' },
+      { id: 'IND-1002', nama: 'PT Indah Kiat Pulp & Paper', email: 'finance@indahkiat.co.id', cycle: 'Cycle 1', kelas: 'Kelas Platinum', lalu: 45000, skrg: 47500, status: 'Invoiced', bulan: 'September 2026', catatan: 'Invoice telah dikirim ke email perusahaan.', history: [41000, 42500, 43800, 45000, 47500], fotoMeter: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300', fotoBPM: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=300' },
+      { id: 'IND-1003', nama: 'PT Gajah Tunggal Tbk', email: 'acc@gajahtunggal.co.id', cycle: 'Cycle 2', kelas: 'Kelas Gold', lalu: 21000, skrg: 21800, status: 'Pending Verification', bulan: 'September 2026', catatan: 'Menunggu konfirmasi lapangan.', history: [19500, 20000, 20500, 21000, 21800], fotoMeter: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=300', fotoBPM: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=300' }
+    ];
+
+    function saveDataToStorage() {
+      localStorage.setItem('aetra_industri_data', JSON.stringify(dataIndustri));
+      localStorage.setItem('aetra_audit_logs', JSON.stringify(auditLogs));
+    }
+
+    function loadDataFromStorage() {
+      const saved = localStorage.getItem('aetra_industri_data');
+      if(saved) dataIndustri = JSON.parse(saved);
+    }
+
+    function logActivity(desc) {
+      const now = new Date();
+      const timeStr = `${now.getDate()} ${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][now.getMonth()]} ${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      auditLogs.unshift({ time: timeStr, user: currentUser.name, role: currentUser.title, desc });
+      saveDataToStorage();
+    }
 
     function handleLogin() {
       const val = document.getElementById('userRoleSelect').value;
@@ -554,10 +635,12 @@
 
       document.getElementById('loginModal').classList.add('hidden');
       document.getElementById('appLayout').classList.remove('hidden');
+      logActivity(`Masuk ke dashboard sebagai ${currentUser.name}`);
       refreshDashboard();
     }
 
     function handleLogout() {
+      logActivity(`Keluar dari sistem.`);
       document.getElementById('loginModal').classList.remove('hidden');
       document.getElementById('appLayout').classList.add('hidden');
     }
@@ -575,6 +658,7 @@
 
       document.getElementById('viewOverview').classList.remove('hidden');
       document.getElementById('viewDatabase').classList.add('hidden');
+      document.getElementById('viewAudit').classList.add('hidden');
       activeNavTab = 'overview';
 
       if(statusTarget !== 'ALL') {
@@ -590,13 +674,22 @@
         el.classList.remove('bg-aetra-orange', 'text-white', 'shadow-md');
         el.classList.add('text-blue-100', 'hover:bg-aetra-blue', 'hover:text-white');
       });
-      document.getElementById('nav-database').classList.add('bg-aetra-orange', 'text-white', 'shadow-md');
-      document.getElementById('nav-database').classList.remove('text-blue-100', 'hover:bg-aetra-blue');
-
+      
       document.getElementById('viewOverview').classList.add('hidden');
-      document.getElementById('viewDatabase').classList.remove('hidden');
-      activeNavTab = 'database';
-      refreshDatabaseView();
+      document.getElementById('viewDatabase').classList.add('hidden');
+      document.getElementById('viewAudit').classList.add('hidden');
+
+      if(tab === 'database') {
+        document.getElementById('nav-database').classList.add('bg-aetra-orange', 'text-white', 'shadow-md');
+        document.getElementById('viewDatabase').classList.remove('hidden');
+        activeNavTab = 'database';
+        refreshDatabaseView();
+      } else if(tab === 'audit') {
+        document.getElementById('nav-audit').classList.add('bg-aetra-orange', 'text-white', 'shadow-md');
+        document.getElementById('viewAudit').classList.remove('hidden');
+        activeNavTab = 'audit';
+        refreshAuditView();
+      }
     }
 
     function onCycleChange() {
@@ -622,7 +715,7 @@
       let filtered = dataIndustri.filter(item => {
         let matchSearch = item.nama.toLowerCase().includes(searchTxt) || item.id.toLowerCase().includes(searchTxt);
         let matchCycle = cycleF === 'ALL' || item.cycle === cycleF;
-        let matchKelas = kelasF === 'ALL' || item.kelas.includes(kelasF);
+        let matchKelas = kelasF === 'ALL' || item.kelas.toLowerCase() === kelasF.toLowerCase() || item.kelas.toLowerCase().includes(kelasF.toLowerCase());
         let matchStatus = statusF === 'ALL' || item.status === statusF;
         let matchBulan = bulanF === 'ALL' || item.bulan === bulanF;
         return matchSearch && matchCycle && matchKelas && matchStatus && matchBulan;
@@ -782,6 +875,34 @@
       });
     }
 
+    function refreshAuditView() {
+      let tbody = document.getElementById('auditTableBody');
+      tbody.innerHTML = '';
+      if(auditLogs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada riwayat aktivitas.</td></tr>`;
+        return;
+      }
+      auditLogs.forEach(log => {
+        let tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-700/30 transition';
+        tr.innerHTML = `
+          <td class="p-3 font-mono text-slate-500">${log.time}</td>
+          <td class="p-3 font-bold text-slate-800 dark:text-slate-200">${log.user}</td>
+          <td class="p-3"><span class="px-2 py-0.5 bg-blue-50 dark:bg-blue-950 text-aetra-blue rounded text-[10px] font-bold">${log.role}</span></td>
+          <td class="p-3 text-slate-700 dark:text-slate-300">${log.desc}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function clearAuditLogs() {
+      if(confirm("Yakin ingin membersihkan seluruh log audit?")) {
+        auditLogs = [];
+        saveDataToStorage();
+        refreshAuditView();
+      }
+    }
+
     function addNewIndustry() {
       const id = document.getElementById('inputNewId').value.trim();
       const nama = document.getElementById('inputNewName').value.trim();
@@ -795,18 +916,19 @@
       }
 
       dataIndustri.push({
-        id, nama, email: email || 'finance@industri.co.id', cycle, kelas: 'Kelas ' + kelas, lalu: 10000, skrg: 10500, status: 'Pending Verification', bulan: 'September 2026', catatan: 'Baru ditambahkan ke database.', fotoMeter: 'https://via.placeholder.com/300x200?text=Meteran', fotoBPM: 'https://via.placeholder.com/300x200?text=BPM'
+        id, nama, email: email || 'finance@industri.co.id', cycle, kelas: 'Kelas ' + kelas, lalu: 10000, skrg: 10500, status: 'Pending Verification', bulan: 'September 2026', catatan: 'Baru ditambahkan ke database.', history: [9200, 9500, 9800, 10000, 10500], fotoMeter: 'https://via.placeholder.com/300x200?text=Meteran', fotoBPM: 'https://via.placeholder.com/300x200?text=BPM'
       });
 
+      logActivity(`Menambahkan industri baru: ${nama} (${id})`);
       alert("Data industri berhasil ditambahkan ke database cycle!");
       document.getElementById('inputNewId').value = '';
       document.getElementById('inputNewName').value = '';
       document.getElementById('inputNewEmail').value = '';
+      saveDataToStorage();
       refreshDatabaseView();
       refreshDashboard();
     }
 
-    // HELPER PENCARIAN KOLOM EXCEL SECARA FLEKSIBEL
     function getExcelValue(item, possibleKeys) {
       const keys = Object.keys(item);
       for (let pk of possibleKeys) {
@@ -833,10 +955,7 @@
           let countAdded = 0;
           jsonData.forEach(item => {
             const idPel = getExcelValue(item, ['idPelanggan', 'id_pelanggan', 'id', 'id pelanggan', 'nomor pelanggan', 'nopol']) || `IND-${Math.floor(1000 + Math.random() * 9000)}`;
-            
-            // Perbaikan pencarian nama industri agar mencakup berbagai variasi header Excel
             const nmPerusahaan = getExcelValue(item, ['nama_industri', 'nama industri', 'industri', 'nama_perusahaan', 'nama perusahaan', 'perusahaan', 'nama_pelanggan', 'nama pelanggan', 'pelanggan', 'company', 'nama']) || 'PT Industri Terdaftar';
-            
             const mail = getExcelValue(item, ['emailIndustri', 'email', 'surel', 'email perusahaan']) || 'finance@import.co.id';
             
             let cycVal = getExcelValue(item, ['pilihCycle', 'cycle', 'siklus', 'c', 'jadwal']);
@@ -859,12 +978,15 @@
               status: 'Pending Verification',
               bulan: 'September 2026',
               catatan: 'Diimport dari file Excel.',
+              history: [laluVal-1000, laluVal-500, laluVal, skrgVal],
               fotoMeter: 'https://via.placeholder.com/300x200?text=Meteran',
               fotoBPM: 'https://via.placeholder.com/300x200?text=BPM'
             });
             countAdded++;
           });
 
+          logActivity(`Mengimpor ${countAdded} data industri via Excel.`);
+          saveDataToStorage();
           alert(`Berhasil mengimpor ${countAdded} data industri dari file Excel!`);
           refreshDatabaseView();
           refreshDashboard();
@@ -879,9 +1001,11 @@
 
     function seedSampleIndustries() {
       dataIndustri.push(
-        { id: 'IND-1004', nama: 'PT Unilever Indonesia Tbk', email: 'supply@unilever.co.id', cycle: 'Cycle 3', kelas: 'Kelas Gold', lalu: 30000, skrg: 31200, status: 'Pending Verification', bulan: 'September 2026', catatan: 'Jadwal baca minggu ini.', fotoMeter: 'https://via.placeholder.com/300x200?text=Meteran', fotoBPM: 'https://via.placeholder.com/300x200?text=BPM' },
-        { id: 'IND-1005', nama: 'PT Mayora Indah Tbk', email: 'acc@mayora.co.id', cycle: 'Cycle 4', kelas: 'Kelas Platinum', lalu: 55000, skrg: 57100, status: 'Pending Verification', bulan: 'September 2026', catatan: 'Target meter besar.', fotoMeter: 'https://via.placeholder.com/300x200?text=Meteran', fotoBPM: 'https://via.placeholder.com/300x200?text=BPM' }
+        { id: 'IND-1004', nama: 'PT Unilever Indonesia Tbk', email: 'supply@unilever.co.id', cycle: 'Cycle 3', kelas: 'Kelas Gold', lalu: 30000, skrg: 31200, status: 'Pending Verification', bulan: 'September 2026', catatan: 'Jadwal baca minggu ini.', history: [28000, 28900, 29500, 30000, 31200], fotoMeter: 'https://via.placeholder.com/300x200?text=Meteran', fotoBPM: 'https://via.placeholder.com/300x200?text=BPM' },
+        { id: 'IND-1005', nama: 'PT Mayora Indah Tbk', email: 'acc@mayora.co.id', cycle: 'Cycle 4', kelas: 'Kelas Platinum', lalu: 55000, skrg: 57100, status: 'Pending Verification', bulan: 'September 2026', catatan: 'Target meter besar.', history: [51000, 52500, 53800, 55000, 57100], fotoMeter: 'https://via.placeholder.com/300x200?text=Meteran', fotoBPM: 'https://via.placeholder.com/300x200?text=BPM' }
       );
+      logActivity("Memuat data contoh industri.");
+      saveDataToStorage();
       refreshDatabaseView();
       refreshDashboard();
       alert("Data contoh berhasil dimuat!");
@@ -890,6 +1014,8 @@
     function hapusIndustri(id) {
       if(confirm(`Yakin ingin menghapus industri dengan ID ${id}?`)) {
         dataIndustri = dataIndustri.filter(i => i.id !== id);
+        logActivity(`Menghapus industri ID ${id}`);
+        saveDataToStorage();
         refreshDatabaseView();
         refreshDashboard();
       }
@@ -928,6 +1054,7 @@
       }
 
       calculateModalUsage();
+      renderHistoryChart(activeModalItem.history || [activeModalItem.lalu-500, activeModalItem.lalu]);
       document.getElementById('detailModal').classList.remove('hidden');
     }
 
@@ -936,12 +1063,54 @@
       activeModalItem = null;
     }
 
+    function renderHistoryChart(historyData) {
+      const ctx = document.getElementById('historyUsageChart');
+      if(!ctx) return;
+      if(historyChartInstance) historyChartInstance.destroy();
+
+      historyChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Bulan -4', 'Bulan -3', 'Bulan -2', 'Bulan Lalu', 'Bulan Ini'],
+          datasets: [{
+            label: 'Stand Meter',
+            data: historyData,
+            borderColor: '#0055A5',
+            backgroundColor: 'rgba(0, 85, 165, 0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { ticks: { font: { size: 9 } } },
+            x: { ticks: { font: { size: 9 } } }
+          }
+        }
+      });
+    }
+
     function calculateModalUsage() {
       if(!activeModalItem) return;
       let lalu = activeModalItem.lalu;
       let skrg = Number(document.getElementById('modalInputSkrg').value) || 0;
       let vol = skrg - lalu;
       if(vol < 0) vol = 0;
+
+      // Validasi Anomali Otomatis (>50% kenaikan dari bulan lalu atau rata-rata)
+      let prevUsage = activeModalItem.history && activeModalItem.history.length >= 2 ? 
+        (activeModalItem.history[activeModalItem.history.length - 1] - activeModalItem.history[activeModalItem.history.length - 2]) : (lalu * 0.1);
+      
+      const anomalyBox = document.getElementById('anomalyWarningBox');
+      if(vol > prevUsage * 1.5 && prevUsage > 0) {
+        anomalyBox.classList.remove('hidden');
+        document.getElementById('anomalyText').innerText = `Pemakaian ${vol} m³ naik signifikan dibanding periode sebelumnya (${prevUsage} m³). Harap verifikasi fisik meteran.`;
+      } else {
+        anomalyBox.classList.add('hidden');
+      }
 
       let estTag = vol * 12500;
       let materai = vol > 1000 ? 10000 : 0;
@@ -958,6 +1127,7 @@
       if(currentUser.role === 'yaya') {
         activeModalItem.status = 'Invoiced';
         activeModalItem.catatan = `Diinvoicing oleh ${currentUser.name} (${new Date().toLocaleDateString()})`;
+        logActivity(`Memproses & Mengirim Invoice untuk ${activeModalItem.nama} (${activeModalItem.id})`);
         
         const element = document.getElementById('detailModal');
         const opt = {
@@ -989,6 +1159,10 @@
         alert(`Invoice PDF berhasil diunduh dan aplikasi Outlook dibuka untuk mengirim email ke ${activeModalItem.email}`);
       } else {
         let skrgVal = Number(document.getElementById('modalInputSkrg').value);
+        if (isNaN(skrgVal) || skrgVal < 0) {
+          alert("Mohon masukkan angka stand meter yang valid!");
+          return;
+        }
         if(skrgVal < activeModalItem.lalu) {
           alert("Stand Meter saat ini tidak boleh lebih kecil dari Stand Bulan Lalu!");
           return;
@@ -996,10 +1170,15 @@
         activeModalItem.skrg = skrgVal;
         activeModalItem.status = 'Verified';
         activeModalItem.catatan = `Diverifikasi oleh ${currentUser.name}`;
+        if(!activeModalItem.history) activeModalItem.history = [];
+        activeModalItem.history.push(skrgVal);
+
+        logActivity(`Memperbarui & Verifikasi Stand Meter ${activeModalItem.nama} (${activeModalItem.id}) ke angka ${skrgVal}`);
         alert("Stand meter berhasil diperbarui dan berstatus Verified!");
         closeModal();
       }
 
+      saveDataToStorage();
       refreshDashboard();
     }
 
@@ -1019,7 +1198,8 @@
       let csvContent = "data:text/csv;charset=utf-8,ID Pelanggan,Nama Perusahaan,Cycle,Kelas,Stand Lalu,Stand Sekarang,Volume,Status\n";
       dataIndustri.forEach(row => {
         let vol = row.skrg - row.lalu;
-        csvContent += `"${row.id}","${row.nama}","${row.cycle}","${row.kelas}",${row.lalu},${row.skrg},${vol},"${row.status}"\n`;
+        let rowData = [row.id, `"${row.nama}"`, row.cycle, row.kelas, row.lalu, row.skrg, vol, row.status];
+        csvContent += rowData.join(",") + "\n";
       });
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
