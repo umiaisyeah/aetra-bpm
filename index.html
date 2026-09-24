@@ -400,13 +400,13 @@
                 </div>
               </div>
 
-              <!-- TABEL DENGAN HEADER STICKY -->
-              <div class="overflow-x-auto max-h-[300px] overflow-y-auto border border-slate-100 dark:border-slate-700 rounded-xl relative">
+              <div class="overflow-x-auto max-h-[300px] overflow-y-auto border border-slate-100 dark:border-slate-700 rounded-xl">
                 <table class="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr class="sticky top-0 z-10 bg-slate-100 dark:bg-slate-700 shadow-sm text-slate-700 dark:text-slate-200 uppercase font-extrabold text-[10px]">
+                    <tr class="bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-200 uppercase font-extrabold text-[10px]">
                       <th class="p-3 w-10 text-center"><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" /></th>
-                      <th class="p-3">ID & Perusahaan</th>
+                      <th class="p-3">ID Pelanggan</th>
+                      <th class="p-3">Nama Perusahaan Industri</th>
                       <th class="p-3">Cycle</th>
                       <th class="p-3">Kelas</th>
                       <th class="p-3">Status Workflow</th>
@@ -887,10 +887,8 @@
         tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-700/30 transition';
         tr.innerHTML = `
           <td class="p-3 text-center"><input type="checkbox" class="row-checkbox" value="${item.id}" /></td>
-          <td class="p-3">
-            <p class="font-bold text-slate-800 dark:text-slate-100">${item.nama}</p>
-            <p class="text-[10px] text-slate-400 font-mono">${item.id}</p>
-          </td>
+          <td class="p-3 font-mono font-bold text-aetra-orange">${item.id}</td>
+          <td class="p-3 font-bold text-slate-800 dark:text-slate-100">${item.nama}</td>
           <td class="p-3 font-semibold text-aetra-blue">${item.cycle}</td>
           <td class="p-3">${item.kelas}</td>
           <td class="p-3"><span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-700">${item.status}</span></td>
@@ -1004,7 +1002,7 @@
           let countAdded = 0;
           jsonData.forEach(item => {
             const idPel = getExcelValue(item, ['idPelanggan', 'id_pelanggan', 'id', 'id pelanggan', 'nomor pelanggan', 'nopol']) || `IND-${Math.floor(1000 + Math.random() * 9000)}`;
-            const nmPerusahaan = getExcelValue(item, ['nama_industri', 'nama industri', 'industri', 'nama_perusahaan', 'nama perusahaan', 'perusahaan', 'nama_pelanggan', 'nama pelanggan', 'pelanggan', 'company', 'nama']) || 'PT Industri Terdaftar';
+            const nmPerusahaan = getExcelValue(item, ['nama_industri', 'nama industri', 'industri', 'nama_perusahaan', 'nama perusahaan', 'perusahaan', 'company', 'nama']) || 'PT Industri Terdaftar';
             const mail = getExcelValue(item, ['emailIndustri', 'email', 'surel', 'email perusahaan']) || 'finance@import.co.id';
             
             let cycVal = getExcelValue(item, ['pilihCycle', 'cycle', 'siklus', 'c', 'jadwal']);
