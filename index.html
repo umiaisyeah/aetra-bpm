@@ -979,9 +979,10 @@
     function getExcelValue(item, possibleKeys) {
       const keys = Object.keys(item);
       for (let pk of possibleKeys) {
-        if (item[pk] !== undefined && item[pk] !== null && String(item[pk]).trim() !== '') return item[pk];
         const foundKey = keys.find(k => k.toLowerCase().replace(/[\s_]+/g, '') === pk.toLowerCase().replace(/[\s_]+/g, ''));
-        if (foundKey && item[foundKey] !== undefined && item[foundKey] !== null && String(item[foundKey]).trim() !== '') return item[foundKey];
+        if (foundKey && item[foundKey] !== undefined && item[foundKey] !== null && String(item[foundKey]).trim() !== '') {
+          return item[foundKey];
+        }
       }
       return null;
     }
@@ -1003,7 +1004,18 @@
           jsonData.forEach(item => {
             const idPel = getExcelValue(item, ['idPelanggan', 'id_pelanggan', 'id', 'id pelanggan', 'nomor pelanggan', 'nopol']) || `IND-${Math.floor(1000 + Math.random() * 9000)}`;
             
-            const nmPerusahaan = getExcelValue(item, ['nama_industri', 'nama industri', 'industri', 'nama_perusahaan', 'nama perusahaan', 'perusahaan', 'company', 'nama']) || idPel;
+            const nmPerusahaan = getExcelValue(item, [
+              'nama_perusahaan_industri', 
+              'nama perusahaan industri', 
+              'namaperusahaanindustri', 
+              'nama_industri', 
+              'nama industri', 
+              'nama_perusahaan', 
+              'nama perusahaan', 
+              'perusahaan', 
+              'company', 
+              'nama'
+            ]) || idPel;
             
             const mail = getExcelValue(item, ['emailIndustri', 'email', 'surel', 'email perusahaan']) || 'finance@import.co.id';
             
